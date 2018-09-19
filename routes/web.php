@@ -25,6 +25,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::get('pars-test', 'ParserController@start')->name('pars.test');
     Route::post('pars-test', 'ParserController@parse')->name('pars.parse');
+    Route::get('/clear-cache', function() {
+        $exitCode = Artisan::call('cache:clear');
+        $exitCode = Artisan::call('view:clear');
+        return $exitCode;
+        // return what you want
+    });
 });
 Auth::routes();
 

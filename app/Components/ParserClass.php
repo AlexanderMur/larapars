@@ -5,7 +5,6 @@ namespace App\Components;
 
 
 use Barryvdh\Debugbar\Facade;
-use DebugBar\DebugBar;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use \App\Models\Parser;
@@ -24,10 +23,10 @@ class ParserClass
 
     public function parseData(Parser $parser, $how_many)
     {
-        $html = $this->client->get($parser->donor_link)->getBody()->getContents();
+        $html = $this->client->get($parser->donor->link)->getBody()->getContents();
         $html = str_replace($parser->replace_search, $parser->replace_to, $html);
 
-        $crawler = new Crawler($html, $parser->donor_link);
+        $crawler = new Crawler($html, $parser->donor->link);
         return $this->items = $this->getDataOnPage($crawler, $parser, $how_many);
     }
 
@@ -46,6 +45,7 @@ class ParserClass
                     'title'            => $title,
                     'address'          => $address,
                     'single_page_link' => $single_page_link,
+                    'parser' => $parser,
                 ];
             });
         return $items;
@@ -96,7 +96,7 @@ class ParserClass
             $html = $response->getBody()->getContents();
             $html = str_replace($parser->replace_search, $parser->replace_to, $html);
 
-            $crawler = new Crawler($html, $parser->donor_link);
+            $crawler = new Crawler($html, $parser->donor->link);
             $data = $this->getDataOnSinglePage($crawler, $parser);
             return $data;
         });

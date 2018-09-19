@@ -13,8 +13,7 @@ class ParsersTableSeeder extends Seeder
     {
 
         DB::table('parsers')->insert([
-            'donor_link'          => 'https://avtosalon-otzyv.ru/',
-            'donor_title'         => 'avtosalon-otzyv',
+            'donor_id'            => 1,
             'loop_address'        => '.entry-summary p:last-child',
             'loop_item'           => 'main article',
             'loop_link'           => '.read-more a',
@@ -32,8 +31,7 @@ class ParsersTableSeeder extends Seeder
         ]);
 
         DB::table('parsers')->insert([
-            'donor_link'          => 'https://otziv-avto.ru/msk/',
-            'donor_title'         => 'otziv-avto.ru',
+            'donor_id'            => 2,
             'loop_address'        => '.su-post-excerpt',
             'loop_item'           => '.su-post',
             'loop_link'           => 'h2 a',

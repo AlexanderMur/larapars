@@ -5,3 +5,7 @@ import 'sb-admin-2/dist/js/sb-admin-2.js'
 
 
 window.jQuery = jQuery
+
+jQuery('td').on('click',function(){
+    console.log(jQuery(this).parent('table').index())
+})

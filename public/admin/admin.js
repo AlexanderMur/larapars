@@ -10462,6 +10462,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 __webpack_provided_window_dot_jQuery = jQuery;
+
+jQuery('td').on('click', function () {
+    console.log(jQuery(this).parent('table').index());
+});
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0), __webpack_require__(0)))
 
 /***/ }),

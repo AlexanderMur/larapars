@@ -14,7 +14,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $companies = Company::all();
+        $companies = Company::with(['donor','reviews'])->get();
         return view('admin.companies.index',[
             'companies' => $companies,
         ]);

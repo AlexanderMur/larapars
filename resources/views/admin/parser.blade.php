@@ -12,14 +12,20 @@
         <form action="{{route('pars.parse')}}" method="post" class="mb-2">
             @csrf
             <label>
-                Сколько спарсить
+                Сколько спарсить у каждого донора
                 <input type="text" name="how_many">
             </label>
             <button type="submit" class="btn btn-danger">Send</button>
         </form>
 
         @isset($tables)
-            @foreach ($tables as $table)
+            @foreach ($tables as $key => $table)
+                @if ($key == 0)
+                    <h2>Сайт-Донор https://avtosalon-otzyv.ru/</h2>
+                @endif
+                @if ($key == 1)
+                    <h2>Сайт-Донор https://otziv-avto.ru/msk/</h2>
+                @endif
                 @include('admin.partials.table',['table'=>$table])
             @endforeach
         @endisset

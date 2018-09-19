@@ -50,6 +50,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $reviews_name
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereReviewsName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereSinglePhone($value)
+ * @property int|null $donor_id
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereDonorId($value)
  */
 class Parser extends Model
 {

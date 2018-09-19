@@ -24,8 +24,18 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereText($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereUpdatedAt($value)
+ * @property int $donor_id
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereDonorId($value)
+ * @property string|null $name
+ * @property-read \App\Models\Donor $donor
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereName($value)
  */
 class Review extends Model
 {
-    //
+    function donor(){
+        return $this->belongsTo(Donor::class);
+    }
+    function company(){
+        return $this->belongsTo(Company::class);
+    }
 }

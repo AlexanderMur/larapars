@@ -5,11 +5,17 @@
 ?>
 
 @if(!empty($table))
+
+    <?php
+    if(!is_array(reset($table))){
+        $table = [$table];
+    }
+    ?>
     <?php \Barryvdh\Debugbar\Facade::log($table) ?>
     <table class="table table-bordered">
         <thead>
             <tr>
-                @foreach ((array) $table[0] as $key => $value)
+                @foreach ((array) reset($table) as $key => $value)
                     <td>
                         {{$key}}
                     </td>
