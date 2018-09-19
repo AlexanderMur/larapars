@@ -24,7 +24,7 @@
                             @if (is_array($value))
                                 @include('admin.partials.table',['table'=>$value])
                             @else
-                                {{$value}}
+                                {{str_limit($value,100)}}
                             @endif
                         </td>
                     @endforeach
