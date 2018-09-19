@@ -1,0 +1,17 @@
+@import '~sb-admin-2/vendor/bootstrap/css/bootstrap.css';
+@import '~sb-admin-2/vendor/metisMenu/metisMenu.min.css';
+@import '~sb-admin-2/dist/css/sb-admin-2.css';
+
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import '~bootstrap/scss/_utilities';
+
+
+@import '~font-awesome/scss/font-awesome';
+
+.table{
+  td{
+    min-width: 200px;
+  }
+}
