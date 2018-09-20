@@ -15,6 +15,12 @@ use libphonenumber\PhoneNumberUtil;
 
 class ParserController extends Controller
 {
+    public function index(){
+        $parsers = \App\Models\Parser::all();
+        return view('admin.companies.index',[
+            'companies' => $parsers,
+        ]);
+    }
     public function start(){
         return view('admin.parser');
     }

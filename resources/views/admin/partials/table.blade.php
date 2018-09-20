@@ -26,11 +26,11 @@
             @foreach ($table as $row)
                 <tr>
                     @foreach ( (array) $row as $key => $value)
-                        <td>
+                        <td style="height:40px; overflow:hidden">
                             @if (is_array($value))
                                 @include('admin.partials.table',['table'=>$value])
                             @else
-                                {{str_limit($value,100)}}
+                                {{$value}}
                             @endif
                         </td>
                     @endforeach

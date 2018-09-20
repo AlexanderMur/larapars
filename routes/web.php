@@ -22,6 +22,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     })->name('admin.dashboard');
 
     Route::resource('companies', 'CompanyController');
+    Route::resource('reviews', 'ReviewController');
+    Route::resource('donors', 'DonorController');
+    Route::resource('parsers', 'ParserController');
 
     Route::get('pars-test', 'ParserController@start')->name('pars.test');
     Route::post('pars-test', 'ParserController@parse')->name('pars.parse');
