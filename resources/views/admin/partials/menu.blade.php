@@ -3,6 +3,9 @@
         <a href="{{route('admin.dashboard')}}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
     </li>
     <li>
+        <a href="{{route('admin.alldata')}}"><i class="fa fa-database fa-fw"></i> Данные</a>
+    </li>
+    <li>
         <a href="{{route('companies.index')}}"><i class="fa fa-car  fa-fw"></i> Компании</a>
     </li>
     <li>
