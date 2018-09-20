@@ -45,6 +45,8 @@ class ParserController extends Controller
                 $company->title = $item['title'];
                 $company->address = $item['address'];
                 $company->single_page_link = $item['single_page_link'];
+                $company->site = $item['link'];
+                $company->phone = implode(', ',$item['tel']);
                 /** @var Review[] $reviews */
 
                 $donor->companies()->save($company);

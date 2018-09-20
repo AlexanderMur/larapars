@@ -20,4 +20,7 @@
     <li>
         <a href="{{route('pars.test')}}"><i class="fa fa-car fa-fw"></i> Тест</a>
     </li>
+    <li>
+        <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Експорт</a>
+    </li>
 </ul>

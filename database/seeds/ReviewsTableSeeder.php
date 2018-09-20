@@ -22,5 +22,4 @@ class ReviewsTableSeeder extends Seeder
         ]);
     }
 }
-?>
 
