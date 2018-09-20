@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $name
  * @property-read \App\Models\Donor $donor
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereName($value)
+ * @property-read \App\Models\Company $company
  */
 class Review extends Model
 {

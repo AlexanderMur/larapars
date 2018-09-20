@@ -26,8 +26,9 @@ class ParsersTableSeeder extends Seeder
             'reviews_text'        => '.rr_review_text',
             'reviews_title'       => 'h3',
             'reviews_name'        => '.rr_review_name span',
-            'single_address'      => '.entry-content',
             'single_site'         => 'noindex',
+            'single_address'      => '#view1 + p',
+            'single_tel'          => '',
         ]);
 
         DB::table('parsers')->insert([
@@ -44,8 +45,9 @@ class ParsersTableSeeder extends Seeder
             'reviews_text'        => '.comment-content',
             'reviews_title'       => '',
             'reviews_name'        => '.fn',
-            'single_address'      => '.entry-content p:first-child',
             'single_site'         => '.entry-content p > a',
+            'single_address'      => '//div[@class="entry-content"]/p/text()[contains(.,"Адрес")]',
+            'single_tel'          => '//div[@class="entry-content"]/p/text()[contains(.,"Тел")]',
         ]);
     }
 }

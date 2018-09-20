@@ -56,8 +56,8 @@ class ParserClass
 
         $link = $crawler->query($parser->single_site)->getText();
         $reviews = $this->getReviewsOnPage($crawler, $parser);
-        $address = $crawler->query('//div[@class="entry-content"]/p[contains(.,"Адрес:")]/text()[1]')->getText();
-        $tel = $crawler->query('//div[@class="entry-content"]/p[contains(.,"Тел")]/text()[2]')->getText();
+        $address = $crawler->query($parser->single_address)->getText();
+        $tel = $crawler->query($parser->single_tel)->getText();
         $numbers = PhoneNumberUtil::getInstance()->findNumbers($tel, 'RU');
         $numbersArr = [];
         foreach ($numbers as $number) {

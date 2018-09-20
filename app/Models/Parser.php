@@ -47,6 +47,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Parser whereUpdatedAt($value)
  * @mixin \Eloquent
  * @property-read \App\Models\Donor|null $donor
+ * @property string|null $single_tel
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Parser whereSingleTel($value)
  */
 class Parser extends Model
 {

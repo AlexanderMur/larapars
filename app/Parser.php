@@ -52,6 +52,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereSinglePhone($value)
  * @property int|null $donor_id
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereDonorId($value)
+ * @property string|null $single_tel
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereSingleTel($value)
  */
 class Parser extends Model
 {
