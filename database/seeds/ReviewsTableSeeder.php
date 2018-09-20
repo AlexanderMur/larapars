@@ -19,7 +19,6 @@ class ReviewsTableSeeder extends Seeder
             'title' => 'Полное надувательство!',
             'text' => 'Тестовый коммент Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, dignissimos excepturi expedita iusto labore libero modi molestiae non numquam perferendis praesentium provident quia quidem rem repudiandae sequi totam ut veritatis!!',
             'rating' => null,
-            'donor_created_at' => \Carbon\Carbon::now(),
         ]);
     }
 }
