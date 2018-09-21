@@ -21,7 +21,6 @@ class CreateParsersTable extends Migration
             $table->string('loop_address')->nullable();
             $table->string('loop_link')->nullable();
             $table->string('single_site')->nullable();
-            $table->string('single_phone')->nullable();
             $table->string('single_address')->nullable();
             $table->string('single_tel')->nullable();
             $table->string('replace_search')->nullable();

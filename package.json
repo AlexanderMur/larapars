@@ -24,6 +24,9 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
+        "datatables": "^1.10.18",
+        "datatables-bootstrap3-plugin": "^0.6.0",
+        "datatables.net": "^1.10.19",
         "font-awesome": "^4.7.0",
         "node-sass": "^4.9.3",
         "replace-in-file-webpack-plugin": "^1.0.6",

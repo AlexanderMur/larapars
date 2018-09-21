@@ -12,6 +12,9 @@
 */
 
 
+use App\Models\Company;
+use Yajra\DataTables\Html\Builder;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -30,11 +33,27 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('all-data', 'AdminController@allData')->name('admin.alldata');
     Route::get('export', 'AdminController@export')->name('admin.export');
     Route::post('pars-test', 'ParserController@parse')->name('pars.parse');
-    Route::get('/clear-cache', function() {
+    Route::get('/clear-cache', function () {
         $exitCode = Artisan::call('cache:clear');
+        $exitCode = Artisan::call('config:clear');
         $exitCode = Artisan::call('view:clear');
         return $exitCode;
         // return what you want
+    });
+    Route::get('users', function (Builder $builder) {
+        if (request()->ajax()) {
+            return \DataTables::of(\App\User::query())->toJson();
+        }
+
+        $html = $builder->columns([
+            ['data' => 'id', 'name' => 'id', 'title' => 'Id'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'Name'],
+            ['data' => 'email', 'name' => 'email', 'title' => 'Email'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'Created At'],
+            ['data' => 'updated_at', 'name' => 'updated_at', 'title' => 'Updated At'],
+        ]);
+
+        return view('users.index', compact('html'));
     });
 });
 Auth::routes();

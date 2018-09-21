@@ -31,6 +31,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Company extends Model
 {
+    protected $fillable = [
+        'title',
+        'address',
+        'single_page_link',
+        'site',
+        'phone',
+    ];
     function donor(){
         return $this->belongsTo(Donor::class);
     }

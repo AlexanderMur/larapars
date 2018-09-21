@@ -24,12 +24,13 @@ class ModelExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     public function headings(): array
     {
         return [
+            'Имя',
             'ID',
             'Телефон',
             'Ссылка на страницу',
             'сайт',
-            'заголовок',
             'Адрес',
+            'Донор',
             'Дата парсинга',
         ];
     }
@@ -42,12 +43,13 @@ class ModelExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     {
 
         return [
+            $company->title,
             $company->id,
             $company->phone,
             $company->single_page_link,
             $company->site,
-            $company->title,
             $company->address,
+            $company->donor->link,
             $company->created_at,
         ];
     }

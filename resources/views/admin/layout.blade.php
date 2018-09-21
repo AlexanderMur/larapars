@@ -259,6 +259,7 @@
 
 <script type="text/javascript" src="{{asset('admin/admin.js')}}"></script>
 
+@stack('scripts')
 </body>
 
 </html>

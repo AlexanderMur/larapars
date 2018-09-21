@@ -1,9 +1,6 @@
 let mix = require('laravel-mix');
 
-
-mix.autoload({
-    jquery : ['jQuery','$','window.jQuery','window.$'],
-});
+console.log(mix.autoload,'aaaaaaaaaaa')
 
 mix.setResourceRoot('../');
 mix

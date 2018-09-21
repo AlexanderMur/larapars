@@ -35,29 +35,20 @@ class ParserController extends Controller
             $parsed_data = $parserClass->parseData($parser,$how_many);
             $items[] = $parserClass->parseSinglePages($parser);
         }
-        foreach ($items as $donor) {
+        foreach ($items as $companies) {
 
-            foreach ($donor as $item) {
+            foreach ($companies as $parsed_company) {
                 /** @var Donor $donor */
-                $donor = $item['parser']->donor;
+                $donor = $parsed_company['parser']->donor;
 
-                $company = new Company();
-                $company->title = $item['title'];
-                $company->address = $item['address'];
-                $company->single_page_link = $item['single_page_link'];
-                $company->site = $item['link'];
-                $company->phone = implode(', ',$item['tel']);
-                /** @var Review[] $reviews */
+                $company = new Company($parsed_company);
+                $company->phone = implode(', ',$parsed_company['phones']);
 
                 $donor->companies()->save($company);
 
-                foreach ($item['reviews'] as $review) {
+                foreach ($parsed_company['reviews'] as $review) {
 
-                    $review_model = new Review();
-                    $review_model->text = $review['text'];
-                    $review_model->title = $review['title'];
-                    $review_model->name = $review['name'];
-
+                    $review_model = new Review($review);
                     $review_model->donor()->associate($donor);
                     $review_model->company()->associate($company);
                     $review_model->save();

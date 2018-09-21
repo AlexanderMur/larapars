@@ -16,6 +16,9 @@ class AdminController extends Controller
             'companies' => $companies,
         ]);
     }
+    public function test(){
+
+    }
     public function export(){
         return \Excel::download(new ModelExport,'model.xls');
     }

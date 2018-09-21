@@ -54,19 +54,22 @@ class ParserClass
     public function getDataOnSinglePage(Crawler $crawler, Parser $parser)
     {
 
-        $link = $crawler->query($parser->single_site)->getText();
+        $site = $crawler->query($parser->single_site)->getText();
         $reviews = $this->getReviewsOnPage($crawler, $parser);
         $address = $crawler->query($parser->single_address)->getText();
+
+        //getting phone...
         $tel = $crawler->query($parser->single_tel)->getText();
         $numbers = PhoneNumberUtil::getInstance()->findNumbers($tel, 'RU');
         $numbersArr = [];
         foreach ($numbers as $number) {
             $numbersArr[] = $number->rawString();
         }
+
         return [
-            'link'    => $link,
+            'site'    => $site,
             'reviews' => $reviews,
-            'tel'     => $numbersArr,
+            'phones'     => $numbersArr,
             'address' => $address,
         ];
     }
