@@ -1,47 +1,17 @@
-<div class="entry-content">
-    <p>Адрес: г.Москва,м. Волоколамская,Волоколамское шоссе,дом 103
-        <br>
-        Тел: 8 (495) 669-07-07,8 (800) 555-48-58
-        Сайт: <a rel="nofollow" href="http://ac-drive.ru" target="_blank">ac-drive.ru</a></p>
-    <p><img class="aligncenter wp-image-406 size-large"
-            src="http://otziv-avto.ru/wp-content/uploads/2016/01/Драйв-интерфейс-1024x544.png"
-            alt="Автосалон AC Drive (Драйв) отзывы в Москве"
-            width="604"
-            height="321"
-            srcset="https://otziv-avto.ru/wp-content/uploads/2016/01/Драйв-интерфейс-1024x544.png 1024w, https://otziv-avto.ru/wp-content/uploads/2016/01/Драйв-интерфейс-300x160.png 300w"
-            sizes="(max-width: 604px) 100vw, 604px"
-    /></p>
-    <p><span id="more-318"></span></p>
-
-    <div class="su-accordion">
-        <div class="su-spoiler su-spoiler-style-default su-spoiler-icon-plus su-spoiler-closed">
-            <div class="su-spoiler-title"><span class="su-spoiler-icon"></span>Дополнительная информация</div>
-            <div class="su-spoiler-content su-clearfix">
-                <p>Найти отзывы про автосалон AC Drive не так уж и сложно. Но, было бы здорово, если бы вся актуальная
-                    информация была собрана в одном месте. Салон, который находится возле метро Аннино, Варшавское
-                    шоссе, д. 170 Г, завоевал неплохой рейтинг среди покупателей. Некоторые остались довольны таким
-                    посещением. Многие посетители отмечают цены, которые действительно привлекают внимание. Давайте
-                    разберемся, на самом деле здесь все так хорошо? Если вы решили приобрести подержанный автомобиль, то
-                    вам обязательно стоит заглянуть в AC Drive Москвы.</p>
-                <p>Когда человек приобретает подержанный автомобиль, то у не го возникает масса хлопот, связанных со
-                    страхованием. Как утверждают покупатели, здесь таких проблем не возникает, так как менеджеры
-                    оказывают всестороннюю поддержку в оформлении ОСАГО. В перечень услуг компании входит обмен своего
-                    авто на новое, вернее, тоже подержанное, но другой марки, возможно без внесения дополнительных
-                    средств, автокредитование, на тот случай, если не хватает нужной суммы.</p>
-                <p>Независимый рейтинг, основанный на нашем опыте:
-                    • Обслуживание – 4,5
-                    • Цены – 4,7
-                    • Дополнительные услуги -4,5
-                    • Состояние реализуемых авто – 4,5</p>
-                <p>Что же касается цен, то в салоне все прозрачно. Если сравнивать средневзвешенные цены на Audi Q5 2011
-                    года выпуска. То она колеблется в районе 1 миллиона рублей. В автосалоне AC Drive, автомобиль можно
-                    приобрести за 915 тысяч рублей. Как утверждают многие покупатели, авто находится в идеальном
-                    состоянии. Если сравнивать цены с другими автосалонами Москвы, которые реализуют подержанные машины,
-                    то цены здесь тысяч на 20-30 ниже. Если у вас возникли претензии к салону или вы не довольны
-                    обслуживанием, обязательно напишите комментарий, что вас не устроило. АС Драйв отзывы, написанные от
-                    лица покупателей, помогут во всем разобраться.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
+select * from `users` where `id` = '1' limit 1
+9.63ms
+\vendor\laravel\framework\src\Illuminate\Auth\EloquentUserProvider.php:52
+xdev_db
+select count(*) as aggregate from (select `companies`.*, COUNT(reviews.id) as reviews_count from `companies` inner join `reviews` on `reviews`.`company_id` = `companies`.`id` inner join `donors` on `donors`.`id` = `companies`.`donor_id` group by `id`) count_row_table
+1.69ms
+\vendor\yajra\laravel-datatables-oracle\src\QueryDataTable.php:136
+xdev_db
+select `companies`.*, COUNT(reviews.id) as reviews_count from `companies` inner join `reviews` on `reviews`.`company_id` = `companies`.`id` inner join `donors` on `donors`.`id` = `companies`.`donor_id` group by `id` order by `reviews_count` asc limit 10 offset 0
+1.9ms
+\vendor\yajra\laravel-datatables-oracle\src\QueryDataTable.php:186
+xdev_db
+select * from `donors` where `donors`.`id` in ('1', '2')
+960μs
+\vendor\yajra\laravel-datatables-oracle\src\QueryDataTable.php:186
+xdev_db
+select * from `reviews` where `reviews`.`company_id` in ('1', '3', '4')

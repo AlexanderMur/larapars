@@ -16,21 +16,31 @@ class CompanyController extends Controller
     public function index(Builder $builder)
     {
         if (request()->ajax()) {
-            return \DataTables::eloquent(
-                Company::query()
-            )
+            return \DataTables
+                ::eloquent(
+                    Company::with(['donor', 'reviews'])
+                        ->select([
+                            'companies.*',
+                            \DB::raw('COUNT(reviews.id) as reviews_count')
+                        ])
+                        ->join('reviews', 'reviews.company_id', '=', 'companies.id')
+                        ->groupBy('id')
+                )
+
                 ->toJson();
         }
         $html = $builder->columns([
-            ['data' => 'id', 'name' => 'id', 'title' => 'id'],
-            ['data' => 'phone', 'name' => 'phone', 'title' => 'phone'],
-            ['data' => 'single_page_link', 'name' => 'single_page_link', 'title' => 'single_page_link'],
-            ['data' => 'site', 'name' => 'site', 'title' => 'site'],
-            ['data' => 'title', 'name' => 'title', 'title' => 'title'],
-            ['data' => 'address', 'name' => 'address', 'title' => 'address'],
-            ['data' => 'donor_id', 'name' => 'donor_id', 'title' => 'donor_id'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'created_at'],
-            ['data' => 'updated_at', 'name' => 'updated_at', 'title' => 'updated_at'],
+            'id',
+            'phone',
+            'single_page_link',
+            'site',
+            'title',
+            'address',
+            'donor.link',
+            'donor.title',
+            'reviews_count'=>['searchable'=>false],
+            'created_at',
+            'updated_at',
         ]);
 
         return view('users.index', compact('html'));
@@ -49,7 +59,7 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -60,7 +70,7 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -71,7 +81,7 @@ class CompanyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -82,8 +92,8 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -94,7 +104,7 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

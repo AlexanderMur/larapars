@@ -21,24 +21,31 @@ class ReviewController extends Controller
     public function index(Request $request, Builder $builder)
     {
         if (request()->ajax()) {
-            return \DataTables::eloquent(
-                    Review::query()
+            return \DataTables
+                ::eloquent(
+                    Review::with(['donor','company'])->select('reviews.*')
                 )
                 ->toJson();
         }
 
-        $html = $builder->columns([
-            ['data' => 'id', 'name' => 'id', 'title' => 'id'],
-            ['data' => 'company_id', 'name' => 'company_id', 'title' => 'company_id'],
-            ['data' => 'title', 'name' => 'title', 'title' => 'title'],
-            ['data' => 'text', 'name' => 'text', 'title' => 'text'],
-            ['data' => 'rating', 'name' => 'rating', 'title' => 'rating'],
-            ['data' => 'donor_created_at', 'name' => 'donor_created_at', 'title' => 'donor_created_at'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'created_at'],
-            ['data' => 'updated_at', 'name' => 'updated_at', 'title' => 'updated_at'],
-            ['data' => 'donor_id', 'name' => 'donor_id', 'title' => 'donor_id'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'name'],
-        ]);
+        $html = $builder
+            ->columns([
+                'id',
+                'title',
+                'text',
+                'rating',
+                'donor_created_at',
+                'created_at',
+                'updated_at',
+                'donor.link',
+                'donor.title',
+                'name',
+                'company.title',
+                'company.site',
+                'company.single_page_link',
+
+            ])
+            ->addCheckbox();
 
         return view('users.index', compact('html'));
     }

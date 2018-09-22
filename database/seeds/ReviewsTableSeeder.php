@@ -12,14 +12,14 @@ class ReviewsTableSeeder extends Seeder
     public function run()
     {
 
-        DB::table('reviews')->insert([
-            'donor_id' => '1',
-            'company_id' => '1',
-            'name' => "unwinter",
-            'title' => 'Полное надувательство!',
-            'text' => 'Тестовый коммент Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, dignissimos excepturi expedita iusto labore libero modi molestiae non numquam perferendis praesentium provident quia quidem rem repudiandae sequi totam ut veritatis!!',
-            'rating' => null,
-        ]);
+//        DB::table('reviews')->insert([
+//            'donor_id' => '1',
+//            'company_id' => '1',
+//            'name' => "unwinter",
+//            'title' => 'Полное надувательство!',
+//            'text' => 'Тестовый коммент Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis, dignissimos excepturi expedita iusto labore libero modi molestiae non numquam perferendis praesentium provident quia quidem rem repudiandae sequi totam ut veritatis!!',
+//            'rating' => null,
+//        ]);
     }
 }
 
