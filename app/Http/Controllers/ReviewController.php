@@ -45,7 +45,7 @@ class ReviewController extends Controller
                 'company.single_page_link',
 
             ])
-            ->addCheckbox();
+            ->addCheckbox([],true);
 
         return view('users.index', compact('html'));
     }

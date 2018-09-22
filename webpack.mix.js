@@ -1,6 +1,5 @@
 let mix = require('laravel-mix');
 
-console.log(mix.autoload,'aaaaaaaaaaa')
 
 mix.setResourceRoot('../');
 mix

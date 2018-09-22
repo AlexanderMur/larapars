@@ -10439,7 +10439,7 @@ return jQuery;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(2);
-module.exports = __webpack_require__(11);
+module.exports = __webpack_require__(9);
 
 
 /***/ }),
@@ -10465,11 +10465,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-console.log(111);
-console.log(window.jQuery, 111);
 jQuery(function ($) {
-    $('td').on('click', function () {
-        console.log(jQuery(this).parent('table').index());
+    $(".nav-tabs a").click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
     });
 });
 
@@ -28421,9 +28420,7 @@ $(function() {
 
 
 /***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */
+/* 9 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

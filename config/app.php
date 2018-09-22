@@ -210,6 +210,7 @@ return [
         'DebugBar' => Barryvdh\Debugbar\Facade::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'DataTables' => \Yajra\DataTables\Facades\DataTables::class,
+//        'Form' => \Collective\Html\FormFacade::class
     ],
 
 ];
