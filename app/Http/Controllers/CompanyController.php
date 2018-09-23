@@ -27,6 +27,7 @@ class CompanyController extends Controller
                         ])
                         ->withCount([
                             'reviews',
+                            'donors',
                             'reviews as good_reviews_count' => function (Query $query) {
                                 $query->where('good',1);
                             },
@@ -51,10 +52,11 @@ class CompanyController extends Controller
                 'single_page_link',
                 'site',
                 'address',
-                'created_at',
+                'donors_count',
                 'good_reviews_count' => ['searchable' => false],
                 'bad_reviews_count'   => ['searchable' => false],
                 'reviews_count'       => ['searchable' => false],
+                'created_at',
                 'updated_at',
             ])
             ->addCheckbox([], true);;

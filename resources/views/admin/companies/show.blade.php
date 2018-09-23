@@ -9,10 +9,10 @@
     <div id="page-wrapper">
         <h1 class="page-header">Company show</h1>
         <h2>
-            {{$company->title}}
             <a href="{{route('companies.edit',$company)}}" type="button" class="btn btn-sm btn-success">
                 <i class="fa fa-edit"></i>
             </a>
+            {{$company->title}}
         </h2>
         <example></example>
         <div class="row mt-5">
@@ -22,7 +22,7 @@
                         <input type="radio"/>Отзывы
                     </a>
                     <a href="#donors" class="btn btn-primary" data-toggle="tab">
-                        <input type="radio"/>Доноры
+                        <input type="radio"/>Доноры ({{$company->donors()->count()}})
                     </a>
                 </div>
 
@@ -84,17 +84,18 @@
                     </div>
                     <div class="tab-pane fade" id="donors">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#sub21">Tab 2.1</a>
-                            </li>
-                            <li><a href="#sub22">Tab 2.2</a>
+                            <li class="active"><a href="#sub21">Доноры</a>
                             </li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade active in" id="sub21">
-                                <p>Tab 2.1</p>
-                            </div>
-                            <div class="tab-pane fade" id="sub22">
-                                <p>Tab 2.2</p>
+
+                                @foreach ($company->donors as $donor)
+                                    @include('admin.companies.donor',[
+                                        'donor' => $donor,
+                                        'company' => $company,
+                                    ])
+                                @endforeach
                             </div>
                         </div>
                     </div>

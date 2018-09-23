@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @property string|null $single_page_link
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Company whereSinglePageLink($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donor[] $donors
  */
 class Company extends Model
 {
@@ -44,4 +45,10 @@ class Company extends Model
     function reviews(){
         return $this->hasMany(Review::class);
     }
+
+    public function donors()
+    {
+        return $this->belongsToMany(Donor::class);
+    }
+
 }
