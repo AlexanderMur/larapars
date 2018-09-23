@@ -48,9 +48,14 @@ class Review extends Model
         'text',
         'title',
         'name',
+        'good',
+        'deleted_at',
     ];
     protected $dates = [
         'deleted_at'
+    ];
+    protected $casts = [
+        'good' => 'boolean'
     ];
     function donor(){
         return $this->belongsTo(Donor::class);

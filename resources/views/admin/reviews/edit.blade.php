@@ -35,7 +35,7 @@
         <div class="form-group">
             {{ Form::label('good', 'good:', ['class' => 'col-lg-2 control-label']) }}
             <div class="col-lg-10">
-                {{ Form::text('good', $value = null,['class' => 'form-control', 'placeholder' => 'good']) }}
+                {{ Form::checkbox('good', 1,null) }}
             </div>
         </div>
         <div class="form-group">

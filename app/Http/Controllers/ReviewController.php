@@ -103,9 +103,8 @@ class ReviewController extends Controller
      */
     public function update(Request $request,$id)
     {
-
         $review = Review::withTrashed()->whereId($id)->first();
-        $review->deleted_at = $request->get('deleted_at');
+        $review->good = $request->has('good');
         $review->update($request->all());
         return redirect()->back()->with('success', 'Компания изменена!');
     }

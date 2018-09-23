@@ -4,7 +4,7 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\Company::class, function (Faker $faker) {
     return [
-        'phone'            => $faker->phoneNumber,
+        'phone'            => $faker->optional()->phoneNumber,
         'site'             => $faker->domainName,
         'single_page_link' => 'https://avtosalon-otzyv.ru/avtosalon-aleaavto/',
         'title'            => $faker->randomElement(['Автосалон', 'Салон', 'Дилерский центр'])

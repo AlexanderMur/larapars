@@ -25,9 +25,10 @@
         <div>
             {{$review->text}}
         </div>
+
         <div>
             <a href="{{$company->single_page_link}}" target="_blank">
-                Источник <i class="fa fa-external-link fa-fw"></i>
+                Страница у донора <i class="fa fa-external-link fa-fw"></i>
             </a>
         </div>
 

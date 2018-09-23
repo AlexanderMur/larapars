@@ -19,7 +19,7 @@ class CreateReviewsTable extends Migration
             $table->string('title')->nullable();
             $table->string('name')->nullable();
             $table->text('text')->nullable();
-            $table->string('good')->nullable();
+            $table->boolean('good')->nullable();
             $table->date('donor_created_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

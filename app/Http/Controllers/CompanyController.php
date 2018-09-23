@@ -52,7 +52,7 @@ class CompanyController extends Controller
                 'single_page_link',
                 'site',
                 'address',
-                'donors_count',
+                'donors_count' => ['searchable' => false],
                 'good_reviews_count' => ['searchable' => false],
                 'bad_reviews_count'   => ['searchable' => false],
                 'reviews_count'       => ['searchable' => false],
