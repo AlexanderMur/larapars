@@ -46,9 +46,12 @@ class Company extends Model
         return $this->hasMany(Review::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function donors()
     {
-        return $this->belongsToMany(Donor::class);
+        return $this->belongsToMany(Donor::class)->withPivot('site');
     }
 
 }

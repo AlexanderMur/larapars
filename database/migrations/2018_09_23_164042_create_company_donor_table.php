@@ -17,6 +17,7 @@ class CreateCompanyDonorTable extends Migration
             $table->increments('id');
             $table->integer('company_id');
             $table->integer('donor_id');
+            $table->string('site')->nullable();
             $table->timestamps();
         });
     }

@@ -20,7 +20,7 @@ class CompaniesTableSeeder extends Seeder
             ->each(function (Company $company) use ($donors) {
                 $donors->each(function($donor) use ($company) {
                     if(random_int(0,100) <= 70){
-                        $company->donors()->attach($donor);
+                        $company->donors()->attach($donor,['site'=>$this->generatePivotSite($donor,$company)]);
                     }
                 });
 
@@ -29,7 +29,9 @@ class CompaniesTableSeeder extends Seeder
                     $first->delete();
                 };
             });
+    }
 
-
+    function generatePivotSite(Donor $donor, Company $company){
+        return $donor->link . '/' . str_slug($company->title);
     }
 }
