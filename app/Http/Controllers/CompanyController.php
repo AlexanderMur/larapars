@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Builder;
 
@@ -19,10 +21,18 @@ class CompanyController extends Controller
         if (request()->ajax()) {
             return \DataTables
                 ::eloquent(
-                    Company::with(['donor'])
-                        ->select([
+                    Company
+                        ::select([
                             'companies.*',
-                            \DB::raw('COUNT(reviews.id) as reviews_count')
+                        ])
+                        ->withCount([
+                            'reviews',
+                            'reviews as good_reviews_count' => function (Query $query) {
+                                $query->where('good',1);
+                            },
+                            'reviews as bad_reviews_count' => function (Query $query) {
+                                $query->where('good',0);
+                            }
                         ])
                         ->leftJoin('reviews', 'reviews.company_id', '=', 'companies.id')
                         ->groupBy('id')
@@ -34,20 +44,20 @@ class CompanyController extends Controller
         }
         $html = $builder
             ->columns([
-                'action'        => ['searchable' => false, 'orderable' => false],
-                'title',
+                'action'              => ['searchable' => false, 'orderable' => false],
                 'id',
+                'title',
                 'phone',
                 'single_page_link',
                 'site',
                 'address',
-                'donor.link',
-                'donor.title',
-                'reviews_count' => ['searchable' => false],
                 'created_at',
+                'good_reviews_count' => ['searchable' => false],
+                'bad_reviews_count'   => ['searchable' => false],
+                'reviews_count'       => ['searchable' => false],
                 'updated_at',
             ])
-            ->addCheckbox([],true);;
+            ->addCheckbox([], true);;
 
         return view('users.index', compact('html'));
     }
@@ -81,6 +91,9 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
+        $company->load(['reviews' => function ($query) {
+            $query->withTrashed();
+        }]);
         return view('admin.companies.show', [
             'company' => $company
         ]);
@@ -108,14 +121,14 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        $this->validate($request,[
-            'title'=>'required',
-            'site'=>'required',
-            'single_page_link'=>'required',
-            'address'=>'required',
+        $this->validate($request, [
+            'title'            => 'required',
+            'site'             => 'required',
+            'single_page_link' => 'required',
+            'address'          => 'required',
         ]);
         $company->update($request->all());
-        return redirect()->back()->with('success','Компания изменена!');
+        return redirect()->back()->with('success', 'Компания изменена!');
     }
 
     /**

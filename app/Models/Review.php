@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Review
@@ -30,9 +31,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\Donor $donor
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereName($value)
  * @property-read \App\Models\Company $company
+ * @property string|null $good
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereGood($value)
+ * @property string|null $deleted_at
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Review onlyTrashed()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withoutTrashed()
  */
 class Review extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'text',
         'title',

@@ -11,13 +11,13 @@ class DonorsTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('donors')->insert([
-            'link' => 'https://avtosalon-otzyv.ru/',
-            'title' => 'Avtosalon otzyv',
-        ]);
-        DB::table('donors')->insert([
-            'link' => 'https://otziv-avto.ru/msk',
-            'title' => 'Otzyv avto',
-        ]);
+//        DB::table('donors')->insert([
+//            'link' => 'https://avtosalon-otzyv.ru/',
+//            'title' => 'Avtosalon otzyv',
+//        ]);
+//        DB::table('donors')->insert([
+//            'link' => 'https://otziv-avto.ru/msk',
+//            'title' => 'Otzyv avto',
+//        ]);
     }
 }

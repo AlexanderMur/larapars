@@ -15,14 +15,14 @@ class CreateReviewsTable extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('donor_id');
             $table->integer('company_id');
             $table->string('title')->nullable();
             $table->string('name')->nullable();
             $table->text('text')->nullable();
-            $table->string('rating')->nullable();
+            $table->string('good')->nullable();
             $table->date('donor_created_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

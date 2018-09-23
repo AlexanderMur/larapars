@@ -20,7 +20,6 @@ class CreateCompaniesTable extends Migration
             $table->string('site')->nullable();
             $table->string('title')->nullable();
             $table->string('address')->nullable();
-            $table->integer('donor_id');
             $table->timestamps();
         });
     }
