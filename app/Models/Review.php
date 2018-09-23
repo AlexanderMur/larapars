@@ -49,7 +49,9 @@ class Review extends Model
         'title',
         'name',
     ];
-
+    protected $dates = [
+        'deleted_at'
+    ];
     function donor(){
         return $this->belongsTo(Donor::class);
     }

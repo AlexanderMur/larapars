@@ -88,19 +88,26 @@ class ReviewController extends Controller
      */
     public function edit($id)
     {
-        //
+        $review = Review::withTrashed()->whereId($id)->first();
+        return view('admin.reviews.edit',[
+            'review' => $review,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param Review $review
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
-        //
+
+        $review = Review::withTrashed()->whereId($id)->first();
+        $review->deleted_at = $request->get('deleted_at');
+        $review->update($request->all());
+        return redirect()->back()->with('success', 'Компания изменена!');
     }
 
     /**

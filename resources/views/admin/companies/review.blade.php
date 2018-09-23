@@ -30,5 +30,9 @@
                 Источник <i class="fa fa-external-link fa-fw"></i>
             </a>
         </div>
+
+        <div>
+            <a href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Edit</a>
+        </div>
     </div>
 </div>

@@ -19,7 +19,7 @@
             <div class="col-md-5">
                 <div id="tab" class="btn-group btn-group-justified" data-toggle="buttons">
                     <a href="#reviews" class="btn btn-primary active" data-toggle="tab">
-                        <input type="radio"/>Отзывы
+                        <input type="radio"/>Отзывы ({{$company->reviews()->count()}})
                     </a>
                     <a href="#donors" class="btn btn-primary" data-toggle="tab">
                         <input type="radio"/>Доноры ({{$company->donors()->count()}})

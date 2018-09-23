@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Donor extends Model
 {
+    protected $fillable = ['link','title'];
     function companies(){
         return $this->hasMany(Company::class);
     }

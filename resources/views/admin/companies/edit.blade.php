@@ -42,7 +42,7 @@
         <div class="form-group">
             <div class="col-lg-10 col-lg-offset-2">
                 {{Form::submit('Submit',['class'=>'btn btn-primary'])}}
-                <a href="{{route('companies.show',$company)}}" class="btn btn-default">Cancel</a>
+                <a href="{{route('companies.show',$company)}}" class="btn btn-default">Back</a>
                 {{Form::close()}}
             </div>
         </div>
