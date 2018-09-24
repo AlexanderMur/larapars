@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDonorsTable extends Migration
+class CreateDonorReviewTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,13 @@ class CreateDonorsTable extends Migration
     public function up()
     {
         /**
-         * @see \App\Models\Donor
+         * @see \App\Models\DonorReview
          */
-        Schema::create('donors', function (Blueprint $table) {
+        Schema::create('donor_review', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('link');
-            $table->string('title');
+            $table->integer('review_id');
+            $table->integer('donor_id');
+            $table->string('site');
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ class CreateDonorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('donors');
+        Schema::dropIfExists('donor_review');
     }
 }

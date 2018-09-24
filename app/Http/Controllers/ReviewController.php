@@ -23,7 +23,7 @@ class ReviewController extends Controller
         if (request()->ajax()) {
             return \DataTables
                 ::eloquent(
-                    Review::with(['donor','company'])->select('reviews.*')
+                    Review::with(['company'])->select('reviews.*')
                 )
                 ->toJson();
         }
@@ -34,7 +34,6 @@ class ReviewController extends Controller
                 'title',
                 'text',
                 'good',
-                'donor_created_at',
                 'created_at',
                 'updated_at',
                 'name',

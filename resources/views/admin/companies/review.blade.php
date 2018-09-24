@@ -25,15 +25,18 @@
         <div>
             {{$review->text}}
         </div>
+        @foreach ($review->donors as $key => $donor)
+            <div>
+                <a href="{{$donor->pivot->site}}" target="_blank">
+                    Страница у донора {{$key+1}}<i class="fa fa-external-link fa-fw"></i>
+                </a>
+            </div>
+        @endforeach
 
-        <div>
-            <a href="{{$company->single_page_link}}" target="_blank">
-                Страница у донора <i class="fa fa-external-link fa-fw"></i>
-            </a>
-        </div>
 
         <div>
             <a href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Edit</a>
         </div>
+
     </div>
 </div>

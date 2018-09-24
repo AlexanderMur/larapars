@@ -13,6 +13,9 @@ class CreateParsersTable extends Migration
      */
     public function up()
     {
+        /**
+         * @see \App\Parser
+         */
         Schema::create('parsers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('donor_id')->nullable();

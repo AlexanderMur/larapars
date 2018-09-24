@@ -7,6 +7,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
         <h2>{{$donor->title}}</h2>
+
         <div>
             {{$donor->text}}
         </div>

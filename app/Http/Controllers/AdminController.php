@@ -11,7 +11,7 @@ class AdminController extends Controller
 {
     public function allData(){
 
-        $companies = Company::with(['donor','reviews'])->get();
+        $companies = Company::with(['donors','reviews'])->get();
         return view('admin.companies.index',[
             'companies' => $companies,
         ]);

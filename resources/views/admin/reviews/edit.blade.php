@@ -16,20 +16,20 @@
         <div class="form-group">
             {{ Form::label('title', 'title:', ['class' => 'col-lg-2 control-label']) }}
             <div class="col-lg-10">
-                {{ Form::text('title', $value = null, ['class' => 'form-control', 'placeholder' => 'title']) }}
+                {{ Form::text('title',null, ['class' => 'form-control', 'placeholder' => 'title']) }}
             </div>
         </div>
 
         <div class="form-group">
             {{ Form::label('name', 'name:', ['class' => 'col-lg-2 control-label']) }}
             <div class="col-lg-10">
-                {{ Form::text('name', $value = null,['class' => 'form-control', 'placeholder' => 'name']) }}
+                {{ Form::text('name',null,['class' => 'form-control', 'placeholder' => 'name']) }}
             </div>
         </div>
         <div class="form-group">
             {{ Form::label('text', 'text:', ['class' => 'col-lg-2 control-label']) }}
             <div class="col-lg-10">
-                {{ Form::text('text', $value = null,['class' => 'form-control', 'placeholder' => 'text']) }}
+                {{ Form::text('text',null,['class' => 'form-control', 'placeholder' => 'text']) }}
             </div>
         </div>
         <div class="form-group">

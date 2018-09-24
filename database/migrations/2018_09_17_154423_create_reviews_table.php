@@ -13,6 +13,9 @@ class CreateReviewsTable extends Migration
      */
     public function up()
     {
+        /**
+         * @see \App\Models\Review
+         */
         Schema::create('reviews', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('company_id');
@@ -21,6 +24,7 @@ class CreateReviewsTable extends Migration
             $table->text('text')->nullable();
             $table->boolean('good')->nullable();
             $table->date('donor_created_at')->nullable();
+            $table->date('trashed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

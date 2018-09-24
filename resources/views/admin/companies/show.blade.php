@@ -40,7 +40,10 @@
                                 <a href="#bad_reviews">Отрицательные ({{$company->reviews->where('deleted_at','=',null)->where('good',0)->count()}})</a>
                             </li>
                             <li>
-                                <a href="#deleted_reviews">Удалённые ({{$company->reviews->where('deleted_at','!=',null)->count()}})</a>
+                                <a href="#deleted_reviews">Удалённые ({{$company->reviews->where('deleted_at','!=',null)->where('trashed_at','=',null)->count()}})</a>
+                            </li>
+                            <li>
+                                <a href="#trashed_reviews">В корзине ({{$company->reviews->where('deleted_at','!=',null)->where('trashed_at','!=',null)->count()}})</a>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -73,7 +76,15 @@
                             </div>
                             <div class="tab-pane fade" id="deleted_reviews">
 
-                                @foreach ($company->reviews->where('deleted_at','!=',null) as $review)
+                                @foreach ($company->reviews->where('deleted_at','!=',null)->where('trashed_at','=',null) as $review)
+                                    @include('admin.companies.review',[
+                                        'review' => $review,
+                                        'company' => $company,
+                                    ])
+                                @endforeach
+                            </div>
+                            <div class="tab-pane fade" id="trashed_reviews">
+                                @foreach ($company->reviews->where('trashed_at','!=',null) as $review)
                                     @include('admin.companies.review',[
                                         'review' => $review,
                                         'company' => $company,

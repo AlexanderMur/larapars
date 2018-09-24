@@ -13,6 +13,9 @@ class CreateCompanyDonorTable extends Migration
      */
     public function up()
     {
+        /**
+         * @see \App\Models\CompanyDonor
+         */
         Schema::create('company_donor', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('company_id');
