@@ -55,7 +55,7 @@ class Review extends Model
 
     public function donors()
     {
-        return $this->belongsToMany(Donor::class)->withPivot('site')->using(DonorReview::class);
+        return $this->belongsToMany(Donor::class)->withPivot('site','created_at')->using(DonorReview::class);
     }
 
     /**

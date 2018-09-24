@@ -23,14 +23,17 @@ class CompaniesTableSeeder extends Seeder
             ->create()
             ->each(function (Company $company) use (&$reviewsArr, $donors) {
 
+                $attachedDonors = collect();
                 foreach ($this->takeRandom($donors,1,10) as $donor) {
-                    $company->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company)]);
+                    $attachedDonors[] = $donor;
+                    $company->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company),'created_at'=>\Carbon\Carbon::now()]);
                 }
+
                 $reviews = factory(Review::class, random_int(0, 20))->make();
                 $company->reviews()->saveMany($reviews);
                 foreach ($reviews as $review) {
-                    foreach ($this->takeRandom($donors, 1, 3) as $donor) {
-                        $review->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company)]);
+                    foreach ($this->takeRandom($attachedDonors, 1, 3) as $donor) {
+                        $review->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company),'created_at'=>\Carbon\Carbon::now()]);
                     }
                 }
 

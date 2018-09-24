@@ -16,7 +16,7 @@
         </h2>
         <example></example>
         <div class="row mt-5">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <div id="tab" class="btn-group btn-group-justified" data-toggle="buttons">
                     <a href="#reviews" class="btn btn-primary active" data-toggle="tab">
                         <input type="radio"/>Отзывы ({{$company->reviews()->count()}})
