@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @see \CreateReviewsTable
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donor[] $donors
  * @property string|null $trashed_at
+ * @property int|null $group_id
+ * @property-read \App\Models\Group|null $group
+ * @property string|null $donor_link
  */
 class Review extends Model
 {
@@ -49,19 +52,27 @@ class Review extends Model
     protected $casts = [
         'good' => 'boolean'
     ];
-    function company(){
+
+    function company()
+    {
         return $this->belongsTo(Company::class);
     }
 
-    public function donors()
+    public function donor()
     {
-        return $this->belongsToMany(Donor::class)->withPivot('site','created_at')->using(DonorReview::class);
+        return $this->belongsTo(Donor::class);
     }
+    public function group(){
+        return $this->belongsTo(Group::class);
+    }
+
+
 
     /**
      * @throws \Exception
      */
-    function trash(){
+    function trash()
+    {
         $this->delete();
         $this->trashed_at = Carbon::now();
         $this->save();

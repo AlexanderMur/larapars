@@ -23,6 +23,9 @@ class CreateReviewsTable extends Migration
             $table->string('name')->nullable();
             $table->text('text')->nullable();
             $table->boolean('good')->nullable();
+            $table->integer('group_id')->nullable();
+            $table->string('donor_link')->nullable();
+            $table->integer('donor_id')->nullable();
             $table->date('donor_created_at')->nullable();
             $table->date('trashed_at')->nullable();
             $table->timestamps();
