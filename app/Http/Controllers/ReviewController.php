@@ -42,7 +42,7 @@ class ReviewController extends Controller
                 'company.single_page_link',
 
             ])
-            ->addCheckbox([],true);
+            ->addCheckbox([], true);
 
         return view('users.index', compact('html'));
     }
@@ -88,7 +88,7 @@ class ReviewController extends Controller
     public function edit($id)
     {
         $review = Review::withTrashed()->whereId($id)->first();
-        return view('admin.reviews.edit',[
+        return view('admin.reviews.edit', [
             'review' => $review,
         ]);
     }
@@ -97,14 +97,17 @@ class ReviewController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param Review $review
+     * @param $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        $review = Review::withTrashed()->whereId($id)->first();
+        $review = Review::withTrashed()->where('id',$id)->first();
         $review->good = $request->has('good');
         $review->update($request->all());
+        if($request->ajax()){
+            return response()->json('ok');
+        }
         return redirect()->back()->with('success', 'Компания изменена!');
     }
 
@@ -118,9 +121,39 @@ class ReviewController extends Controller
     {
         //
     }
-    function main(){
+
+    public function data(Request $request)
+    {
+
+        $reviews = Review
+            ::select('reviews.*')
+            ->groupBy('reviews.id')
+            ->join('donors', 'donors.id', '=', 'reviews.donor_id')
+            ->with('donor');
+
+        if ($request->has('orderBy')) {
+            $reviews->orderBy(
+                $request->get('orderBy'),
+                $request->get('dir','asc')
+            );
+        }
+
+        $currentTab = $request->get('tab');
+        if($currentTab === 'new'){
+            $reviews->unrated(true);
+        }
+        if($currentTab === 'archive'){
+            $reviews->unrated(false);
+        }
+        $reviews = $reviews->paginate(20);
+        return response()->json($reviews);
+    }
+
+    function main()
+    {
         $reviews = Review::with('donor')->take(10)->get();
-        return view('admin.reviews.main',[
+
+        return view('admin.reviews.main', [
             'reviews' => $reviews,
         ]);
     }

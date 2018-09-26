@@ -12,11 +12,11 @@
     <title>Admin</title>
 
     <link href="{{asset('admin/admin.css')}}" rel="stylesheet">
-
+    <meta name="csrf-token" content="{{csrf_token()}}">
 </head>
 
 <body>
-@routes
+@routes()
 <div id="wrapper">
 
     <!-- Navigation -->

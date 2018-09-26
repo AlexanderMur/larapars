@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $group_id
  * @property-read \App\Models\Group|null $group
  * @property string|null $donor_link
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review unrated($unrated = true)
  */
 class Review extends Model
 {
@@ -66,7 +67,13 @@ class Review extends Model
         return $this->belongsTo(Group::class);
     }
 
-
+    function scopeUnrated($builder, $unrated = true){
+        if($unrated){
+            $builder->where('good','=',null);
+        } else {
+            $builder->where('good','!=',null);
+        }
+    }
 
     /**
      * @throws \Exception

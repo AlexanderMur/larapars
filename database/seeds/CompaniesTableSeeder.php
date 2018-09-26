@@ -22,6 +22,22 @@ class CompaniesTableSeeder extends Seeder
         /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
         $companies = factory(Company::class, 30)
             ->create()
+            ->each(function (Company $company) use ($donors) {
+
+                /** @var Collection|Review[] $reviews */
+                $reviews = factory(Review::class, random_int(0, 10))
+                    ->states('not rated')
+                    ->make();
+
+                $company->reviews()->saveMany($reviews);
+                foreach ($reviews as $review) {
+
+                    $donor = $donors->random();
+                    $review->donor_link = $this->generatePivotSite($donor, $company);
+                    $review->donor()->associate($donor);
+                    $review->save();
+                }
+            })
             ->each(function (Company $company) use (&$reviewsArr, $donors) {
 
                 $attachedDonors = collect();
@@ -31,7 +47,7 @@ class CompaniesTableSeeder extends Seeder
                 }
 
                 /** @var Collection|Review[] $reviews */
-                $reviews = factory(Review::class, random_int(0, 20))->make();
+                $reviews = factory(Review::class, random_int(0, 10))->make();
                 $company->reviews()->saveMany($reviews);
                 foreach ($reviews as $review) {
 
@@ -53,7 +69,6 @@ class CompaniesTableSeeder extends Seeder
                 $reviews->count() && $reviews->random()->trash();
                 $reviews->count() && $reviews->random()->delete();
             });
-
     }
 
     function takeRandom(Collection $collection, $min, $max)

@@ -7,7 +7,9 @@
 
 @section('content')
 
-    <div id="page-wrapper">
+    <div
+            id="page-wrapper"
+    >
         <h1 class="page-header">Review edit</h1>
 
         @include('admin.partials.messages')

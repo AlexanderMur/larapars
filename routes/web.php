@@ -27,6 +27,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::resource('companies', 'CompanyController');
     Route::resource('reviews', 'ReviewController');
     Route::get('reviews2', 'ReviewController@main')->name('reviews.main');
+    Route::get('reviews2/data', 'ReviewController@data')->name('reviews.data');
     Route::resource('donors', 'DonorController');
     Route::resource('parsers', 'ParserController');
 

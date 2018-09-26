@@ -3,7 +3,7 @@
 
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 5.7.3 on 2018-09-23 18:05:19.
+ * Generated for Laravel 5.7.3 on 2018-09-26 15:28:29.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -10736,6 +10736,26 @@ namespace Illuminate\Support\Facades {
         public static function macroCall($method, $parameters)
         {
             return \Illuminate\Routing\Router::macroCall($method, $parameters);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */ 
+        public static function blacklist($group = null)
+        {
+            return \Illuminate\Routing\Router::blacklist($group);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */ 
+        public static function whitelist($group = null)
+        {
+            return \Illuminate\Routing\Router::whitelist($group);
         }
          
     }
