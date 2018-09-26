@@ -12,6 +12,9 @@
         <a href="{{route('reviews.index')}}"><i class="fa fa-comments fa-fw"></i> Отзывы</a>
     </li>
     <li>
+        <a href="{{route('reviews.main')}}"><i class="fa fa-comments fa-fw"></i> Отзывы2</a>
+    </li>
+    <li>
         <a href="{{route('donors.index')}}"><i class="fa fa-thumb-tack fa-fw"></i> Доноры</a>
     </li>
     <li>

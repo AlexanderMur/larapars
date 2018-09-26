@@ -118,4 +118,10 @@ class ReviewController extends Controller
     {
         //
     }
+    function main(){
+        $reviews = Review::with('donor')->take(10)->get();
+        return view('admin.reviews.main',[
+            'reviews' => $reviews,
+        ]);
+    }
 }

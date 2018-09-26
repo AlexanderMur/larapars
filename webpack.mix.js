@@ -8,9 +8,10 @@ mix
     .browserSync({
         proxy: 'http://xdev.test/larapars/',
         files: [
-            'public/*.css'
+            'public/*.css',
+            'public/*.js',
         ],
-        open: false,
+        open: true,
         notification: false,
     })
     .disableNotifications()

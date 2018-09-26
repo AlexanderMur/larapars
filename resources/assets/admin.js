@@ -5,14 +5,15 @@ import "sb-admin-2/vendor/datatables/js/dataTables.bootstrap.js";
 import "sb-admin-2/vendor/metisMenu/metisMenu.min.js";
 import "sb-admin-2/dist/js/sb-admin-2.js";
 
+
 import Vue from 'vue';
 
 import Example from './components/Example.vue';
-import VModal from 'vue-js-modal'
+import Reviews from './components/Reviews.vue';
 
-Vue.use(VModal)
 
 Vue.component(Example.name, Example);
+Vue.component(Reviews.name, Reviews);
 
 new Vue({
     el: '#wrapper',

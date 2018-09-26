@@ -14,11 +14,11 @@
                     {{$review->title}}
 
                 </h3>
-                @if ($review->good)
+                @if ($review->good === true)
                     <i class="fa fa-thumbs-up text-success fa-fw fa-2x"></i>
                 @endif
-                @if (!$review->good)
-                    <i class="fa fa-thumbs-down text-success fa-fw fa-2x"></i>
+                @if ($review->good === false)
+                    <i class="fa fa-thumbs-down text-danger fa-fw fa-2x"></i>
                 @endif
                 @isset($review->group->reviews)
                     @if ($review->group->reviews->count() >= 2)
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        {!! nl2p($review->text) !!}
+        {!! $review->text !!}
         <table class="table table-bordered">
             <thead>
                 <tr>
