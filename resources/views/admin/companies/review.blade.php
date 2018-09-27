@@ -1,7 +1,6 @@
 <?php
 /**
  * @var \App\Models\Review $review
- * @var \App\Models\Company $company
  */
 ?>
 <div class="panel panel-default">

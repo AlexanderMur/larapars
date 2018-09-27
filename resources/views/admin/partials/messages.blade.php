@@ -1,3 +1,6 @@
+<?php
+/** @var \Illuminate\Support\ViewErrorBag $errors */
+?>
 @if ($errors->any())
     <div class="alert alert-danger">
         <ul>

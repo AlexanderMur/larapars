@@ -6,11 +6,24 @@ use App\Models\Review;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
+use Illuminate\Support\HtmlString;
 use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class ReviewController extends Controller
 {
+
+    /**
+     * @var Builder
+     */
+    public $builder;
+
+    public function __construct(Builder $builder)
+    {
+
+        $this->builder = $builder;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -88,6 +101,12 @@ class ReviewController extends Controller
     public function edit($id)
     {
         $review = Review::withTrashed()->whereId($id)->first();
+
+        if (request()->ajax()) {
+            return view('admin.reviews.edit-form', [
+                'review' => $review,
+            ]);
+        }
         return view('admin.reviews.edit', [
             'review' => $review,
         ]);
@@ -102,10 +121,17 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $review = Review::withTrashed()->where('id',$id)->first();
+        $this->validate($request, [
+            'title' => 'required',
+            'name'  => 'required',
+            'text'  => 'required',
+            'good'  => 'required',
+            'date'  => 'required',
+        ]);
+        $review = Review::withTrashed()->where('id', $id)->first();
         $review->good = $request->has('good');
         $review->update($request->all());
-        if($request->ajax()){
+        if ($request->ajax()) {
             return response()->json('ok');
         }
         return redirect()->back()->with('success', 'Компания изменена!');
@@ -134,15 +160,15 @@ class ReviewController extends Controller
         if ($request->has('orderBy')) {
             $reviews->orderBy(
                 $request->get('orderBy'),
-                $request->get('dir','asc')
+                $request->get('dir', 'asc')
             );
         }
 
         $currentTab = $request->get('tab');
-        if($currentTab === 'new'){
+        if ($currentTab === 'new') {
             $reviews->unrated(true);
         }
-        if($currentTab === 'archive'){
+        if ($currentTab === 'archive') {
             $reviews->unrated(false);
         }
         $reviews = $reviews->paginate(20);
@@ -153,8 +179,80 @@ class ReviewController extends Controller
     {
         $reviews = Review::with('donor')->take(10)->get();
 
-        return view('admin.reviews.main', [
+        return view('admin.reviews.new', [
             'reviews' => $reviews,
+        ]);
+    }
+
+    function new()
+    {
+
+        $reviews = Review::where('good', null)
+            ->take(20)
+            ->get();
+
+        return view('admin.reviews.new', [
+            'reviews' => $reviews,
+        ]);
+    }
+
+    function archive()
+    {
+
+        $reviews = Review::all();
+        if (request()->ajax()) {
+            return \DataTables
+                ::eloquent(
+                    Review::with(['company'])
+                        ->select('reviews.*')
+                )
+                ->editColumn('company_id', function (Review $review) {
+                    ob_start();
+                    ?>
+                    <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->donor->title ?></a></b>
+                    <br>
+                    <a href="<?php echo $review->donor_link ?>">Перейти к странице донора</a>
+                    <?php
+                    return new HtmlString(ob_get_clean());
+                })
+                ->editColumn('text', function (Review $review) {
+                    ob_start();
+                    echo $review->text
+                    ?>
+                    <div class="row-actions">
+                        <span class="edit-review"><a href="<?php echo route('reviews.edit',$review) ?>">Редактировать</a></span>
+                    </div>
+                    <?php
+                    return new HtmlString(ob_get_clean());
+                })
+                ->editColumn('good', function (Review $review) {
+                    ob_start();
+                    if ($review->good) {
+                        ?>
+                        <i class="fa fa-fw fa-2x fa-thumbs-up text-success"></i>
+                        <?php
+                    } else {
+                        ?>
+                        <i class="fa fa-fw fa-2x fa-thumbs-down text-danger"></i>
+                        <?php
+                    }
+
+                    return new HtmlString(ob_get_clean());
+                })
+                ->toJson();
+        }
+
+        $html = $this->builder
+            ->columns([
+                'name',
+                'title',
+                'text',
+                'good' => ['width' => '1%'],
+                'created_at',
+                'company_id',
+            ]);
+        return view('admin.reviews.archive', [
+            'html' => $html,
         ]);
     }
 }
