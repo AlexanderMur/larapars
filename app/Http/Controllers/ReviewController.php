@@ -121,20 +121,15 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'title' => 'required',
-            'name'  => 'required',
-            'text'  => 'required',
-            'good'  => 'required',
-            'date'  => 'required',
-        ]);
-        $review = Review::withTrashed()->where('id', $id)->first();
+
+        $review       = Review::withTrashed()->where('id', $id)->first();
         $review->good = $request->has('good');
         $review->update($request->all());
+        $request->session()->flash('success', 'Отзыв изменен');
         if ($request->ajax()) {
-            return response()->json('ok');
+            return view('admin.reviews.edit-form', ['review' => $review]);
         }
-        return redirect()->back()->with('success', 'Компания изменена!');
+        return redirect()->back();
     }
 
     /**
@@ -206,10 +201,10 @@ class ReviewController extends Controller
                     Review::with(['company'])
                         ->select('reviews.*')
                 )
-                ->editColumn('company_id', function (Review $review) {
+                ->editColumn('company.title', function (Review $review) {
                     ob_start();
                     ?>
-                    <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->donor->title ?></a></b>
+                    <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
                     <br>
                     <a href="<?php echo $review->donor_link ?>">Перейти к странице донора</a>
                     <?php
@@ -220,7 +215,7 @@ class ReviewController extends Controller
                     echo $review->text
                     ?>
                     <div class="row-actions">
-                        <span class="edit-review"><a href="<?php echo route('reviews.edit',$review) ?>">Редактировать</a></span>
+                        <span class="edit-review"><a href="<?php echo route('reviews.edit', $review) ?>">Редактировать</a></span>
                     </div>
                     <?php
                     return new HtmlString(ob_get_clean());
@@ -249,7 +244,13 @@ class ReviewController extends Controller
                 'text',
                 'good' => ['width' => '1%'],
                 'created_at',
-                'company_id',
+                'updated_at',
+                'company.title',
+            ])
+//            ->addCheckbox()
+            ->parameters([
+                'order'   => [[5, "desc"]],
+
             ]);
         return view('admin.reviews.archive', [
             'html' => $html,

@@ -26,3 +26,10 @@
     width: 175px;
   }
 }
+
+.spinner{
+  opacity: 0;
+  .loading &{
+    opacity: 1;
+  }
+}

@@ -70,7 +70,7 @@
 "use strict";
 
 
-var bind = __webpack_require__(7);
+var bind = __webpack_require__(8);
 var isBuffer = __webpack_require__(19);
 
 /*global toString:true*/
@@ -10877,10 +10877,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(9);
+    adapter = __webpack_require__(10);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(9);
+    adapter = __webpack_require__(10);
   }
   return adapter;
 }
@@ -10955,7 +10955,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 4 */
@@ -11296,6 +11296,158 @@ function applyToTag (styleElement, obj) {
 
 /***/ }),
 /* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = route;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__UrlBuilder__ = __webpack_require__(58);
+
+
+class Router extends String {
+    constructor(name, params, absolute, customZiggy=null) {
+        super();
+
+        this.name           = name;
+        this.absolute       = absolute;
+        this.ziggy          = customZiggy ? customZiggy : Ziggy;
+        this.template       = this.name ? new __WEBPACK_IMPORTED_MODULE_0__UrlBuilder__["a" /* default */](name, absolute, this.ziggy).construct() : '',
+        this.urlParams      = this.normalizeParams(params);
+        this.queryParams    = this.normalizeParams(params);
+    }
+
+    normalizeParams(params) {
+	if (typeof params === 'undefined')
+            return {};
+
+        // If you passed in a string or integer, wrap it in an array
+        params = typeof params !== 'object' ? [params] : params;
+        
+        // If the tags object contains an ID and there isn't an ID param in the
+        // url template, they probably passed in a single model object and we should
+        // wrap this in an array. This could be slightly dangerous and I want to find
+        // a better solution for this rare case.
+        
+        if (params.hasOwnProperty('id') && this.template.indexOf('{id}') == -1) {
+            params = [params.id];
+        }
+
+        this.numericParamIndices = Array.isArray(params);
+        return Object.assign({}, params);
+    }
+
+    with(params) {
+        this.urlParams = this.normalizeParams(params);
+        return this;
+    }
+
+    withQuery(params) {
+        Object.assign(this.queryParams, params);
+        return this;
+    }
+
+    hydrateUrl() {
+        let tags = this.urlParams,
+            paramsArrayKey = 0,
+            params = this.template.match(/{([^}]+)}/gi),
+            needDefaultParams = false;
+        
+        if (params && params.length != Object.keys(tags).length) {
+            needDefaultParams = true
+        }
+
+        return this.template.replace(
+            /{([^}]+)}/gi,
+            (tag, i) => {
+		 let keyName = tag.replace(/\{|\}/gi, '').replace(/\?$/, ''),
+                    key = this.numericParamIndices ? paramsArrayKey : keyName,
+                    defaultParameter = this.ziggy.defaultParameters[keyName];
+
+                if (defaultParameter && needDefaultParams) {
+                    if (this.numericParamIndices) {
+                        tags = Object.values(tags)
+                        tags.splice(key, 0, defaultParameter)
+                    } else {
+                        tags[key] = defaultParameter
+                    }
+                }
+
+                paramsArrayKey++;
+                if (typeof tags[key] !== 'undefined') {
+                    delete this.queryParams[key];
+                    return tags[key].id || encodeURIComponent(tags[key]);
+                }
+                if (tag.indexOf('?') === -1) {
+                    throw new Error(`Ziggy Error: '${keyName}' key is required for route '${this.name}'`);
+                } else {
+                    return '';
+                }
+            }
+        );
+    }
+
+    matchUrl() {
+        let tags = this.urlParams,
+            paramsArrayKey = 0;
+        
+        let windowUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname;
+
+        let searchTemplate = this.template.replace(/(\{[^\}]*\})/gi, '[^\/\?]+').split('://')[1];
+        let urlWithTrailingSlash = windowUrl.replace(/\/?$/, '/');
+
+        return new RegExp("^" + searchTemplate + "\/$").test(urlWithTrailingSlash);
+    }
+
+    constructQuery() {
+        if (Object.keys(this.queryParams).length === 0)
+            return '';
+
+        let queryString = '?';
+
+        Object.keys(this.queryParams).forEach(function(key, i) {
+            if (this.queryParams[key] !== undefined && this.queryParams[key] !== null) {
+                queryString = i === 0 ? queryString : queryString + '&';
+                queryString += key + '=' + encodeURIComponent(this.queryParams[key]);
+            }
+        }.bind(this));
+
+        return queryString;
+    }
+
+    current(name = null) {
+        let routeNames = Object.keys(this.ziggy.namedRoutes);
+
+        let currentRoute = routeNames.filter(name => {
+            return new Router(name, undefined, undefined, this.ziggy).matchUrl();
+        })[0];
+
+        return name ? (name == currentRoute) : currentRoute;
+    }
+
+    parse() {
+        this.return = this.hydrateUrl() + this.constructQuery();
+    }
+
+    url() {
+        this.parse();
+        return this.return;
+    }
+
+    toString() {
+        return this.url();
+    }
+
+    valueOf() {
+        return this.url();
+    }
+}
+
+function route(name, params, absolute, customZiggy) {
+    return new Router(name, params, absolute, customZiggy);
+};
+
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11313,7 +11465,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -11503,7 +11655,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11514,7 +11666,7 @@ var settle = __webpack_require__(22);
 var buildURL = __webpack_require__(24);
 var parseHeaders = __webpack_require__(25);
 var isURLSameOrigin = __webpack_require__(26);
-var createError = __webpack_require__(10);
+var createError = __webpack_require__(11);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(27);
 
 module.exports = function xhrAdapter(config) {
@@ -11690,7 +11842,7 @@ module.exports = function xhrAdapter(config) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11715,7 +11867,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11727,7 +11879,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11750,158 +11902,6 @@ Cancel.prototype.toString = function toString() {
 Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = route;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__UrlBuilder__ = __webpack_require__(58);
-
-
-class Router extends String {
-    constructor(name, params, absolute, customZiggy=null) {
-        super();
-
-        this.name           = name;
-        this.absolute       = absolute;
-        this.ziggy          = customZiggy ? customZiggy : Ziggy;
-        this.template       = this.name ? new __WEBPACK_IMPORTED_MODULE_0__UrlBuilder__["a" /* default */](name, absolute, this.ziggy).construct() : '',
-        this.urlParams      = this.normalizeParams(params);
-        this.queryParams    = this.normalizeParams(params);
-    }
-
-    normalizeParams(params) {
-	if (typeof params === 'undefined')
-            return {};
-
-        // If you passed in a string or integer, wrap it in an array
-        params = typeof params !== 'object' ? [params] : params;
-        
-        // If the tags object contains an ID and there isn't an ID param in the
-        // url template, they probably passed in a single model object and we should
-        // wrap this in an array. This could be slightly dangerous and I want to find
-        // a better solution for this rare case.
-        
-        if (params.hasOwnProperty('id') && this.template.indexOf('{id}') == -1) {
-            params = [params.id];
-        }
-
-        this.numericParamIndices = Array.isArray(params);
-        return Object.assign({}, params);
-    }
-
-    with(params) {
-        this.urlParams = this.normalizeParams(params);
-        return this;
-    }
-
-    withQuery(params) {
-        Object.assign(this.queryParams, params);
-        return this;
-    }
-
-    hydrateUrl() {
-        let tags = this.urlParams,
-            paramsArrayKey = 0,
-            params = this.template.match(/{([^}]+)}/gi),
-            needDefaultParams = false;
-        
-        if (params && params.length != Object.keys(tags).length) {
-            needDefaultParams = true
-        }
-
-        return this.template.replace(
-            /{([^}]+)}/gi,
-            (tag, i) => {
-		 let keyName = tag.replace(/\{|\}/gi, '').replace(/\?$/, ''),
-                    key = this.numericParamIndices ? paramsArrayKey : keyName,
-                    defaultParameter = this.ziggy.defaultParameters[keyName];
-
-                if (defaultParameter && needDefaultParams) {
-                    if (this.numericParamIndices) {
-                        tags = Object.values(tags)
-                        tags.splice(key, 0, defaultParameter)
-                    } else {
-                        tags[key] = defaultParameter
-                    }
-                }
-
-                paramsArrayKey++;
-                if (typeof tags[key] !== 'undefined') {
-                    delete this.queryParams[key];
-                    return tags[key].id || encodeURIComponent(tags[key]);
-                }
-                if (tag.indexOf('?') === -1) {
-                    throw new Error(`Ziggy Error: '${keyName}' key is required for route '${this.name}'`);
-                } else {
-                    return '';
-                }
-            }
-        );
-    }
-
-    matchUrl() {
-        let tags = this.urlParams,
-            paramsArrayKey = 0;
-        
-        let windowUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname;
-
-        let searchTemplate = this.template.replace(/(\{[^\}]*\})/gi, '[^\/\?]+').split('://')[1];
-        let urlWithTrailingSlash = windowUrl.replace(/\/?$/, '/');
-
-        return new RegExp("^" + searchTemplate + "\/$").test(urlWithTrailingSlash);
-    }
-
-    constructQuery() {
-        if (Object.keys(this.queryParams).length === 0)
-            return '';
-
-        let queryString = '?';
-
-        Object.keys(this.queryParams).forEach(function(key, i) {
-            if (this.queryParams[key] !== undefined && this.queryParams[key] !== null) {
-                queryString = i === 0 ? queryString : queryString + '&';
-                queryString += key + '=' + encodeURIComponent(this.queryParams[key]);
-            }
-        }.bind(this));
-
-        return queryString;
-    }
-
-    current(name = null) {
-        let routeNames = Object.keys(this.ziggy.namedRoutes);
-
-        let currentRoute = routeNames.filter(name => {
-            return new Router(name, undefined, undefined, this.ziggy).matchUrl();
-        })[0];
-
-        return name ? (name == currentRoute) : currentRoute;
-    }
-
-    parse() {
-        this.return = this.hydrateUrl() + this.constructQuery();
-    }
-
-    url() {
-        this.parse();
-        return this.return;
-    }
-
-    toString() {
-        return this.url();
-    }
-
-    valueOf() {
-        return this.url();
-    }
-}
-
-function route(name, params, absolute, customZiggy) {
-    return new Router(name, params, absolute, customZiggy);
-};
 
 
 /***/ }),
@@ -11934,7 +11934,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_Example_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_Example_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_Reviews_vue__ = __webpack_require__(50);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_Reviews_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__components_Reviews_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_ziggy__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_ziggy__ = __webpack_require__(7);
  //
 
 
@@ -11973,29 +11973,33 @@ jQuery(function ($) {
         e.preventDefault();
         $(this).tab('show');
     });
-    $('.like').on('click', function () {
-        updateReview(this.dataset.reviewId, { good: true });
-        $(this).parent().parent().remove();
-    });
-    $('.dislike').on('click', function () {
-        updateReview(this.dataset.reviewId, { good: false });
-        $(this).parent().parent().remove();
-    });
-
     $(document).on('click', '.edit-review', function (e) {
         getReviewPopup(e.target.href);
         return false;
     }).on('submit', '.ajax-form', function () {
-        console.log($(this).serialize(), 1);
-        axios({
+        var _this = this;
+
+        $(this).find('.alert').remove();
+        $(this).addClass('loading');
+        $.ajax({
             method: $(this).find('input[name="_method"]').val(),
             url: this.action,
             data: $(this).serialize()
-        }).then(function (response) {
-            alert('ok');
+        }).then(function (result) {
+            $(_this).html(result);
+            $(_this).removeClass('loading');
+            if (window.LaravelDataTables) {
+                window.LaravelDataTables.dataTableBuilder.ajax.reload();
+            }
         });
 
         return false;
+    }).on('click', '.like', function () {
+        updateReview(this.dataset.reviewId, { good: true });
+        $(this).parents('.review').remove();
+    }).on('click', '.dislike', function () {
+        updateReview(this.dataset.reviewId, { good: false });
+        $(this).parents('.review').remove();
     });
     $('[data-toggle="tooltip"]').tooltip();
 });
@@ -12033,7 +12037,7 @@ module.exports = __webpack_require__(18);
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(7);
+var bind = __webpack_require__(8);
 var Axios = __webpack_require__(20);
 var defaults = __webpack_require__(3);
 
@@ -12068,9 +12072,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(12);
+axios.Cancel = __webpack_require__(13);
 axios.CancelToken = __webpack_require__(34);
-axios.isCancel = __webpack_require__(11);
+axios.isCancel = __webpack_require__(12);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -12223,7 +12227,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(10);
+var createError = __webpack_require__(11);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -12656,7 +12660,7 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(31);
-var isCancel = __webpack_require__(11);
+var isCancel = __webpack_require__(12);
 var defaults = __webpack_require__(3);
 var isAbsoluteURL = __webpack_require__(32);
 var combineURLs = __webpack_require__(33);
@@ -12816,7 +12820,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(12);
+var Cancel = __webpack_require__(13);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -42075,7 +42079,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(9)))
 
 /***/ }),
 /* 44 */
@@ -42339,7 +42343,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Review___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Review__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Pagination__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Pagination___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__Pagination__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ziggy__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ziggy__ = __webpack_require__(7);
 //
 //
 //
@@ -42525,7 +42529,7 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ziggy__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ziggy__ = __webpack_require__(7);
 //
 //
 //

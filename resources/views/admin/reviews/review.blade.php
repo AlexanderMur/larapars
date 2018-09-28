@@ -3,7 +3,7 @@
  * @var \App\Models\Review $review
  */
 ?>
-<div class="row">
+<div class="row review">
     <div class="col-lg-8">
         <div class="panel panel-default">
             <div class="panel-body">
@@ -43,15 +43,12 @@
                 <b><a href="{{route('companies.show',$review->company_id)}}">{{$review->donor->title}}</a></b>
                 <br>
                 <a href="{{$review->donor_link}}">Перейти к странице донора</a>
-                <div>
-                    <a class="btn btn-primary" href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Edit</a>
-                </div>
 
             </div>
         </div>
     </div>
     <div class="col-lg-4">
-        <i class="fa fa-fw fa-2x fa-thumbs-down dislike" data-review-id="{{$review->id}}"></i>
-        <i class="fa fa-fw fa-2x fa-thumbs-up like" data-review-id="{{$review->id}}"></i>
+        <a href="javascript:" class="text-danger"><i class="fa fa-fw fa-2x fa-thumbs-down dislike" data-review-id="{{$review->id}}"></i></a>
+        <a href="javascript:" class="text-success"><i class="fa fa-fw fa-2x fa-thumbs-up like" data-review-id="{{$review->id}}"></i></a>
     </div>
 </div>

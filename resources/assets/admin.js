@@ -38,32 +38,35 @@ jQuery(function ($) {
         e.preventDefault();
         $(this).tab('show');
     });
-    $('.like').on('click', function () {
-        updateReview(this.dataset.reviewId, {good: true});
-        $(this).parent().parent().remove();
-    });
-    $('.dislike').on('click', function () {
-        updateReview(this.dataset.reviewId, {good: false});
-        $(this).parent().parent().remove();
-    });
-
-
     $(document)
         .on('click', '.edit-review', function (e) {
             getReviewPopup(e.target.href);
             return false;
         })
         .on('submit', '.ajax-form', function () {
-            console.log($(this).serialize(),1)
-            axios({
+            $(this).find('.alert').remove();
+            $(this).addClass('loading');
+            $.ajax({
                 method: $(this).find('input[name="_method"]').val(),
                 url: this.action,
                 data: $(this).serialize()
-            }).then(function (response) {
-                alert('ok');
+            }).then((result) => {
+                $(this).html(result);
+                $(this).removeClass('loading');
+                if (window.LaravelDataTables) {
+                    window.LaravelDataTables.dataTableBuilder.ajax.reload();
+                }
             });
 
-            return false
+            return false;
+        })
+        .on('click', '.like', function () {
+            updateReview(this.dataset.reviewId, {good: true});
+            $(this).parents('.review').remove();
+        })
+        .on('click', '.dislike', function () {
+            updateReview(this.dataset.reviewId, {good: false});
+            $(this).parents('.review').remove();
         });
     $('[data-toggle="tooltip"]').tooltip();
 });
