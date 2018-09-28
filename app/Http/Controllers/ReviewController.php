@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use App\Models\Review;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -89,7 +90,10 @@ class ReviewController extends Controller
      */
     public function show($id)
     {
-        //
+        if(request()->get('_method') == 'delete'){
+            return $this->destroy($id);
+        }
+        return 'ok';
     }
 
     /**
@@ -122,7 +126,7 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
 
-        $review       = Review::withTrashed()->where('id', $id)->first();
+        $review = Review::withTrashed()->where('id', $id)->first();
         $review->good = $request->has('good');
         $review->update($request->all());
         $request->session()->flash('success', 'Отзыв изменен');
@@ -140,7 +144,12 @@ class ReviewController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $review = Review::withTrashed()->find($id);
+        $review->trash();
+        if (request()->ajax()) {
+            return response()->json('ok');
+        }
+        return redirect()->back();
     }
 
     public function data(Request $request)
@@ -194,13 +203,16 @@ class ReviewController extends Controller
     function archive()
     {
 
-        $reviews = Review::all();
         if (request()->ajax()) {
             return \DataTables
                 ::eloquent(
                     Review::with(['company'])
                         ->select('reviews.*')
+                        ->where('good', '!=', null)
                 )
+                ->editColumn('id',function (Review $review){
+                    return new HtmlString("<input type='checkbox' value='$review->id' name='reviews[]'/>");
+                })
                 ->editColumn('company.title', function (Review $review) {
                     ob_start();
                     ?>
@@ -214,19 +226,25 @@ class ReviewController extends Controller
                     ob_start();
                     echo $review->text
                     ?>
-                    <div class="row-actions">
-                        <span class="edit-review"><a href="<?php echo route('reviews.edit', $review) ?>">Редактировать</a></span>
+                    <div class="actions">
+                        <span class="model-edit"><a href="<?php echo route('reviews.edit', $review) ?>">Редактировать</a></span>
+                        |
+                        <span class="model-trash"><a
+                                class="text-danger"
+                                href="<?php echo route('reviews.destroy', $review) ?>"
+                            >В корзину</a></span>
                     </div>
                     <?php
                     return new HtmlString(ob_get_clean());
                 })
                 ->editColumn('good', function (Review $review) {
                     ob_start();
-                    if ($review->good) {
+                    if ($review->good === true) {
                         ?>
                         <i class="fa fa-fw fa-2x fa-thumbs-up text-success"></i>
                         <?php
-                    } else {
+                    }
+                    if ($review->good === false) {
                         ?>
                         <i class="fa fa-fw fa-2x fa-thumbs-down text-danger"></i>
                         <?php
@@ -239,21 +257,34 @@ class ReviewController extends Controller
 
         $html = $this->builder
             ->columns([
+                'id' => ['orderable' => false,'title'=>''],
                 'name',
                 'title',
                 'text',
                 'good' => ['width' => '1%'],
-                'created_at',
-                'updated_at',
+                'rated_at',
                 'company.title',
             ])
-//            ->addCheckbox()
             ->parameters([
-                'order'   => [[5, "desc"]],
+                'order' => [[4, "desc"]],
 
             ]);
         return view('admin.reviews.archive', [
             'html' => $html,
         ]);
+    }
+    function updateMany(){
+        if(request()->get('action') == 'group'){
+            $ids = \request()->get('reviews');
+            $review_with_group = Review::where('group_id','!=',null)->first();
+            if($review_with_group){
+                $group_id = $review_with_group->group_id;
+                $num = Review::whereIn('id',$ids)->update(['group_id'=>$group_id]);
+                return redirect()->back()->with('success',$num . ' отзыва(ов) сгруппированы');
+            }
+            $group = Group::create();
+            $num = Review::whereIn('id',$ids)->update(['group_id'=>$group->id]);
+            return redirect()->back()->with('success',$num . ' отзыва(ов) сгруппированы');
+        }
     }
 }

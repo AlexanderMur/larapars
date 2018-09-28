@@ -2,34 +2,39 @@
 @import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins";
 @import '~bootstrap/scss/_utilities';
-
 @import '~sb-admin-2/vendor/bootstrap/css/bootstrap.css';
 @import '~sb-admin-2/vendor/metisMenu/metisMenu.min.css';
 @import '~sb-admin-2/vendor/datatables/css/dataTables.bootstrap.css';
-
 @import '~sb-admin-2/dist/css/sb-admin-2.css';
-
-
-
 @import '~font-awesome/scss/font-awesome';
-
-
-
 
 @media (min-width: 768px) {
   #page-wrapper {
     margin: 0 0 0 175px;
   }
 }
+
 @media (min-width: 768px) {
   .sidebar {
     width: 175px;
   }
 }
 
-.spinner{
+.spinner {
   opacity: 0;
-  .loading &{
+  .loading & {
     opacity: 1;
   }
+}
+
+.actions {
+  opacity: 0;
+  .has-actions:hover &, tr:hover &{
+    opacity: 1;
+  }
+}
+
+.bulk-select{
+  width: 200px;
+  display: inline-block;
 }

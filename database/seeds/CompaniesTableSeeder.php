@@ -57,13 +57,13 @@ class CompaniesTableSeeder extends Seeder
                     $review->save();
                 }
                 if ($reviews->count() >= 2) {
-                    $group = new Group();
-                    $group->save();
-                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
-
-                    $group = new Group();
-                    $group->save();
-                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
+//                    $group = new Group();
+//                    $group->save();
+//                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
+//
+//                    $group = new Group();
+//                    $group->save();
+//                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
                 }
 
                 $reviews->count() && $reviews->random()->trash();

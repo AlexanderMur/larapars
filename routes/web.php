@@ -26,6 +26,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('companies', 'CompanyController');
     Route::resource('reviews', 'ReviewController');
+    Route::put('reviews', 'ReviewController@updateMany')->name('reviews.updateMany');
     Route::get('reviews2', 'ReviewController@main')->name('reviews.main');
     Route::get('reviews2/data', 'ReviewController@data')->name('reviews.data');
     Route::get('reviews2/new', 'ReviewController@new')->name('reviews.new');

@@ -8,7 +8,19 @@
 
 
 @section('content2')
-    {{$html->table()}}
+    <form action="{{route('reviews.updateMany')}}" method="post">
+        @method('PUT')
+        @csrf
+        {{$html->table()}}
+
+        <div>
+            <select name="action" class="form-control bulk-select" title="TITLE">
+                <option value="-1">Действия</option>
+                <option value="group">Группировать</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Применить</button>
+        </div>
+    </form>
 @stop
 
 

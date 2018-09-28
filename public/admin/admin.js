@@ -11956,11 +11956,11 @@ new __WEBPACK_IMPORTED_MODULE_5_vue___default.a({
 });
 
 function updateReview(id, data) {
-    axios.put(Object(__WEBPACK_IMPORTED_MODULE_8_ziggy__["a" /* default */])('reviews.update', id), data);
+    return axios.put(Object(__WEBPACK_IMPORTED_MODULE_8_ziggy__["a" /* default */])('reviews.update', id), data);
 }
 
-function getReviewPopup(href) {
-    axios.get(href).then(function (data) {
+function getEditPopup(href) {
+    return $.get(href).then(function (data) {
         var $myModal = $('#myModal');
         $myModal.find('.modal-body').html(data.data);
 
@@ -11968,13 +11968,28 @@ function getReviewPopup(href) {
     });
 }
 
+function deleteReview(href) {
+    return axios.delete(href);
+}
+
+function reloadDataTable() {
+    if (window.LaravelDataTables) {
+        window.LaravelDataTables.dataTableBuilder.ajax.reload();
+    }
+}
+
 jQuery(function ($) {
     $(".nav-tabs a").click(function (e) {
         e.preventDefault();
         $(this).tab('show');
     });
-    $(document).on('click', '.edit-review', function (e) {
-        getReviewPopup(e.target.href);
+    $(document).on('click', '.model-edit', function ( /**Event*/e) {
+        getEditPopup(this.href);
+        return false;
+    }).on('click', '.model-trash', function (e) {
+        deleteReview(this.href).then(reloadDataTable).catch(function (data) {
+            alert(data);
+        });
         return false;
     }).on('submit', '.ajax-form', function () {
         var _this = this;
@@ -11988,9 +12003,7 @@ jQuery(function ($) {
         }).then(function (result) {
             $(_this).html(result);
             $(_this).removeClass('loading');
-            if (window.LaravelDataTables) {
-                window.LaravelDataTables.dataTableBuilder.ajax.reload();
-            }
+            reloadDataTable();
         });
 
         return false;

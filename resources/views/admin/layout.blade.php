@@ -250,7 +250,6 @@
         </div>
         <!-- /.navbar-static-side -->
     </nav>
-
     @yield('content')
     <!-- /#page-wrapper -->
     <!-- Button trigger modal -->

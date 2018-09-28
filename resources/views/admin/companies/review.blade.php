@@ -3,7 +3,7 @@
  * @var \App\Models\Review $review
  */
 ?>
-<div class="panel panel-default">
+<div class="panel panel-default has-actions">
     <div class="panel-body">
 
         <div class="row mb-3">
@@ -37,30 +37,14 @@
         </div>
 
         {!! $review->text !!}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Донор (название)</th>
-                    <th>Донор (ссылка)</th>
-                    <th>Донор (ссылка на страницу)</th>
-                    <th>Дата парсинга</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{$review->donor->title}}</td>
-                    <td><a href="{{$review->donor_link}}">{{$review->donor_link}}</a></td>
-                    <td><a href="{{$review->donor->site}}">{{$review->donor->site}}</a></td>
-                    <td>{{$review->donor->created_at}}</td>
-                </tr>
-            </tbody>
-
-        </table>
+        <b><a href="{{route('companies.show',$review->company_id)}}">{{$review->donor->title}}</a></b>
+        <br>
+        <a href="{{$review->donor_link}}">Перейти к странице донора</a>
 
 
-        <div>
-            <a class="btn btn-primary" href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Edit</a>
+        <div class="actions">
+            <a class="btn btn-primary" href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Редактировать</a>
+            <a class="btn btn-danger" href="{{route('reviews.destroy',[ $review,'_method=delete' ])}}"><i class="fa fa-edit"></i> В корзину</a>
         </div>
-
     </div>
 </div>

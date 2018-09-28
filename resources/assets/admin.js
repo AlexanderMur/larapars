@@ -20,11 +20,11 @@ new Vue({
 });
 
 function updateReview(id, data) {
-    axios.put(route('reviews.update', id), data);
+    return axios.put(route('reviews.update', id), data);
 }
 
-function getReviewPopup(href) {
-    axios.get(href)
+function getEditPopup(href) {
+    return $.get(href)
         .then(function (data) {
             const $myModal = $('#myModal');
             $myModal.find('.modal-body').html(data.data);
@@ -33,15 +33,33 @@ function getReviewPopup(href) {
         });
 }
 
+function deleteReview(href) {
+    return axios.delete(href);
+}
+
+function reloadDataTable() {
+    if (window.LaravelDataTables) {
+        window.LaravelDataTables.dataTableBuilder.ajax.reload();
+    }
+}
+
 jQuery(function ($) {
     $(".nav-tabs a").click(function (e) {
         e.preventDefault();
         $(this).tab('show');
     });
     $(document)
-        .on('click', '.edit-review', function (e) {
-            getReviewPopup(e.target.href);
+        .on('click', '.model-edit', function (/**Event*/e) {
+            getEditPopup(this.href);
             return false;
+        })
+        .on('click', '.model-trash', function (e) {
+            deleteReview(this.href)
+                .then(reloadDataTable)
+                .catch(data=>{
+                    alert(data)
+                });
+            return false
         })
         .on('submit', '.ajax-form', function () {
             $(this).find('.alert').remove();
@@ -49,13 +67,11 @@ jQuery(function ($) {
             $.ajax({
                 method: $(this).find('input[name="_method"]').val(),
                 url: this.action,
-                data: $(this).serialize()
+                data: $(this).serialize(),
             }).then((result) => {
                 $(this).html(result);
                 $(this).removeClass('loading');
-                if (window.LaravelDataTables) {
-                    window.LaravelDataTables.dataTableBuilder.ajax.reload();
-                }
+                reloadDataTable();
             });
 
             return false;

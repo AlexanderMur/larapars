@@ -29,11 +29,11 @@ class CompanyController extends Controller
                             'reviews',
                             'donors',
                             'reviews as good_reviews_count' => function (Query $query) {
-                                $query->where('good',1);
+                                $query->where('good', 1);
                             },
-                            'reviews as bad_reviews_count' => function (Query $query) {
-                                $query->where('good',0);
-                            }
+                            'reviews as bad_reviews_count'  => function (Query $query) {
+                                $query->where('good', 0);
+                            },
                         ])
                         ->leftJoin('reviews', 'reviews.company_id', '=', 'companies.id')
                         ->groupBy('id')
@@ -45,17 +45,17 @@ class CompanyController extends Controller
         }
         $html = $builder
             ->columns([
-                'action'              => ['searchable' => false, 'orderable' => false],
+                'action'             => ['searchable' => false, 'orderable' => false],
                 'id',
                 'title',
                 'phone',
                 'single_page_link',
                 'site',
                 'address',
-                'donors_count' => ['searchable' => false],
+                'donors_count'       => ['searchable' => false],
                 'good_reviews_count' => ['searchable' => false],
-                'bad_reviews_count'   => ['searchable' => false],
-                'reviews_count'       => ['searchable' => false],
+                'bad_reviews_count'  => ['searchable' => false],
+                'reviews_count'      => ['searchable' => false],
                 'created_at',
                 'updated_at',
             ])
@@ -97,7 +97,7 @@ class CompanyController extends Controller
             $query->withTrashed();
         }]);
         return view('admin.companies.show', [
-            'company' => $company
+            'company' => $company,
         ]);
     }
 
@@ -109,8 +109,14 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
+
+        if (request()->ajax()) {
+            return view('admin.companies.edit-form', [
+                'company' => $company,
+            ]);
+        }
         return view('admin.companies.edit', [
-            'company' => $company
+            'company' => $company,
         ]);
     }
 
@@ -123,14 +129,14 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        $this->validate($request, [
-            'title'            => 'required',
-            'site'             => 'required',
-            'single_page_link' => 'required',
-            'address'          => 'required',
-        ]);
         $company->update($request->all());
-        return redirect()->back()->with('success', 'Компания изменена!');
+
+
+        $request->session()->flash('success', 'Компания изменена');
+        if ($request->ajax()) {
+            return view('admin.companies.edit-form', ['company' => $company]);
+        }
+        return redirect()->back();
     }
 
     /**

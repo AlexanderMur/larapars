@@ -28,6 +28,7 @@ class CreateReviewsTable extends Migration
             $table->integer('donor_id')->nullable();
             $table->date('donor_created_at')->nullable();
             $table->date('trashed_at')->nullable();
+            $table->timestamp('rated_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

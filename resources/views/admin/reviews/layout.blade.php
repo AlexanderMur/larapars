@@ -9,6 +9,7 @@
 
     <div id="page-wrapper">
         <h1 class="page-header">Review edit</h1>
+        @include('admin.partials.messages')
         <ul class="nav nav-pills nav-justified">
             <li role="presentation" class="{{Route::currentRouteNamed('reviews.new') ? 'active' : ''}}">
                 <a href="{{route('reviews.new')}}">Новые</a>
@@ -17,6 +18,7 @@
                 <a href="{{route('reviews.archive')}}">Архив</a>
             </li>
         </ul>
+
         @yield('content2')
     </div>
 @stop

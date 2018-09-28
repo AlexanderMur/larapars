@@ -48,7 +48,8 @@ class Review extends Model
         'deleted_at',
     ];
     protected $dates = [
-        'deleted_at'
+        'deleted_at',
+        'rated_at',
     ];
     protected $casts = [
         'good' => 'boolean'
@@ -74,7 +75,16 @@ class Review extends Model
             $builder->where('good','!=',null);
         }
     }
+    public function setGoodAttribute($value){
+        if(!isset($this->attributes['good'])){
+            $this->attributes['good'] = null;
+        }
 
+        if($value !== null && $this->attributes['good'] === null){
+            $this->attributes['rated_at'] = Carbon::now();
+        }
+        $this->attributes['good'] = $value;
+    }
     /**
      * @throws \Exception
      */
