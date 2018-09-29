@@ -9,6 +9,9 @@
         <a href="{{route('companies.index')}}"><i class="fa fa-car  fa-fw"></i> Компании</a>
     </li>
     <li>
+        <a href="{{route('parsed_companies.index')}}"><i class="fa fa-car  fa-fw"></i> Модерация</a>
+    </li>
+    <li>
         <a href="{{route('reviews.new')}}"><i class="fa fa-comments fa-fw"></i> Отзывы</a>
     </li>
     <li>

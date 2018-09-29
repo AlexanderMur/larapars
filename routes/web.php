@@ -25,6 +25,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     })->name('admin.dashboard');
 
     Route::resource('companies', 'CompanyController');
+    Route::resource('parsed_companies', 'ParsedCompanyController');
+    Route::put('parsed_companies', 'ParsedCompanyController@bulk')->name('parsed_companies.bulk');
     Route::resource('reviews', 'ReviewController');
     Route::put('reviews', 'ReviewController@updateMany')->name('reviews.updateMany');
     Route::get('reviews2', 'ReviewController@main')->name('reviews.main');

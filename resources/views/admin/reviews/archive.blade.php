@@ -8,6 +8,7 @@
 
 
 @section('content2')
+
     <form action="{{route('reviews.updateMany')}}" method="post">
         @method('PUT')
         @csrf

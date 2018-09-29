@@ -6,7 +6,6 @@
 
 
 @section('content2')
-
     @foreach ($reviews as $review)
         @include('admin.reviews.review',[
             'review' => $review,
