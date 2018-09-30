@@ -68,13 +68,13 @@ class CompanyController extends Controller
     {
 
         $companies = Company::select();
-        $attibutes = Company::first()->getAttributes();
+        $attributes = Company::first()->getAttributes();
         $term      = request()->get('term');
 
-        foreach (explode(' ', $term) as $item) {
-            $companies->where(function($query) use ($item, $attibutes) {
-                foreach ($attibutes as $key => $attibute) {
-                    $query->orWhereRaw("LOWER(`$key`) LIKE '%$item%'");
+        foreach (explode(' ', $term) as $word) {
+            $companies->where(function($query) use ($word, $attributes) {
+                foreach ($attributes as $key => $attribute) {
+                    $query->orWhereRaw("LOWER(`$key`) LIKE '%$word%'");
                 }
             });
         }

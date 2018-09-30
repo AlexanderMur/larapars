@@ -115,21 +115,25 @@ class ParsedCompanyController extends Controller
         //
     }
 
-    public function bulk(Request $request){
+    public function bulk(Request $request)
+    {
         $action = $request->get('action');
 
-        if($action == 'group'){
-            $ids = $request->get('ids');
-            //
-            return view('admin.parsed_companies.new',['ids'=>$ids,'action'=>$action]);
+        if ($action == 'group') {
+            $ids        = $request->get('ids');
+            $company_id = $request->get('company_id');
+            ParsedCompany::whereIn('id', $ids)->update(['company_id'=> $company_id]);
+
+            return redirect()->back()->with('success','Компании привязаны');
         }
-        if($action == 'new_company'){
+        if ($action == 'new_company') {
             $ids = $request->get('ids');
             //
-            return view('admin.parsed_companies.new',['ids'=>$ids,'action'=>$action]);
+            return view('admin.parsed_companies.new', ['ids' => $ids, 'action' => $action]);
         }
         return redirect()->back();
     }
+
     /**
      * Remove the specified resource from storage.
      *

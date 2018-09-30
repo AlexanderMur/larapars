@@ -15,7 +15,7 @@
         {{$html->table()}}
 
         <div>
-            <select name="action" class="form-control bulk-select" title="TITLE">
+            <select name="action" class="form-control select-medium" title="TITLE">
                 <option value="-1">Действия</option>
                 <option value="group">Группировать</option>
             </select>
