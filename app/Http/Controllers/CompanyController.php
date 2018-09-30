@@ -89,7 +89,14 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        //
+        if(request()->has('ids')){
+            $ids = explode(',',request()->get('ids'));
+            $parsed_companies = ParsedCompany::whereIn('id',$ids)->get();
+            return view('admin.companies.create',[
+                'parsed_companies' => $parsed_companies,
+            ]);
+        }
+        return view('admin.companies.create');
     }
 
     /**
@@ -100,7 +107,11 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $company = Company::create(\request()->all());
+        ParsedCompany::whereIn('id',\request()->get('parsed_companies_ids'))
+            ->update(['company_id'=>$company->id]);
+        return redirect()->route('companies.show',$company);
     }
 
     /**

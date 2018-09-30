@@ -129,7 +129,7 @@ class ParsedCompanyController extends Controller
         if ($action == 'new_company') {
             $ids = $request->get('ids');
             //
-            return view('admin.parsed_companies.new', ['ids' => $ids, 'action' => $action]);
+            return redirect()->route('companies.create',['ids'=>implode(',',$ids)]);
         }
         return redirect()->back();
     }
