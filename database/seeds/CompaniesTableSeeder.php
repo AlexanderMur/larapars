@@ -5,11 +5,17 @@ use App\Models\Donor;
 use App\Models\Group;
 use App\Models\ParsedCompany;
 use App\Models\Review;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
 class CompaniesTableSeeder extends Seeder
 {
+    /**
+     * @var Collection|Donor[]
+     */
+    public $donors;
+
     /**
      * Run the database seeds.
      *
@@ -17,71 +23,75 @@ class CompaniesTableSeeder extends Seeder
      */
     public function run()
     {
-        /** @var Collection $donors */
-        $donors = factory(Donor::class, 10)->create();
+        $this->donors = factory(Donor::class, 10)->create();
 
         /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
-        $companies = factory(Company::class, 3)
-            ->create()
-            ->each(function (Company $company) use ($donors) {
+        $companies = factory(Company::class, 3)->create();
+
+        $companies
+            ->each(function (Company $company) {
 
                 /** @var Collection|Review[] $reviews */
-                $reviews = factory(Review::class, random_int(0, 10))
-                    ->states('not rated')
-                    ->make();
+                $reviews = factory(Review::class, random_int(0, 10))->states('not rated')->make();
 
-                $company->reviews()->saveMany($reviews);
-                foreach ($reviews as $review) {
-
-                    $donor = $donors->random();
-                    $review->donor_link = $this->generatePivotSite($donor, $company);
-                    $review->donor()->associate($donor);
-                    $review->save();
-                }
+                $this->associateReviewsWithDonorAndCompany($reviews, $company);
             })
-            ->each(function (Company $company) use (&$reviewsArr, $donors) {
+            ->each(function (Company $company) {
 
                 $attachedDonors = collect();
-                foreach ($this->takeRandom($donors, 1, 10) as $donor) {
+                foreach ($this->takeRandom($this->donors, 1, 10) as $donor) {
                     $attachedDonors[] = $donor;
                     $company->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company), 'created_at' => \Carbon\Carbon::now()]);
                 }
 
                 /** @var Collection|Review[] $reviews */
                 $reviews = factory(Review::class, random_int(0, 10))->make();
-                $company->reviews()->saveMany($reviews);
-                foreach ($reviews as $review) {
-
-                    $donor = $donors->random();
-                    $review->donor_link = $this->generatePivotSite($donor, $company);
-                    $review->donor()->associate($donor);
-                    $review->save();
-                }
-//                if ($reviews->count() >= 2) {
-//                    $group = new Group();
-//                    $group->save();
-//                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
-//
-//                    $group = new Group();
-//                    $group->save();
-//                    $group->reviews()->saveMany($this->takeRandom($reviews, 2, 3));
-//                }
+                $this->associateReviewsWithDonorAndCompany($reviews, $company);
 
                 $reviews->count() && $reviews->random()->trash();
                 $reviews->count() && $reviews->random()->delete();
             });
 
-        /** @var Collection|ParsedCompany[] $parsed_companies */
-        foreach (['company1', 'company2'] as $item) {
-            $parsed_companies = factory(ParsedCompany::class,$item,11)->create();
-            $parsed_companies->each(function(ParsedCompany $parsedCompany) use($donors){
-                $donor = $donors->random();
-                $parsedCompany->donor_page = $this->generatePivotSite($donor,$parsedCompany);
-                $parsedCompany->donor()->associate($donor)->save();
-            });
-        }
+        $this->makeReviewsForCompanies(
+            $this->saveMany(
+                $this->makeParsedCompanies('company2',11)
+            )
+        );
+
+        $parsed_companies = $this->makeParsedCompanies('company1',11);
+        /**
+         * @var Company $company
+         */
+        $company = factory(Company::class, 'company1')->create();
+
+        $company->parsed_companies()->saveMany($parsed_companies);
     }
 
+    /**
+     * @param Company[]|ParsedCompany[] $companies
+     *
+     */
+    public function makeReviewsForCompanies($companies){
+
+        foreach ($companies as $company) {
+            $reviews = factory(Review::class, rand(0, 10))->make();
+            $this->associateReviewsWithDonorAndCompany($reviews, $company);
+        }
+    }
+    /**
+     * @param string $name
+     * @param null $num
+     * @return Collection|ParsedCompany[]
+     */
+    public function makeParsedCompanies($name = 'default', $num = null)
+    {
+        return factory(ParsedCompany::class, $name, $num)->make()
+            ->each(function (ParsedCompany $parsedCompany) {
+                $donor                     = $this->donors->random();
+                $parsedCompany->donor_page = $this->generatePivotSite($donor, $parsedCompany);
+                $parsedCompany->donor_id   = $donor->id;
+            });
+    }
     /**
      * @param Collection $collection
      * @param $min
@@ -93,7 +103,7 @@ class CompaniesTableSeeder extends Seeder
         $count = $collection->count();
         if ($max > $count) {
             $max = $count;
-            if($count < $min){
+            if ($count < $min) {
                 return [];
             }
         }
@@ -108,5 +118,33 @@ class CompaniesTableSeeder extends Seeder
     function generatePivotSite(Donor $donor, $company)
     {
         return $donor->link . '/' . str_slug($company->title);
+    }
+
+    /**
+     * @param Collection|Review[] $reviews
+     * @param ParsedCompany|Company $company
+     */
+    function associateReviewsWithDonorAndCompany($reviews, $company)
+    {
+        $donor = $this->donors->random();
+        $company->reviews()->saveMany($reviews);
+        foreach ($reviews as $review) {
+
+            $review->donor_link = $this->generatePivotSite($donor, $company);
+            $review->donor()->associate($donor);
+            $review->save();
+        }
+    }
+
+    /**
+     * @param $models
+     * @return array
+     */
+    public function saveMany($models)
+    {
+        foreach ($models as $model) {
+            $model->save();
+        }
+        return $models;
     }
 }

@@ -24,6 +24,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    Route::get('companies/search', 'CompanyController@search')->name('companies.search');
     Route::resource('companies', 'CompanyController');
     Route::resource('parsed_companies', 'ParsedCompanyController');
     Route::put('parsed_companies', 'ParsedCompanyController@bulk')->name('parsed_companies.bulk');

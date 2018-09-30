@@ -32,6 +32,8 @@
         "node-sass": "^4.9.3",
         "replace-in-file-webpack-plugin": "^1.0.6",
         "sb-admin-2": "^3.3.8",
+        "select2": "^4.0.6-rc.1",
+        "select2-bootstrap-theme": "0.1.0-beta.10",
         "ziggy": "git+https://github.com/tightenco/ziggy.git"
     }
 }

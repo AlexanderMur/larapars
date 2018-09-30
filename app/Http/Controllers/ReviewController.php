@@ -214,13 +214,15 @@ class ReviewController extends Controller
                     return new HtmlString("<input type='checkbox' value='$review->id' name='reviews[]'/>");
                 })
                 ->editColumn('company.title', function (Review $review) {
-                    ob_start();
-                    ?>
-                    <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
-                    <br>
-                    <a href="<?php echo $review->donor_link ?>">Перейти к странице донора</a>
-                    <?php
-                    return new HtmlString(ob_get_clean());
+                    if($review->company_id){
+                        ob_start();
+                        ?>
+                        <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
+                        <br>
+                        <a href="<?php echo $review->donor_link ?>">Перейти к странице донора</a>
+                        <?php
+                        return new HtmlString(ob_get_clean());
+                    }
                 })
                 ->editColumn('text', function (Review $review) {
                     ob_start();

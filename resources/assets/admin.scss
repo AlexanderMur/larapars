@@ -7,7 +7,8 @@
 @import '~sb-admin-2/vendor/datatables/css/dataTables.bootstrap.css';
 @import '~sb-admin-2/dist/css/sb-admin-2.css';
 @import '~font-awesome/scss/font-awesome';
-
+@import "~select2/dist/css/select2.css";
+@import "~select2-bootstrap-theme/dist/select2-bootstrap";
 @media (min-width: 768px) {
   #page-wrapper {
     margin: 0 0 0 175px;

@@ -13,7 +13,10 @@
             @method('PUT')
             @csrf
             {{$html->table(['class' => 'table table-bordered'])}}
-            <div>
+            <div class="form-group">
+                <select class="js-data-example-ajax bulk-select" title="Выберите компанию"></select>
+            </div>
+            <div class="form-group">
                 <select name="action" class="form-control bulk-select" title="TITLE">
                     <option value="-1">Действия</option>
                     <option value="new_company">Создать новую компанию</option>

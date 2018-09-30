@@ -118,7 +118,7 @@ class ParsedCompanyController extends Controller
     public function bulk(Request $request){
         $action = $request->get('action');
 
-        if($action == 'new_company'){
+        if($action == 'group'){
             $ids = $request->get('ids');
             //
             return view('admin.parsed_companies.new',['ids'=>$ids,'action'=>$action]);

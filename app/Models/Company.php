@@ -43,5 +43,7 @@ class Company extends Model
     {
         return $this->belongsToMany(Donor::class)->withPivot('site')->using(CompanyDonor::class);
     }
-
+    public function parsed_companies(){
+        return $this->hasMany(ParsedCompany::class);
+    }
 }

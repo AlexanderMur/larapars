@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\ParsedCompany;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
@@ -49,7 +50,6 @@ class CompanyController extends Controller
                 'id',
                 'title',
                 'phone',
-                'single_page_link',
                 'site',
                 'address',
                 'donors_count'       => ['searchable' => false],
@@ -62,6 +62,24 @@ class CompanyController extends Controller
             ->addCheckbox([], true);;
 
         return view('users.index', compact('html'));
+    }
+
+    public function search()
+    {
+
+        $companies = Company::select();
+        $attibutes = Company::first()->getAttributes();
+        $term      = request()->get('term');
+
+        foreach (explode(' ', $term) as $item) {
+            $companies->where(function($query) use ($item, $attibutes) {
+                foreach ($attibutes as $key => $attibute) {
+                    $query->orWhereRaw("LOWER(`$key`) LIKE '%$item%'");
+                }
+            });
+        }
+        $companies = $companies->paginate(10);
+        return response()->json($companies);
     }
 
     /**

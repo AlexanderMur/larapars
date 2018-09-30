@@ -22,6 +22,7 @@ class CreateParsedCompaniesTable extends Migration
             $table->string('site')->nullable();
             $table->string('title')->nullable();
             $table->string('address')->nullable();
+            $table->integer('company_id')->nullable();
             $table->text('donor_page')->nullable();
             $table->string('donor_id')->nullable();
             $table->timestamps();

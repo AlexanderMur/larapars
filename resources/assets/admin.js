@@ -1,5 +1,5 @@
-import './bootstrap'; //
-
+import './bootstrap'; //always first
+import 'select2';
 import "sb-admin-2/vendor/bootstrap/js/bootstrap.js";
 import "sb-admin-2/vendor/datatables/js/dataTables.bootstrap.js";
 import "sb-admin-2/vendor/metisMenu/metisMenu.min.js";
@@ -56,10 +56,10 @@ jQuery(function ($) {
         .on('click', '.model-trash', function (e) {
             deleteReview(this.href)
                 .then(reloadDataTable)
-                .catch(data=>{
-                    alert(data)
+                .catch(data => {
+                    alert(data);
                 });
-            return false
+            return false;
         })
         .on('submit', '.ajax-form', function () {
             $(this).find('.alert').remove();
@@ -85,4 +85,22 @@ jQuery(function ($) {
             $(this).parents('.review').remove();
         });
     $('[data-toggle="tooltip"]').tooltip();
+    $('.js-data-example-ajax').select2({
+        theme: "bootstrap",
+        placeholder: 'Выберите компанию',
+        ajax: {
+            url: route('companies.search'),
+            dataType: 'json',
+            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+            processResults: function (data) {
+                const maped = data.data.map(company => ({id: company.id, text: company.title}));
+                return {
+                    results: maped,
+                    pagination: {
+                        more: data.next_page_url,
+                    }
+                };
+            },
+        },
+    });
 });
