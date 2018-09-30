@@ -20,8 +20,8 @@
                     <a href="#reviews" class="btn btn-primary active" data-toggle="tab">
                         <input type="radio"/>Отзывы ({{$company->reviews()->count()}})
                     </a>
-                    <a href="#donors" class="btn btn-primary" data-toggle="tab">
-                        <input type="radio"/>Доноры ({{$company->donors()->count()}})
+                    <a href="#parsed_companies" class="btn btn-primary" data-toggle="tab">
+                        <input type="radio"/>Доноры ({{$company->parsed_companies()->count()}})
                     </a>
                 </div>
 
@@ -104,7 +104,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="donors">
+                    <div class="tab-pane fade" id="parsed_companies">
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#sub21">Доноры</a>
                             </li>
@@ -112,10 +112,9 @@
                         <div class="tab-content">
                             <div class="tab-pane fade active in" id="sub21">
 
-                                @foreach ($company->donors as $donor)
-                                    @include('admin.companies.donor',[
-                                        'donor' => $donor,
-                                        'company' => $company,
+                                @foreach ($company->parsed_companies as $parsed_company)
+                                    @include('admin.partials.parsed_company',[
+                                        'parsed_company' => $parsed_company,
                                     ])
                                 @endforeach
                             </div>

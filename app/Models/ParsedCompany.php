@@ -20,6 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Donor|null $donor
  * @mixin \Eloquent
+ * @property int|null $company_id
+ * @property-read \App\Models\Company|null $company
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  */
 class ParsedCompany extends Model
 {

@@ -28,7 +28,7 @@ class CompanyController extends Controller
                         ])
                         ->withCount([
                             'reviews',
-                            'donors',
+                            'parsed_companies as donors_count',
                             'reviews as good_reviews_count' => function (Query $query) {
                                 $query->where('good', 1);
                             },

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @see \CreateCompaniesTable
  * @see CompanyController
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
  */
 class Company extends Model
 {

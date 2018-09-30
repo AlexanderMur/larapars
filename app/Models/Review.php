@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $donor_link
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review unrated($unrated = true)
  * @property \Illuminate\Support\Carbon|null $rated_at
+ * @property int|null $parsed_company_id
  */
 class Review extends Model
 {
