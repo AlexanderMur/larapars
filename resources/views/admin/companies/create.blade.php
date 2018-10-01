@@ -4,8 +4,6 @@
  *
  */
 
-use \App\Models\ParsedCompany;
-
 ?>
 
 @extends('admin.layout')
@@ -68,6 +66,11 @@ use \App\Models\ParsedCompany;
             </div>
 
             {{BootForm::close()}}
+
+            @include('admin.partials.company-tabs',[
+                'reviews' => $parsed_companies->pluck('reviews')->flatten(),
+                'parsed_companies' => $parsed_companies,
+            ])
         </div>
     </div>
 @stop

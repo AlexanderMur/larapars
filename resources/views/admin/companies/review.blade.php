@@ -37,9 +37,16 @@
         </div>
 
         {!! $review->text !!}
-        <b><a href="{{route('companies.show',$review->company_id)}}">{{$review->donor->title}}</a></b>
-        <br>
-        <a href="{{$review->donor_link}}">Перейти к странице донора</a>
+        @isset($review->company_id)
+            <b><a href="{{route('companies.show',$review->company_id)}}">{{$review->donor->title}}</a></b>
+            <br>
+            <a href="{{$review->donor_link}}">Перейти к странице донора</a>
+        @endisset
+        @isset($review->parsed_company_id)
+            <b><a href="{{route('parsed_companies.show',$review->parsed_company_id)}}">{{$review->donor->title}}</a></b>
+            <br>
+            <a href="{{$review->donor_link}}">Перейти к странице донора</a>
+        @endisset
 
 
         <div class="actions">

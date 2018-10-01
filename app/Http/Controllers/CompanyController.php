@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\ParsedCompany;
-use Doctrine\DBAL\Query\QueryBuilder;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Builder;
@@ -109,8 +109,9 @@ class CompanyController extends Controller
     {
 
         $company = Company::create(\request()->all());
-        ParsedCompany::whereIn('id',\request()->get('parsed_companies_ids'))
-            ->update(['company_id'=>$company->id]);
+        $parsed_companies_ids = \request()->get('parsed_companies_ids');
+        ParsedCompany::whereIn('id',$parsed_companies_ids)->update(['company_id'=>$company->id]);
+        Review::whereIn('parsed_company_id',$parsed_companies_ids)->update(['company_id'=>$company->id]);
         return redirect()->route('companies.show',$company);
     }
 
