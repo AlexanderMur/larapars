@@ -7,6 +7,7 @@
 
 {{BootForm::text('title')}}
 {{BootForm::text('site')}}
+{{BootForm::text('city')}}
 {{BootForm::text('address')}}
 
 <div class="form-group">

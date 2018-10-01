@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
 use App\Models\ParsedCompany;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Support\HtmlString;
 use Yajra\DataTables\Html\Builder;
 
@@ -52,6 +50,7 @@ class ParsedCompanyController extends Controller
                 'phone',
                 'donor_page',
                 'site',
+                'city',
                 'address',
                 'created_at',
                 'updated_at',

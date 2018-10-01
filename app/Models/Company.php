@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @see \CreateCompaniesTable
  * @see CompanyController
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
+ * @property string|null $city
  */
 class Company extends Model
 {

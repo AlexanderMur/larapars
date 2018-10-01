@@ -10,6 +10,7 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
             . ' ' . $faker->words(random_int(1,2), true)
             . ' ' . join(' ',$faker->randomElements(['Cars', 'Avto', 'Motors','Fast',''],2)),
         'address'          => $faker->address,
+        'city' => $faker->city,
     ];
 });
 

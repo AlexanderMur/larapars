@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $company_id
  * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
+ * @property string|null $city
  */
 class ParsedCompany extends Model
 {

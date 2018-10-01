@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateParsedCompaniesTable extends Migration
 {
@@ -22,6 +22,7 @@ class CreateParsedCompaniesTable extends Migration
             $table->string('site')->nullable();
             $table->string('title')->nullable();
             $table->string('address')->nullable();
+            $table->string('city')->nullable();
             $table->integer('company_id')->nullable();
             $table->text('donor_page')->nullable();
             $table->string('donor_id')->nullable();

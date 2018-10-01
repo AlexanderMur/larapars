@@ -51,6 +51,7 @@ class CompanyController extends Controller
                 'title',
                 'phone',
                 'site',
+                'city',
                 'address',
                 'donors_count'       => ['searchable' => false],
                 'good_reviews_count' => ['searchable' => false],

@@ -95,7 +95,28 @@
                 <div class="data_choice--col">
                     {{
                         BootForm::select(
-                            'company_addresses',
+                            'cities',
+                            'Город',
+                            $parsed_companies->pluck('city','city'),
+                            null,
+                            ['class'=>'parsed_data']
+                        )
+                    }}
+                </div>
+                <div class="data_choice--arrow">
+                    <button class="btn btn-default border-0 text-primary  data_choice--arrow__click">
+                        <i class="fa fa-arrow-right"></i></button>
+                </div>
+                <div class="data_choice--col">
+                    {{BootForm::text('city','Город',null,['class'=>'final_data'])}}
+                </div>
+            </div>
+            <div class="row final_data_choice_arrow">
+
+                <div class="data_choice--col">
+                    {{
+                        BootForm::select(
+                            'addresses',
                             'Адрес',
                             $parsed_companies->pluck('address','address'),
                             null,
@@ -108,7 +129,7 @@
                         <i class="fa fa-arrow-right"></i></button>
                 </div>
                 <div class="data_choice--col">
-                    {{BootForm::text('company_address','Адрес',null,['class'=>'final_data'])}}
+                    {{BootForm::text('address','Адрес',null,['class'=>'final_data'])}}
                 </div>
             </div>
 
