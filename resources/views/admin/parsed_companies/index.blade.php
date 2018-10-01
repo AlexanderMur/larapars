@@ -14,19 +14,18 @@
             @method('PUT')
             @csrf
             {{$html->table(['class' => 'table table-bordered'])}}
+
             <div class="form-group">
-                <select
-                    class="js-data-example-ajax select-medium"
-                    title="Выберите компанию"
-                    name="company_id"
-                ></select>
-            </div>
-            <div class="form-group">
-                <select name="action" class="form-control select-medium" title="TITLE">
+                <select name="action" class="form-control select-medium bulk-select" title="Выберете действие">
                     <option value="-1">Действия</option>
                     <option value="new_company">Создать новую компанию</option>
                     <option value="group">Привязать к существующей</option>
                 </select>
+                <select
+                    class="select-medium company-select show-if-group"
+                    title="Выберите компанию"
+                    name="company_id"
+                ></select>
                 <button class="btn btn-primary" type="submit">Применить</button>
             </div>
         </form>

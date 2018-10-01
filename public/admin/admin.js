@@ -12017,7 +12017,7 @@ jQuery(function ($) {
         $(this).parents('.review').remove();
     });
     $('[data-toggle="tooltip"]').tooltip();
-    $('.js-data-example-ajax').select2({
+    $('.company-select').select2({
         theme: "bootstrap",
         placeholder: 'Выберите компанию',
         ajax: {
@@ -12036,6 +12036,24 @@ jQuery(function ($) {
                 };
             }
         }
+    });
+    $('.final_data_choice_arrow').on('click', '.data_choice--arrow__click', function (e) {
+        var $parent = $(this).parents('.final_data_choice_arrow');
+        $parent.find('.final_data').val($parent.find('.parsed_data').val());
+        return false;
+    });
+
+    $('.bulk-select').on('change', function () {
+        var $form = $(this).parents('form');
+
+        //remove classes starting with .selected-*
+        $form.attr('class') && $form.attr('class').split(' ').forEach(function (classItem) {
+            if (classItem.indexOf('selected-') === 0) {
+                $form.removeClass(classItem);
+            }
+        });
+
+        $form.addClass('selected-' + this.value);
     });
 });
 

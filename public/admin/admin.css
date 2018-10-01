@@ -15125,7 +15125,65 @@ tr:hover .actions {
 }
 
 .select-medium {
-  width: 200px;
+  width: 240px;
+  display: inline-block;
+}
+
+.w-40 {
+  width: 40%;
+}
+
+.data_choice--col,
+.data_choice--arrow {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.data_choice--arrow {
+  text-align: center;
+}
+
+.data_choice--arrow__click i {
+  font-size: 2em;
+  -webkit-transform: rotateZ(90deg);
+          transform: rotateZ(90deg);
+}
+
+@media (min-width: 768px) {
+  .data_choice--col,
+  .data_choice--arrow {
+    float: left;
+  }
+
+  .data_choice--col {
+    width: 47.91666667%;
+  }
+
+  .data_choice--arrow {
+    width: 4.16666667%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .data_choice--arrow__click {
+    margin-top: 20px;
+  }
+
+  .data_choice--arrow__click i {
+    -webkit-transform: rotateZ(0);
+            transform: rotateZ(0);
+  }
+}
+
+.show-if-group,
+.show-if-group + .select2 {
+  display: none;
+}
+
+.selected-group .show-if-group,
+.selected-group .show-if-group + .select2 {
   display: inline-block;
 }
 

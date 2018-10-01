@@ -9,6 +9,7 @@
 @import '~font-awesome/scss/font-awesome';
 @import "~select2/dist/css/select2.css";
 @import "~select2-bootstrap-theme/dist/select2-bootstrap";
+
 @media (min-width: 768px) {
   #page-wrapper {
     margin: 0 0 0 175px;
@@ -30,12 +31,60 @@
 
 .actions {
   opacity: 0;
-  .has-actions:hover &, tr:hover &{
+  .has-actions:hover &, tr:hover & {
     opacity: 1;
   }
 }
 
-.select-medium{
-  width: 200px;
+.select-medium {
+  width: 240px;
   display: inline-block;
+}
+
+.w-40 {
+  width: 40%;
+}
+
+.data_choice--col, .data_choice--arrow {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.data_choice--arrow {
+  text-align: center;
+  &__click {
+    i {
+      font-size: 2em;
+      transform: rotateZ(90deg);
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .data_choice--col, .data_choice--arrow {
+    float: left;
+  }
+  .data_choice--col {
+    width: 100%*(5.75/12);
+  }
+  .data_choice--arrow {
+    width: 100%*(0.5/12);
+    padding-left: 0;
+    padding-right: 0;
+    &__click {
+      margin-top: 20px;
+      i {
+        transform: rotateZ(0);
+      }
+    }
+  }
+}
+
+.show-if-group, .show-if-group + .select2{
+  display: none;
+  .selected-group & {
+    display: inline-block;
+  }
 }
