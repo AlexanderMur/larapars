@@ -1,4 +1,5 @@
-import './bootstrap'; //always first
+import {axios, jQuery} from "./bootstrap";
+
 import 'select2';
 import "sb-admin-2/vendor/bootstrap/js/bootstrap.js";
 import "sb-admin-2/vendor/datatables/js/dataTables.bootstrap.js";
@@ -19,6 +20,11 @@ new Vue({
     el: '#wrapper',
 });
 
+
+function dataTable(){
+    return window.LaravelDataTables.dataTableBuilder
+}
+
 function updateReview(id, data) {
     return axios.put(route('reviews.update', id), data);
 }
@@ -27,9 +33,9 @@ function getEditPopup(href) {
     return $.get(href)
         .then(function (data) {
             const $myModal = $('#myModal');
-            $myModal.find('.modal-body').html(data.data);
+            $myModal.find('.modal-body').html(data);
 
-            $myModal.modal(data);
+            $myModal.modal();
         });
 }
 
@@ -39,7 +45,7 @@ function deleteReview(href) {
 
 function reloadDataTable() {
     if (window.LaravelDataTables) {
-        window.LaravelDataTables.dataTableBuilder.ajax.reload();
+        dataTable().ajax.reload();
     }
 }
 
@@ -98,29 +104,33 @@ jQuery(function ($) {
                     results: maped,
                     pagination: {
                         more: data.next_page_url,
-                    }
+                    },
                 };
             },
         },
     });
     $('.final_data_choice_arrow')
-        .on('click','.data_choice--arrow__click',function(e){
-            const $parent = $(this).parents('.final_data_choice_arrow')
-            $parent.find('.final_data').val($parent.find('.parsed_data').val())
+        .on('click', '.data_choice--arrow__click', function (e) {
+            const $parent = $(this).parents('.final_data_choice_arrow');
+            $parent.find('.final_data').val($parent.find('.parsed_data').val());
             return false;
-        })
+        });
 
-    $('.bulk-select')
-        .on('change',function(){
-            const $form = $(this).parents('form')
+    $('.bulk-select').on('change', function () {
+        const $form = $(this).parents('form');
 
-            //remove classes starting with .selected-*
-            $form.attr('class') && $form.attr('class').split(' ').forEach(function(classItem){
-                if(classItem.indexOf('selected-') === 0){
-                    $form.removeClass(classItem)
-                }
-            })
+        //remove classes starting with .selected-*
+        $form.attr('class') && $form.attr('class').split(' ').forEach(function (classItem) {
+            if (classItem.indexOf('selected-') === 0) {
+                $form.removeClass(classItem);
+            }
+        });
 
-            $form.addClass('selected-'+this.value)
-        })
+        $form.addClass('selected-' + this.value);
+    });
+
+    $('#dataTableBuilder_length').find('select')[0].innerHTML += '<option value="150">150</option>'
+    dataTable().on( 'search.dt',function(){
+        dataTable().page.len(150)
+    })
 });

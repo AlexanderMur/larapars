@@ -17,8 +17,9 @@ mix
     })
     .disableNotifications()
 mix.webpackConfig({
-    output: {
-        publicPath: '../public/',
-        chunkFilename: 'admin/[name].js',
-    },
+    // output: {
+    //     publicPath: '../public/',
+    //     chunkFilename: 'admin/[name].js',
+    // },
+    devtool: 'cheap-module-eval-source-map',
 });

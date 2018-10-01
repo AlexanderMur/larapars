@@ -1,6 +1,6 @@
-window.jQuery = window.$ = require('jquery');
+const jQuery = window.jQuery = window.$ = require('jquery');
 
-window.axios = require('axios');
+const axios = window.axios = require('axios');
 
 let token = document.head.querySelector('meta[name="csrf-token"]');
 
@@ -13,3 +13,5 @@ $.ajaxSetup({
         xhr.setRequestHeader("X-CSRF-TOKEN",token.content);
     }
 });
+
+export {jQuery, axios}

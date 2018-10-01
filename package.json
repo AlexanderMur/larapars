@@ -25,6 +25,8 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
+        "@types/datatables.net": "^1.10.13",
+        "@types/jquery": "^3.3.10",
         "datatables": "^1.10.18",
         "datatables-bootstrap3-plugin": "^0.6.0",
         "datatables.net": "^1.10.19",

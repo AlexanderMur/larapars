@@ -7,7 +7,6 @@
 
 {{BootForm::text('title')}}
 {{BootForm::text('site')}}
-{{BootForm::text('single_page_link')}}
 {{BootForm::text('address')}}
 
 <div class="form-group">
