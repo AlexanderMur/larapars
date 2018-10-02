@@ -1,6 +1,9 @@
 <?php
-/** @var \App\Models\Company[] $companies */
-/** @var $tables */
+/**
+ * @var \App\Models\Company[] $companies
+ * @var $tables
+ * @var \Illuminate\Pagination\LengthAwarePaginator $logs
+ */
 ?>
 
 @extends('admin.layout')
@@ -17,17 +20,11 @@
             </label>
             <button type="submit" class="btn btn-danger">Send</button>
         </form>
-
-        @isset($tables)
-            @foreach ($tables as $key => $table)
-                @if ($key == 0)
-                    <h2>Сайт-Донор https://avtosalon-otzyv.ru/</h2>
-                @endif
-                @if ($key == 1)
-                    <h2>Сайт-Донор https://otziv-avto.ru/msk/</h2>
-                @endif
-                @include('admin.partials.table',['table'=>$table])
-            @endforeach
-        @endisset
+        <div class="logs" data-parser_ids="{{$logs->pluck('parser_id','parser_id')->implode(',')}}">
+            @include('admin.partials.logs',[
+                'logs' => $logs,
+            ])
+        </div>
+        {{$logs->render()}}
     </div>
 @stop

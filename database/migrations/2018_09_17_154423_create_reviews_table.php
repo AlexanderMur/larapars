@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateReviewsTable extends Migration
 {
@@ -25,7 +25,7 @@ class CreateReviewsTable extends Migration
             $table->text('text')->nullable();
             $table->boolean('good')->nullable();
             $table->integer('group_id')->nullable();
-            $table->string('donor_link')->nullable();
+            $table->text('donor_link')->nullable();
             $table->integer('donor_id')->nullable();
             $table->date('donor_created_at')->nullable();
             $table->date('trashed_at')->nullable();

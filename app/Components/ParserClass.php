@@ -4,10 +4,9 @@
 namespace App\Components;
 
 
-use Barryvdh\Debugbar\Facade;
+use App\Models\Parser;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use \App\Models\Parser;
 use libphonenumber\PhoneNumberUtil;
 
 class ParserClass
@@ -15,19 +14,29 @@ class ParserClass
     public $link;
     public $client;
     public $items = array();
+    /**
+     * @var Parser
+     */
+    public $parser;
 
-    public function __construct()
+    public function __construct(Parser $parser)
     {
         $this->client = new Client();
+
+        $this->parser = $parser;
     }
 
-    public function parseData(Parser $parser, $how_many)
+    public function parseData(Parser $parser, $how_many = 10)
     {
-        $html = $this->client->get($parser->donor->link)->getBody()->getContents();
+        $this->parser->log('загрузка компаний...',$parser->donor->link);
+        $response = $this->client->get($parser->donor->link);
+        $html = $response->getBody()->getContents();
         $html = str_replace($parser->replace_search, $parser->replace_to, $html);
 
         $crawler = new Crawler($html, $parser->donor->link);
-        return $this->items = $this->getDataOnPage($crawler, $parser, $how_many);
+        $this->items = $this->getDataOnPage($crawler, $parser, $how_many);
+        $this->parser->log('загрузка компаний завершена',$parser->donor->link);
+        return $this->items;
     }
 
     public function getDataOnPage(Crawler $crawler, Parser $parser, $how_many)
@@ -93,7 +102,7 @@ class ParserClass
             });
     }
 
-    public function getSinglePage($link, Parser $parser)
+    public function parseSinglePage($link, Parser $parser)
     {
         return $this->client->getAsync($link)->then(function (Response $response) use ($parser) {
             $html = $response->getBody()->getContents();
@@ -110,9 +119,12 @@ class ParserClass
         $pages = [];
         foreach ($this->items as $key => $item) {
             $single_page_link = $item['single_page_link'];
-            $this->getSinglePage($single_page_link, $parser)->then(function ($data) use ($key, $parser, &$pages, $single_page_link) {
+            $this->parser->log('загрузка отзывов...',$single_page_link);
+            $this->parseSinglePage($single_page_link, $parser)->then(function ($data) use ($key, $parser, &$pages, $single_page_link) {
                 $this->items[$key] = array_merge($this->items[$key], $data);
             })->wait();
+
+            $this->parser->log('загрузка отзывов завершена',$single_page_link);
         }
         return $this->items;
     }

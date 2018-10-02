@@ -2,10 +2,8 @@
 
 use App\Models\Company;
 use App\Models\Donor;
-use App\Models\Group;
 use App\Models\ParsedCompany;
 use App\Models\Review;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -14,7 +12,7 @@ class CompaniesTableSeeder extends Seeder
     /**
      * @var Collection|Donor[]
      */
-    public $donors;
+    public $donors = [];
 
     /**
      * Run the database seeds.
@@ -23,8 +21,10 @@ class CompaniesTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->donors = factory(Donor::class, 10)->create();
-
+//        $this->donors = factory(Donor::class, 10)->create();
+        $this->donors = collect();
+        $this->donors[] = factory(Donor::class, 'donor1')->create();
+        $this->donors[] = factory(Donor::class, 'donor2')->create();
         /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
         $companies = factory(Company::class, 6)->create();
 
@@ -32,21 +32,16 @@ class CompaniesTableSeeder extends Seeder
             ->each(function (Company $company) {
 
                 /** @var Collection|Review[] $reviews */
-                $reviews = factory(Review::class, random_int(0, 10))->states('not rated')->make();
-
-                $this->associateReviewsWithDonorAndCompany($reviews, $company);
+//                $reviews = factory(Review::class, random_int(0, 10))->states('not rated')->make();
+//
+//                $this->associateReviewsWithCompany($reviews, $company);
             })
             ->each(function (Company $company) {
 
-                $attachedDonors = collect();
-                foreach ($this->takeRandom($this->donors, 1, 10) as $donor) {
-                    $attachedDonors[] = $donor;
-                    $company->donors()->attach($donor, ['site' => $this->generatePivotSite($donor, $company), 'created_at' => \Carbon\Carbon::now()]);
-                }
-
                 /** @var Collection|Review[] $reviews */
+
                 $reviews = factory(Review::class, random_int(0, 10))->make();
-                $this->associateReviewsWithDonorAndCompany($reviews, $company);
+                $this->associateReviewsWithCompany($reviews, $company);
 
                 $reviews->count() && $reviews->random()->trash();
                 $reviews->count() && $reviews->random()->delete();
@@ -54,7 +49,7 @@ class CompaniesTableSeeder extends Seeder
 
         $this->makeReviewsForCompanies(
             $this->saveMany(
-                $this->makeParsedCompanies('company2',11)
+                $this->makeParsedCompanies('company2', 11)
             )
         );
         /**
@@ -62,7 +57,7 @@ class CompaniesTableSeeder extends Seeder
          */
         $company = factory(Company::class, 'company1')->create();
 
-        $parsed_companies = $this->makeParsedCompanies('company1',11);
+        $parsed_companies = $this->makeParsedCompanies('company1', 11);
 
         $this->saveMany($parsed_companies);
     }
@@ -71,13 +66,15 @@ class CompaniesTableSeeder extends Seeder
      * @param Company[]|ParsedCompany[] $companies
      *
      */
-    public function makeReviewsForCompanies($companies){
+    public function makeReviewsForCompanies($companies)
+    {
 
         foreach ($companies as $company) {
             $reviews = factory(Review::class, rand(0, 10))->make();
-            $this->associateReviewsWithDonorAndCompany($reviews, $company);
+            $this->associateReviewsWithCompany($reviews, $company);
         }
     }
+
     /**
      * @param string $name
      * @param null $num
@@ -92,6 +89,7 @@ class CompaniesTableSeeder extends Seeder
                 $parsedCompany->donor_id   = $donor->id;
             });
     }
+
     /**
      * @param Collection $collection
      * @param $min
@@ -124,7 +122,7 @@ class CompaniesTableSeeder extends Seeder
      * @param Collection|Review[] $reviews
      * @param ParsedCompany|Company $company
      */
-    function associateReviewsWithDonorAndCompany($reviews, $company)
+    function associateReviewsWithCompany($reviews, $company)
     {
         $donor = $this->donors->random();
         $company->reviews()->saveMany($reviews);

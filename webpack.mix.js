@@ -15,11 +15,5 @@ mix
         open: false,
         notification: false,
     })
+    .sourceMaps()
     .disableNotifications()
-mix.webpackConfig({
-    // output: {
-    //     publicPath: '../public/',
-    //     chunkFilename: 'admin/[name].js',
-    // },
-    devtool: 'cheap-module-eval-source-map',
-});

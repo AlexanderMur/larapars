@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ParserLog;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -30,10 +31,26 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $single_tel
  * @property-read \App\Models\Donor|null $donor
  * @see \CreateParsersTable
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
  */
 class Parser extends Model
 {
-    function donor(){
+    function donor()
+    {
         return $this->belongsTo(Donor::class);
+    }
+
+    function logs()
+    {
+        return $this->hasMany(ParserLog::class);
+    }
+
+    function log($message, $url, $status = 'info')
+    {
+        $this->logs()->create([
+            'url' => $url,
+            'message' => $message,
+            'status' => $status,
+        ]);
     }
 }

@@ -21,8 +21,8 @@ new Vue({
 });
 
 
-function dataTable(){
-    return window.LaravelDataTables.dataTableBuilder
+function dataTable() {
+    return window.LaravelDataTables.dataTableBuilder;
 }
 
 function updateReview(id, data) {
@@ -129,8 +129,27 @@ $(function ($) {
         $form.addClass('selected-' + this.value);
     });
 
-    $('#dataTableBuilder_length').find('select')[0].innerHTML += '<option value="150">150</option>'
-    dataTable().on( 'search.dt',function(){
-        dataTable().page.len(150)
+    if ($('#dataTableBuilder_length').length) {
+        $('#dataTableBuilder_length').find('select')[0].innerHTML += '<option value="150">150</option>';
+        dataTable().on('search.dt', function () {
+            dataTable().page.len(150);
+        });
+    }
+
+    async function updateLogs() {
+        const json = await $.get(route('parsers.logs'));
+        console.log(json)
+        $('.logs').html(json.table);
+        $('.statistics').html(json.statistics);
+    }
+    updateLogs();
+    setInterval(updateLogs, 2000);
+
+
+    $('.start-parsing').click(async function(){
+        $(this).button('loading')
+        await $.post(route('pars.test'))
+        $(this).button('reset')
     })
+
 });

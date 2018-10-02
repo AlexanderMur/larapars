@@ -21,8 +21,8 @@
         <p>Компании привязаны</p>
         <p>
             <a href="{{route('companies.show',session('companies_grouped'))}}" target="_blank">
-                <i class="fa fa-long-arrow-left fa-fw"></i>
                 Перейти в компанию
+                <i class="fa fa-long-arrow-right fa-fw"></i>
             </a>
         </p>
     </div>

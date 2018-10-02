@@ -27,10 +27,21 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ParsedCompany extends Model
 {
-    function donor(){
+    protected $fillable = [
+        'donor_page',
+        'phone',
+        'site',
+        'title',
+        'address',
+    ];
+
+    function donor()
+    {
         return $this->belongsTo(Donor::class);
     }
-    public function company(){
+
+    public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 

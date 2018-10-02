@@ -48,6 +48,8 @@ class Review extends Model
         'name',
         'good',
         'deleted_at',
+        'donor_link',
+        'donor_id',
     ];
     protected $dates = [
         'deleted_at',

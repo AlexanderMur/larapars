@@ -38,11 +38,14 @@
                     </div>
                 </div>
 
-                {!! $review->text !!}
+                {!! nl2p($review->text) !!}
 
-                <b><a href="{{route('companies.show',$review->company_id)}}">{{$review->donor->title}}</a></b>
-                <br>
-                <a href="{{$review->donor_link}}">Перейти к странице донора</a>
+                <p>
+                    <b>{{$review->donor->title}}</b>
+                </p>
+                <p>
+                    <a href="{{$review->donor_link}}">Перейти к странице донора</a>
+                </p>
 
             </div>
         </div>

@@ -10,6 +10,7 @@
     <div id="page-wrapper">
         <h1 class="page-header">Start</h1>
         @include('admin.partials.messages')
+        @include('admin.partials.parser.controls')
         <form action="{{route('parsed_companies.bulk')}}" method="POST">
             @method('PUT')
             @csrf

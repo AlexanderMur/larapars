@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ParsedCompany;
+use App\ParserLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
 use Yajra\DataTables\Html\Builder;
@@ -37,7 +38,7 @@ class ParsedCompanyController extends Controller
                         ::select([
                             'parsed_companies.*',
                         ])
-                    ->where('company_id',null)
+                        ->where('company_id', null)
                 )
                 ->editColumn('id', function (ParsedCompany $parsedCompany) {
                     return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
@@ -56,8 +57,11 @@ class ParsedCompanyController extends Controller
                 'created_at',
                 'updated_at',
             ]);
-
-        return view('admin.parsed_companies.index', compact('html'));
+        $logs = ParserLog::paginate();
+        return view('admin.parsed_companies.index', [
+            'html' => $html,
+            'logs' => $logs,
+        ]);
     }
 
     /**
@@ -122,14 +126,14 @@ class ParsedCompanyController extends Controller
         if ($action == 'group') {
             $ids        = $request->get('ids');
             $company_id = $request->get('company_id');
-            ParsedCompany::whereIn('id', $ids)->update(['company_id'=> $company_id]);
+            ParsedCompany::whereIn('id', $ids)->update(['company_id' => $company_id]);
 
-            return redirect()->back()->with('companies_grouped',$company_id);
+            return redirect()->back()->with('companies_grouped', $company_id);
         }
         if ($action == 'new_company') {
             $ids = $request->get('ids');
             //
-            return redirect()->route('companies.create',['ids'=>implode(',',$ids)]);
+            return redirect()->route('companies.create', ['ids' => implode(',', $ids)]);
         }
         return redirect()->back();
     }

@@ -12,7 +12,6 @@
 */
 
 
-use App\Models\Company;
 use Yajra\DataTables\Html\Builder;
 
 Route::get('/', function () {
@@ -36,6 +35,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::get('reviews2/archive', 'ReviewController@archive')->name('reviews.archive');
     Route::resource('donors', 'DonorController');
+
+    Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');
     Route::resource('parsers', 'ParserController');
 
     Route::get('pars-test', 'ParserController@start')->name('pars.test');
