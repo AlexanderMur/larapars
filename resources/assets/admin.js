@@ -1,4 +1,4 @@
-import {axios, jQuery} from "./bootstrap";
+import {$, axios} from "./bootstrap";
 
 import 'select2';
 import "sb-admin-2/vendor/bootstrap/js/bootstrap.js";
@@ -49,7 +49,7 @@ function reloadDataTable() {
     }
 }
 
-jQuery(function ($) {
+$(function ($) {
     $(".nav-tabs a").click(function (e) {
         e.preventDefault();
         $(this).tab('show');

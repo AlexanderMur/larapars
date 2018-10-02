@@ -1,4 +1,4 @@
-const jQuery = window.jQuery = window.$ = require('jquery');
+const $ = window.jQuery = window.$ = require('jquery');
 
 const axios = window.axios = require('axios');
 
@@ -14,4 +14,4 @@ $.ajaxSetup({
     }
 });
 
-export {jQuery, axios}
+export {$, axios}

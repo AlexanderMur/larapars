@@ -124,7 +124,7 @@ class ParsedCompanyController extends Controller
             $company_id = $request->get('company_id');
             ParsedCompany::whereIn('id', $ids)->update(['company_id'=> $company_id]);
 
-            return redirect()->back()->with('success','Компании привязаны');
+            return redirect()->back()->with('companies_grouped',$company_id);
         }
         if ($action == 'new_company') {
             $ids = $request->get('ids');
