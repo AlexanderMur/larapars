@@ -39,7 +39,7 @@
                         <i class="fa fa-arrow-right"></i></button>
                 </div>
                 <div class="data_choice--col">
-                    {{BootForm::text('company_title','Название',null,['class'=>'final_data'])}}
+                    {{BootForm::text('title','Название',null,['class'=>'final_data'])}}
                 </div>
             </div>
 
@@ -62,7 +62,7 @@
                     </button>
                 </div>
                 <div class="data_choice--col">
-                    {{BootForm::text('company_site','Сайт',null,['class'=>'final_data'])}}
+                    {{BootForm::text('site','Сайт',null,['class'=>'final_data'])}}
                 </div>
             </div>
 
@@ -85,7 +85,7 @@
                         <i class="fa fa-arrow-right"></i></button>
                 </div>
                 <div class="data_choice--col">
-                    {{BootForm::text('company_phone','Телефон',null,['class'=>'final_data'])}}
+                    {{BootForm::text('phone','Телефон',null,['class'=>'final_data'])}}
                 </div>
             </div>
 

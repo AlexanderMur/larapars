@@ -33,8 +33,11 @@ class Company extends Model
         'single_page_link',
         'site',
         'phone',
+        'city',
     ];
-    function reviews(){
+
+    function reviews()
+    {
         return $this->hasMany(Review::class);
     }
 
@@ -45,7 +48,9 @@ class Company extends Model
     {
         return $this->belongsToMany(Donor::class)->withPivot('site')->using(CompanyDonor::class);
     }
-    public function parsed_companies(){
+
+    public function parsed_companies()
+    {
         return $this->hasMany(ParsedCompany::class);
     }
 }

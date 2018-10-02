@@ -37,6 +37,7 @@ class ParsedCompanyController extends Controller
                         ::select([
                             'parsed_companies.*',
                         ])
+                    ->where('company_id',null)
                 )
                 ->editColumn('id', function (ParsedCompany $parsedCompany) {
                     return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
