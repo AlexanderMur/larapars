@@ -43,6 +43,12 @@ class ParsedCompanyController extends Controller
                 ->editColumn('id', function (ParsedCompany $parsedCompany) {
                     return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
                 })
+                ->editColumn('site', function (ParsedCompany $parsedCompany) {
+                    return new HtmlString("<a href='" . $parsedCompany->site . "' target='_blank'>" . $parsedCompany->site . "</a>");
+                })
+                ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
+                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . $parsedCompany->donor_page . "</a>");
+                })
                 ->toJson();
         }
         $html = $this->builder

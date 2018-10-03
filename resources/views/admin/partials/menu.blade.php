@@ -15,6 +15,9 @@
         <a href="{{route('reviews.new')}}"><i class="fa fa-comments fa-fw"></i> Отзывы</a>
     </li>
     <li>
+        <a href="{{route('logs.index')}}"><i class="fa fa-car fa-fw"></i> Логи</a>
+    </li>
+    <li>
         <a href="{{route('donors.index')}}"><i class="fa fa-thumb-tack fa-fw"></i> Доноры</a>
     </li>
     <li>

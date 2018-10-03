@@ -24,5 +24,7 @@ class ParserLog extends Model
         'url',
         'status',
         'message',
+        'parser_id',
     ];
+
 }

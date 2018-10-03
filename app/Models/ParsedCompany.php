@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 /**
  * Class ParsedCompany
@@ -48,5 +50,18 @@ class ParsedCompany extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * @param Collection|Review[] $reviews
+     * @return bool
+     */
+    public function saveReviews($reviews){
+        foreach ($reviews as $review) {
+            $review->parsed_company_id = $this->id;
+            $review->created_at = Carbon::now();
+            $review->updated_at = $review->created_at;
+        }
+        return $this->reviews()->insert($reviews instanceof Collection ? $reviews->toArray() : $reviews);
     }
 }

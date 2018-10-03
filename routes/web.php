@@ -42,7 +42,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('pars-test', 'ParserController@start')->name('pars.test');
     Route::get('all-data', 'AdminController@allData')->name('admin.alldata');
     Route::get('export', 'AdminController@export')->name('admin.export');
+
     Route::post('pars-test', 'ParserController@parse')->name('pars.parse');
+    Route::get('logs', 'AdminController@logs')->name('logs.index');
     Route::get('/clear-cache', function () {
         $exitCode = Artisan::call('cache:clear');
         $exitCode = Artisan::call('config:clear');

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateParsersTable extends Migration
 {
@@ -19,6 +19,8 @@ class CreateParsersTable extends Migration
         Schema::create('parsers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('donor_id')->nullable();
+
+            /**Selectors*/
             $table->string('loop_item')->nullable();
             $table->string('loop_title')->nullable();
             $table->string('loop_address')->nullable();
@@ -35,6 +37,7 @@ class CreateParsersTable extends Migration
             $table->string('reviews_text')->nullable();
             $table->string('reviews_rating')->nullable();
             $table->string('reviews_name')->nullable();
+            $table->string('reviews_id')->nullable();
             $table->timestamps();
         });
     }

@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review unrated($unrated = true)
  * @property \Illuminate\Support\Carbon|null $rated_at
  * @property int|null $parsed_company_id
+ * @property string|null $donor_comment_id
  */
 class Review extends Model
 {
@@ -50,6 +51,7 @@ class Review extends Model
         'deleted_at',
         'donor_link',
         'donor_id',
+        'donor_comment_id',
     ];
     protected $dates = [
         'deleted_at',

@@ -15,10 +15,10 @@ class CreateParserLogsTable extends Migration
     {
         Schema::create('parser_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('parser_id');
-            $table->text('url');
+            $table->integer('parser_id')->nullable();
+            $table->text('url')->nullable();
             $table->text('message');
-            $table->text('status');
+            $table->text('status')->nullable();
             $table->timestamp('created_at')->nullable();
         });
     }

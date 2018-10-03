@@ -28,30 +28,30 @@ class CompaniesTableSeeder extends Seeder
         /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
         $companies = factory(Company::class, 6)->create();
 
-        $companies
-            ->each(function (Company $company) {
-
-                /** @var Collection|Review[] $reviews */
+//        $companies
+//            ->each(function (Company $company) {
+//
+//                /** @var Collection|Review[] $reviews */
 //                $reviews = factory(Review::class, random_int(0, 10))->states('not rated')->make();
 //
 //                $this->associateReviewsWithCompany($reviews, $company);
-            })
-            ->each(function (Company $company) {
+//            })
+//            ->each(function (Company $company) {
+//
+//                /** @var Collection|Review[] $reviews */
+//
+//                $reviews = factory(Review::class, random_int(0, 10))->make();
+//                $this->associateReviewsWithCompany($reviews, $company);
+//
+//                $reviews->count() && $reviews->random()->trash();
+//                $reviews->count() && $reviews->random()->delete();
+//            });
 
-                /** @var Collection|Review[] $reviews */
-
-                $reviews = factory(Review::class, random_int(0, 10))->make();
-                $this->associateReviewsWithCompany($reviews, $company);
-
-                $reviews->count() && $reviews->random()->trash();
-                $reviews->count() && $reviews->random()->delete();
-            });
-
-        $this->makeReviewsForCompanies(
-            $this->saveMany(
-                $this->makeParsedCompanies('company2', 11)
-            )
-        );
+//        $this->makeReviewsForCompanies(
+//            $this->saveMany(
+//                $this->makeParsedCompanies('company2', 11)
+//            )
+//        );
         /**
          * @var Company $company
          */

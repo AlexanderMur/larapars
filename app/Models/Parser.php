@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ParserLog;
+use App\Services\LogService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\Donor|null $donor
  * @see \CreateParsersTable
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
+ * @property string|null $reviews_id
  */
 class Parser extends Model
 {
@@ -45,12 +47,9 @@ class Parser extends Model
         return $this->hasMany(ParserLog::class);
     }
 
-    function log($message, $url, $status = 'info')
+    public function log($style, $message, $single_page_link = '')
     {
-        $this->logs()->create([
-            'url' => $url,
-            'message' => $message,
-            'status' => $status,
-        ]);
+        LogService::log($style,$message,$single_page_link,$this->id);
     }
+
 }

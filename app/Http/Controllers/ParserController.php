@@ -6,11 +6,23 @@ use App\Components\ParserClass;
 use App\Models\ParsedCompany;
 use App\Models\Review;
 use App\ParserLog;
+use App\Services\LogService;
+use App\Services\ParserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ParserController extends Controller
 {
+    /**
+     * @var ParserService
+     */
+    public $parserService;
+
+    public function __construct(ParserService $parserService)
+    {
+        $this->parserService = $parserService;
+    }
+
     public function index()
     {
         $parsers = \App\Models\Parser::all();
@@ -32,35 +44,20 @@ class ParserController extends Controller
 
 
         $parsers = \App\Models\Parser::all();
+        LogService::log('bold','запуск парсера');
         foreach ($parsers as $parser) {
             $parserClass = new ParserClass($parser);
             $parsed_data = $parserClass->parseData($parser);
             $new_companies = $parserClass->parseSinglePages($parser);
-
-
-            foreach ($new_companies as $new_company) {
-                $parsed_company = ParsedCompany::updateOrCreate(['donor_page'=>$new_company['single_page_link']],$new_company);
-                foreach ($new_company['reviews'] as $new_review) {
-                    $parsed_company->reviews()->updateOrCreate(
-                        ['text'=>$new_review['text']],
-                        array_merge(
-                            $new_review,
-                            [
-                                'donor_id'=>$parser->donor_id,
-                                'donor_link'=>$new_company['single_page_link']
-                            ]
-                        )
-                    );
-                }
-            }
-
+            $this->parserService->handleParsedData($new_companies,$parser->donor_id);
         }
+        LogService::log('bold','работа парсера завершена');
         return 'ok';
     }
 
     public function logs()
     {
-        $logs = ParserLog::latest()->paginate();
+        $logs = ParserLog::orderBy('id','desc')->paginate();
 
 
         $statistics = [

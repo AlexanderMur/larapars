@@ -22,11 +22,20 @@
                 <td>
                     {{$log->created_at}}
                 </td>
-                <td>
-                    {{$log->message}}
-                    <a href="{{$log->url}}">{{$log->url}}</a>
-                    <span class="label label-info">OK</span>
-                </td>
+                @if ($log->status == 'bold')
+                    <td>
+                        <b>{{$log->message}}</b>
+                        <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
+                    </td>
+                @else
+                    <td>
+                        {{$log->message}}
+                        <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
+                        @if ($log->status == 'ok')
+                            <span class="label label-info">OK</span>
+                        @endif
+                    </td>
+                @endif
             </tr>
         @endforeach
     </tbody>

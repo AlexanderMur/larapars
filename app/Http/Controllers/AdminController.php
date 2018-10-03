@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ModelExport;
 use App\Models\Company;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use App\ParserLog;
 
 class AdminController extends Controller
 {
@@ -21,5 +20,11 @@ class AdminController extends Controller
     }
     public function export(){
         return \Excel::download(new ModelExport,'model.xls');
+    }
+
+    public function logs(){
+        return view('admin.logs.index',[
+            'logs' => ParserLog::orderBy('id','desc')->paginate(),
+        ]);
     }
 }

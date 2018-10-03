@@ -54,6 +54,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereDonorId($value)
  * @property string|null $single_tel
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Parser whereSingleTel($value)
+ * @property string|null $reviews_id
  */
 class Parser extends Model
 {
