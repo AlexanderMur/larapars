@@ -43,48 +43,36 @@
                 <div class="tab-pane fade active in" id="all_reviews">
                     @foreach ($reviews->where('deleted_at','===',null) as $review)
 
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="good_reviews">
 
                     @foreach ($reviews->where('deleted_at','===',null)->where('good','===',1) as $review)
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="bad_reviews">
 
                     @foreach ($reviews->where('deleted_at','===',null)->where('good','===',0) as $review)
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="unrated_reviews">
 
                     @foreach ($reviews->where('deleted_at','===',null)->where('good','===',null) as $review)
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="deleted_reviews">
 
                     @foreach ($reviews->where('deleted_at','!==',null)->where('trashed_at','===',null) as $review)
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="trashed_reviews">
                     @foreach ($reviews->where('trashed_at','!==',null) as $review)
-                        @include('admin.companies.review',[
-                            'review' => $review,
-                        ])
+                        @include('admin.reviews._review')
                     @endforeach
                 </div>
             </div>
@@ -98,9 +86,7 @@
                 <div class="tab-pane fade active in" id="sub21">
 
                     @foreach ($parsed_companies as $parsed_company)
-                        @include('admin.partials.parsed_company',[
-                            'parsed_company' => $parsed_company,
-                        ])
+                        @include('admin.parsed_companies._parsed_company')
                     @endforeach
                 </div>
             </div>

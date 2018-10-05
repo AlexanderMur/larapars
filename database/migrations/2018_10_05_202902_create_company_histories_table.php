@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateParsersTable extends Migration
+class CreateCompanyHistoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateParsersTable extends Migration
      */
     public function up()
     {
-        /**
-         * @see \App\Parser
-         */
-        Schema::create('parsers', function (Blueprint $table) {
+        Schema::create('company_histories', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('donor_id')->nullable();
-
-            $table->timestamps();
+            $table->string('field');
+            $table->string('value');
+            $table->timestamp('created_at');
         });
     }
 
@@ -31,6 +28,6 @@ class CreateParsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parsers');
+        Schema::dropIfExists('company_histories');
     }
 }

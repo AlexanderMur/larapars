@@ -47,7 +47,7 @@ class ParsedCompanyController extends Controller
                     return new HtmlString("<a href='" . $parsedCompany->site . "' target='_blank'>" . $parsedCompany->site . "</a>");
                 })
                 ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . $parsedCompany->donor_page . "</a>");
+                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page,50) . "</a>");
                 })
                 ->toJson();
         }

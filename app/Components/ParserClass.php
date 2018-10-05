@@ -4,8 +4,7 @@
 namespace App\Components;
 
 
-use App\Models\Parser;
-use App\Services\LogService;
+use App\Models\Donor;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use libphonenumber\PhoneNumberUtil;
@@ -15,151 +14,132 @@ class ParserClass
     public $link;
     public $client;
     public $items = array();
-    /**
-     * @var Parser
-     */
-    public $parser;
 
-    public function __construct(Parser $parser)
+    public function __construct()
     {
         $this->client = new Client();
 
-        $this->parser = $parser;
     }
 
-    public function parseData(Parser $parser, $how_many = 10)
+    /**
+     * parse archive page
+     * @param $link
+     * @param Donor $donor
+     * @param int $how_many
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public function parseData($link, Donor $donor, $how_many = 10)
     {
 
-        LogService::log(
-            'ok',
-            'загрузка компаний...',
-            $parser->donor->link,
-            $parser->id
-        );
-
-
-        $response = $this->client->get($parser->donor->link);
-        $html     = $response->getBody()->getContents();
-        $html     = str_replace($parser->replace_search, $parser->replace_to, $html);
-
-        $crawler     = new Crawler($html, $parser->donor->link);
-        $this->items = $this->getDataOnPage($crawler, $parser, $how_many);
-
-        LogService::log(
-            'ok',
-            'загрузка компаний завершена (' . count($this->items) . ') ',
-            $parser->donor->link,
-            $parser->id
-        );
-
-        return $this->items;
+        return $this->client->getAsync($link)
+            ->then(function (Response $response) use ($link, $how_many, $donor) {
+                $html    = $response->getBody()->getContents();
+                $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
+                $crawler = new Crawler($html, $link);
+                return $this->getDataOnPage($crawler, $donor, $how_many);
+            });
     }
 
-    public function getDataOnPage(Crawler $crawler, Parser $parser, $how_many)
+    /**
+     * parse single page
+     * @param $link
+     * @param Donor $donor
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public function parseCompany($link, Donor $donor)
+    {
+        return $this->client->getAsync($link)
+            ->then(function (Response $response) use ($link, $donor) {
+                $html    = $response->getBody()->getContents();
+                $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
+                $crawler = new Crawler($html, $link);
+                return $this->getDataOnSinglePage($crawler, $donor);
+            });
+    }
+
+    public function getDataOnPage(Crawler $crawler, Donor $donor, $how_many)
     {
         $items = $crawler
-            ->query($parser->loop_item)
+            ->query($donor->loop_item)
             ->filter(function ($c, $i) use ($how_many) {
                 return $i < $how_many;
             })
-            ->map(function (Crawler $crawler, $i) use ($parser) {
-                $title            = $crawler->query($parser->loop_title)->getText();
-                $address          = $crawler->query($parser->loop_address)->getText();
-                $single_page_link = $crawler->query($parser->loop_link)->link()->getUri();
+            ->map(function (Crawler $crawler, $i) use ($donor) {
                 return [
-                    'title'            => $title,
-                    'address'          => $address,
-                    'single_page_link' => $single_page_link,
-                    'parser'           => $parser,
+                    'title'      => $crawler->query($donor->loop_title)->getText(),
+                    'address'    => $crawler->query($donor->loop_address)->getText(),
+                    'donor_page' => $crawler->query($donor->loop_link)->link()->getUri(),
+                    'donor'      => $donor,
+                    'donor_id'   => $donor->id,
                 ];
             });
         return $items;
     }
 
-    public function getDataOnSinglePage(Crawler $crawler, Parser $parser)
+    public function getPhonesFromText($text)
     {
-
-        $site    = $crawler->query($parser->single_site)->getText();
-        $reviews = $this->getReviewsOnPage($crawler, $parser);
-        $address = $crawler->query($parser->single_address)->getText();
-
-        //getting phone...
-        $tel        = $crawler->query($parser->single_tel)->getText();
-        $numbers    = PhoneNumberUtil::getInstance()->findNumbers($tel, 'RU');
+        $numbers    = PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
         $numbersArr = [];
         foreach ($numbers as $number) {
             $numbersArr[] = $number->rawString();
         }
+        return $numbersArr;
+    }
 
+    public function getCompanyPhone(Crawler $crawler, Donor $donor)
+    {
+        return $this->getPhonesFromText(
+            $crawler->query($donor->single_tel)->getText()
+        );
+    }
+
+    public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
+    {
         return [
-            'site'    => $site,
-            'reviews' => $reviews,
-            'phones'  => $numbersArr,
-            'address' => $address,
+            'site'       => $crawler->query($donor->single_site)->getText(),
+            'reviews'    => $this->getReviewsOnPage($crawler, $donor),
+            'phones'     => $this->getCompanyPhone($crawler, $donor),
+            'address'    => $crawler->query($donor->single_address)->getText(),
+            'title'      => $crawler->query($donor->single_title)->getText(),
+            'donor_page' => $crawler->getBaseHref(),
+            'donor_id'   => $donor->id,
         ];
     }
 
-    public function getReviewsOnPage(Crawler $crawler, Parser $parser)
+    public function getReviewsOnPage(Crawler $crawler, Donor $donor)
     {
-        return $crawler
-            ->query($parser->reviews_all)
-            ->map(function (Crawler $crawler) use ($parser) {
-                $text             = $crawler->query($parser->reviews_text)->getText();
-                $text             = str_replace($parser->reviews_ignore_text, '', $text);
-                $rating           = $crawler->query($parser->reviews_rating)->getText();
-                $title            = $crawler->query($parser->reviews_title)->getText();
-                $name             = $crawler->query($parser->reviews_name)->getText();
-                $donor_comment_id = $crawler->query($parser->reviews_id)->getText();
+        return (array)$crawler
+            ->query($donor->reviews_all)
+            ->map(function (Crawler $crawler) use ($donor) {
+
+                $text  = $this->getReviewText($crawler, $donor);
+                $title = $crawler->query($donor->reviews_title)->getText();
+
+                $donor_comment_id = $crawler->query($donor->reviews_id)->getText();
                 if ($donor_comment_id === null) {
                     $donor_comment_id = md5($text . $title);
                 }
                 return [
                     'text'             => $text,
-                    'rating'           => $rating,
+                    'rating'           => $crawler->query($donor->reviews_rating)->getText(),
                     'title'            => $title,
-                    'name'             => $name,
+                    'name'             => $crawler->query($donor->reviews_name)->getText(),
                     'donor_comment_id' => $donor_comment_id,
-                    'donor_id'         => $parser->donor->id,
+                    'donor_id'         => $donor->id,
                     'donor_link'       => $crawler->getUri(),
                 ];
             });
     }
 
-    public function parseSinglePage($link, Parser $parser)
+    public function getReviewText(Crawler $crawler, Donor $donor)
     {
-        return $this->client->getAsync($link)->then(function (Response $response) use ($link, $parser) {
-            $html = $response->getBody()->getContents();
-            $html = str_replace($parser->replace_search, $parser->replace_to, $html);
-
-            $crawler = new Crawler($html, $link);
-            $data    = $this->getDataOnSinglePage($crawler, $parser);
-            return $data;
-        });
+        $text = $crawler->query($donor->reviews_text)->getText();
+        return str_replace($donor->reviews_ignore_text, '', $text);
     }
 
-    public function parseSinglePages(Parser $parser)
+    public function getDonorCommentId(Crawler $crawler, Donor $donor)
     {
-        $pages = [];
-        foreach ($this->items as $key => $item) {
-            $single_page_link = $item['single_page_link'];
 
-
-            $parser->log(
-                'ok',
-                'загрузка отзывов...',
-                $single_page_link
-            );
-
-
-            $this->parseSinglePage($single_page_link, $parser)->then(function ($data) use ($key, $parser, &$pages, $single_page_link) {
-                $this->items[$key] = array_merge($this->items[$key], $data);
-
-
-                $parser->log('ok', 'загрузка отзывов завершена (' . count($data['reviews']) . ')', $single_page_link);
-
-            })->wait();
-
-        }
-        return $this->items;
     }
+
 }

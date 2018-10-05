@@ -17,6 +17,23 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @mixin \Eloquent
  * @see \CreateDonorsTable
+ * @property string|null $loop_item
+ * @property string|null $loop_title
+ * @property string|null $loop_address
+ * @property string|null $loop_link
+ * @property string|null $single_site
+ * @property string|null $single_address
+ * @property string|null $single_tel
+ * @property string|null $replace_search
+ * @property string|null $replace_to
+ * @property string|null $reviews_ignore_text
+ * @property string|null $reviews_all
+ * @property string|null $reviews_title
+ * @property string|null $reviews_text
+ * @property string|null $reviews_rating
+ * @property string|null $reviews_name
+ * @property string|null $reviews_id
+ * @property string|null $single_title
  */
 class Donor extends Model
 {
@@ -25,7 +42,27 @@ class Donor extends Model
 
 
 
-    protected $fillable = ['link','title'];
+    protected $fillable = [
+        'link',
+        'title',
+        'loop_address',
+        'loop_item',
+        'loop_link',
+        'loop_title',
+        'replace_search',
+        'replace_to',
+        'reviews_all',
+        'reviews_ignore_text',
+        'reviews_rating',
+        'reviews_text',
+        'reviews_title',
+        'reviews_name',
+        'reviews_id',
+        'single_site',
+        'single_address',
+        'single_tel',
+        'single_title',
+    ];
     function companies(){
         return $this->hasMany(Company::class);
     }

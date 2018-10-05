@@ -26,17 +26,19 @@ use Illuminate\Support\Collection;
  * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @property string|null $city
+ * @property-write mixed $phones
  */
 class ParsedCompany extends Model
 {
     protected $fillable = [
         'donor_page',
+        'donor_id',
         'phone',
         'site',
         'title',
         'address',
+        'phones',
     ];
-
     function donor()
     {
         return $this->belongsTo(Donor::class);
@@ -51,7 +53,9 @@ class ParsedCompany extends Model
     {
         return $this->hasMany(Review::class);
     }
-
+    public function setPhonesAttribute($phones){
+        $this->attributes['phone'] = implode(', ',$phones);
+    }
     /**
      * @param Collection|Review[] $reviews
      * @return bool

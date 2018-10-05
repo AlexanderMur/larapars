@@ -26,7 +26,7 @@ class CompaniesTableSeeder extends Seeder
         $this->donors[] = factory(Donor::class, 'donor1')->create();
         $this->donors[] = factory(Donor::class, 'donor2')->create();
         /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
-        $companies = factory(Company::class, 6)->create();
+//        $companies = factory(Company::class, 6)->create();
 
 //        $companies
 //            ->each(function (Company $company) {
@@ -55,11 +55,11 @@ class CompaniesTableSeeder extends Seeder
         /**
          * @var Company $company
          */
-        $company = factory(Company::class, 'company1')->create();
-
-        $parsed_companies = $this->makeParsedCompanies('company1', 11);
-
-        $this->saveMany($parsed_companies);
+//        $company = factory(Company::class, 'company1')->create();
+//
+//        $parsed_companies = $this->makeParsedCompanies('company1', 11);
+//
+//        $this->saveMany($parsed_companies);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Components;
 
-use \Symfony\Component\DomCrawler\Crawler as BaseCrawler;
+use Symfony\Component\DomCrawler\Crawler as BaseCrawler;
 
 /**
  * Class Crawler
@@ -55,9 +55,15 @@ class Crawler extends BaseCrawler
         }
         return null;
     }
+
+    /**
+     * @param null $default
+     * @return null|string
+     */
     public function getText($default = null){
         if($this->count()){
-            return $this->text();
+
+            return trim($this->text());
         }
         return null;
     }

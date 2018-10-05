@@ -14,6 +14,28 @@
             </a>
             {{$company->title}}
         </h2>
+
+        <p>
+            Телефон: {{$company->phone}}
+        </p>
+        <p>
+            Сайт: {{$company->site}}
+        </p>
+        <p>
+            Название: {{$company->title}}
+        </p>
+        <p>
+            Город: {{$company->city}}
+        </p>
+        <p>
+            Адрес: {{$company->address}}
+        </p>
+        <p>
+            Дата создания в бд: {{$company->created_at}}
+        </p>
+        <p>
+            Дата обновления в бд: {{$company->updated_at}}
+        </p>
         <div class="row mt-5">
             <div class="col-md-6">
                 @include('admin.partials.company-tabs',[

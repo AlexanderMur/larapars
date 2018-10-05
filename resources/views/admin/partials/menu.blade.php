@@ -15,6 +15,9 @@
         <a href="{{route('reviews.new')}}"><i class="fa fa-comments fa-fw"></i> Отзывы</a>
     </li>
     <li>
+        <a href="{{route('pars.manual')}}"><i class="fa fa-car fa-fw"></i> Тест в ручную</a>
+    </li>
+    <li>
         <a href="{{route('logs.index')}}"><i class="fa fa-car fa-fw"></i> Логи</a>
     </li>
     <li>
@@ -22,9 +25,6 @@
     </li>
     <li>
         <a href="{{route('parsers.index')}}"><i class="fa fa-thumb-tack fa-fw"></i> Парсеры</a>
-    </li>
-    <li>
-        <a href="{{route('pars.test')}}"><i class="fa fa-car fa-fw"></i> Тест</a>
     </li>
     <li>
         <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Експорт</a>

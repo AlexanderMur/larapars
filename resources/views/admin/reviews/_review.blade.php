@@ -36,12 +36,12 @@
             </div>
         </div>
 
-        {!! $review->text !!}
+        {!! nl2p($review->text) !!}
         <p>
             <b>{{$review->donor->title}}</b>
         </p>
         <p>
-            <a href="{{$review->donor_link}}">{{str_limit($review->donor_link,70)}}</a>
+            <a href="{{$review->donor_link}}" target="_blank">{{str_limit($review->donor_link,70)}}</a>
         </p>
 
 

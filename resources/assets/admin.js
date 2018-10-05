@@ -142,9 +142,11 @@ $(function ($) {
         $('.logs').html(json.table);
         $('.statistics').html(json.statistics);
     }
-    updateLogs();
-    setInterval(updateLogs, 2000);
-
+    async function startUpdateLogs(){
+        await updateLogs();
+        setTimeout(startUpdateLogs,2000)
+    }
+    startUpdateLogs();
 
     $('.start-parsing').click(async function(){
         $(this).button('loading')
