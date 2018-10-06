@@ -30,7 +30,7 @@
                 @else
                     <td>
                         {{$log->message}}
-                        <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
+                        <a href="{{$log->url}}" target="_blank">{{str_limit($log->url,55)}}</a>
                         @if ($log->status == 'ok')
                             <span class="label label-info">OK</span>
                         @endif

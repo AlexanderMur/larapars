@@ -88,3 +88,17 @@
     display: inline-block;
   }
 }
+
+.like-review{
+  @extend .text-dark;
+  .review-good & {
+    @extend .text-success;
+  }
+}
+
+.dislike-review{
+  @extend .text-dark;
+  .review-bad & {
+    @extend .text-danger;
+  }
+}

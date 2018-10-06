@@ -15,7 +15,7 @@
         <a href="{{route('reviews.new')}}"><i class="fa fa-comments fa-fw"></i> Отзывы</a>
     </li>
     <li>
-        <a href="{{route('pars.manual')}}"><i class="fa fa-car fa-fw"></i> Тест в ручную</a>
+        <a href="{{route('pars.manual')}}"><i class="fa fa-car fa-fw"></i> Тест вручную</a>
     </li>
     <li>
         <a href="{{route('logs.index')}}"><i class="fa fa-car fa-fw"></i> Логи</a>

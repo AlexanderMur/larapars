@@ -8,23 +8,25 @@ use App\ParserLog;
 
 class AdminController extends Controller
 {
-    public function allData(){
+    public function allData()
+    {
 
-        $companies = Company::with(['donors','reviews'])->get();
-        return view('admin.companies.index',[
+        $companies = Company::with(['donors', 'reviews'])->get();
+        return view('admin.companies.index', [
             'companies' => $companies,
         ]);
     }
-    public function test(){
 
-    }
-    public function export(){
-        return \Excel::download(new ModelExport,'model.xls');
+
+    public function export()
+    {
+        return \Excel::download(new ModelExport, 'model.xls');
     }
 
-    public function logs(){
-        return view('admin.logs.index',[
-            'logs' => ParserLog::orderBy('id','desc')->paginate(),
+    public function logs()
+    {
+        return view('admin.logs.index', [
+            'logs' => ParserLog::orderBy('id', 'desc')->paginate(),
         ]);
     }
 }

@@ -24,10 +24,10 @@
                     <a href="#all_reviews">Все ({{$reviews->where('deleted_at','===',null)->count()}})</a>
                 </li>
                 <li>
-                    <a href="#good_reviews">Положительные ({{$reviews->where('deleted_at','===',null)->where('good','===',1)->count()}})</a>
+                    <a href="#good_reviews">Положительные ({{$reviews->where('deleted_at','===',null)->where('good','===',true)->count()}})</a>
                 </li>
                 <li>
-                    <a href="#bad_reviews">Отрицательные ({{$reviews->where('deleted_at','===',null)->where('good','===', 0)->count() }})</a>
+                    <a href="#bad_reviews">Отрицательные ({{$reviews->where('deleted_at','===',null)->where('good','===', false)->count() }})</a>
                 </li>
                 <li>
                     <a href="#unrated_reviews">Не оцененные ({{$reviews->where('deleted_at','===',null)->where('good','===',null)->count()}})</a>
@@ -48,13 +48,13 @@
                 </div>
                 <div class="tab-pane fade" id="good_reviews">
 
-                    @foreach ($reviews->where('deleted_at','===',null)->where('good','===',1) as $review)
+                    @foreach ($reviews->where('deleted_at','===',null)->where('good','===',true) as $review)
                         @include('admin.reviews._review')
                     @endforeach
                 </div>
                 <div class="tab-pane fade" id="bad_reviews">
 
-                    @foreach ($reviews->where('deleted_at','===',null)->where('good','===',0) as $review)
+                    @foreach ($reviews->where('deleted_at','===',null)->where('good','===',false) as $review)
                         @include('admin.reviews._review')
                     @endforeach
                 </div>

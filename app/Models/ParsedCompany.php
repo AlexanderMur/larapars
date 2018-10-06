@@ -5,6 +5,7 @@ namespace App\Models;
 use App\CompanyHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 
 /**
@@ -63,6 +64,18 @@ class ParsedCompany extends Model
     }
     public function history(){
         return $this->hasMany(CompanyHistory::class);
+    }
+    public function lastHistoryRecord(){
+        return $this->history()
+            ->select('company_histories.*')
+            ->leftJoin('company_histories as m2', function (JoinClause $join) {
+                $join
+                    ->on('company_histories.field', '=', 'm2.field')
+                    ->on('company_histories.id', '<', 'm2.id')
+                    ->on('company_histories.parsed_company_id', '=', 'm2.parsed_company_id');
+            })
+            ->where('m2.id', null)
+            ->get()->keyBy('field')->toArray();
     }
     public function getPhonesAttribute(){
 

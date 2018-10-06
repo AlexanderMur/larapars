@@ -29,6 +29,10 @@ function updateReview(id, data) {
     return axios.put(route('reviews.update', id), data);
 }
 
+function reviewsEndpoint(endpoint, id, data) {
+    return $.get(route('reviews.' + endpoint, id), data);
+}
+
 function getEditPopup(href) {
     return $.get(href)
         .then(function (data) {
@@ -81,14 +85,27 @@ $(function ($) {
             });
 
             return false;
-        })
+        });
+
+
+    $(document)
         .on('click', '.like', function () {
-            updateReview(this.dataset.reviewId, {good: true});
+            reviewsEndpoint('like', this.dataset.reviewId);
             $(this).parents('.review').remove();
         })
         .on('click', '.dislike', function () {
-            updateReview(this.dataset.reviewId, {good: false});
+            reviewsEndpoint('dislike', this.dataset.reviewId);
             $(this).parents('.review').remove();
+        })
+        .on('click', '.like-review', function () {
+            $(this).parents('._review').removeClass('review-bad').addClass('review-good');
+            $.get(this.href);
+            return false;
+        })
+        .on('click', '.dislike-review', function () {
+            $(this).parents('._review').removeClass('review-good').addClass('review-bad');
+            $.get(this.href);
+            return false;
         });
     $('[data-toggle="tooltip"]').tooltip();
     $('.company-select').select2({
@@ -138,20 +155,22 @@ $(function ($) {
 
     async function updateLogs() {
         const json = await $.get(route('parsers.logs'));
-        console.log(json)
+        console.log(json);
         $('.logs').html(json.table);
         $('.statistics').html(json.statistics);
     }
-    async function startUpdateLogs(){
+
+    async function startUpdateLogs() {
         await updateLogs();
-        setTimeout(startUpdateLogs,2000)
+        setTimeout(startUpdateLogs, 2000);
     }
+
     startUpdateLogs();
 
-    $('.start-parsing').click(async function(){
-        $(this).button('loading')
-        await $.post(route('pars.test'))
-        $(this).button('reset')
-    })
+    $('.start-parsing').click(async function () {
+        $(this).button('loading');
+        await $.post(route('pars.test'));
+        $(this).button('reset');
+    });
 
 });

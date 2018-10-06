@@ -11229,12 +11229,15 @@ a.text-secondary:focus {
   color: #545b62 !important;
 }
 
-.text-success {
+.text-success,
+.review-good .like-review {
   color: #28a745 !important;
 }
 
 a.text-success:hover,
-a.text-success:focus {
+.review-good a.like-review:hover,
+a.text-success:focus,
+.review-good a.like-review:focus {
   color: #1e7e34 !important;
 }
 
@@ -11256,12 +11259,15 @@ a.text-warning:focus {
   color: #d39e00 !important;
 }
 
-.text-danger {
+.text-danger,
+.review-bad .dislike-review {
   color: #dc3545 !important;
 }
 
 a.text-danger:hover,
-a.text-danger:focus {
+.review-bad a.dislike-review:hover,
+a.text-danger:focus,
+.review-bad a.dislike-review:focus {
   color: #bd2130 !important;
 }
 
@@ -11274,12 +11280,18 @@ a.text-light:focus {
   color: #dae0e5 !important;
 }
 
-.text-dark {
+.text-dark,
+.like-review,
+.dislike-review {
   color: #343a40 !important;
 }
 
 a.text-dark:hover,
-a.text-dark:focus {
+a.like-review:hover,
+a.dislike-review:hover,
+a.text-dark:focus,
+a.like-review:focus,
+a.dislike-review:focus {
   color: #1d2124 !important;
 }
 

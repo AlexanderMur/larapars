@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\Review;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Services\ReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
-use Yajra\DataTables\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class ReviewController extends Controller
@@ -18,11 +16,17 @@ class ReviewController extends Controller
      * @var Builder
      */
     public $builder;
+    /**
+     * @var ReviewService
+     */
+    public $reviewService;
 
-    public function __construct(Builder $builder)
+    public function __construct(Builder $builder,ReviewService $reviewService)
     {
 
         $this->builder = $builder;
+
+        $this->reviewService = $reviewService;
     }
 
     /**
@@ -135,12 +139,21 @@ class ReviewController extends Controller
         }
         return redirect()->back();
     }
+    public function like(Review $review){
+        $this->reviewService->likeReview($review);
+        return response()->json('ok');
+    }
+    public function dislike(Review $review){
+        $this->reviewService->dislikeReview($review);
+        return response()->json('ok');
+    }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy($id)
     {
@@ -268,7 +281,7 @@ class ReviewController extends Controller
                 'company.title',
             ])
             ->parameters([
-                'order' => [[4, "desc"]],
+                'order' => [[5, "desc"]],
 
             ]);
         return view('admin.reviews.archive', [

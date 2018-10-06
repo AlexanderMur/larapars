@@ -2,8 +2,10 @@
 /**
  * @var \App\Models\Review $review
  */
+
+$class = $review->good == true ? 'review-good' : 'review-bad';
 ?>
-<div class="panel panel-default has-actions">
+<div class="panel panel-default has-actions _review {{$class}}">
     <div class="panel-body">
 
         <div class="row mb-3">
@@ -13,12 +15,9 @@
                     {{$review->title}}
 
                 </h3>
-                @if ($review->good === true)
-                    <i class="fa fa-thumbs-up text-success fa-fw fa-2x"></i>
-                @endif
-                @if ($review->good === false)
-                    <i class="fa fa-thumbs-down text-danger fa-fw fa-2x"></i>
-                @endif
+
+                <a href="{{route('reviews.like',$review)}}" class="like-review"><i class="fa fa-2x fa-thumbs-up"></i></a>
+                <a href="{{route('reviews.dislike',$review)}}" class="dislike-review"><i class="fa fa-2x fa-thumbs-down"></i></a>
                 @isset($review->group->reviews)
                     @if ($review->group->reviews->count() >= 2)
                         @include('admin.companies.dublicates',[
@@ -46,8 +45,13 @@
 
 
         <div class="actions">
-            <a class="btn btn-primary" href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i> Редактировать</a>
-            <a class="btn btn-danger" href="{{route('reviews.destroy',[ $review,'_method=delete' ])}}"><i class="fa fa-edit"></i> В корзину</a>
+            <a class="btn btn-primary btn-sm" href="{{route('reviews.edit',$review)}}"><i class="fa fa-edit"></i>
+                Редактировать</a>
+            <a
+                class="btn btn-danger btn-sm"
+                href="{{route('reviews.destroy',[ $review,'_method=delete' ])}}"
+            ><i class="fa fa-trash"></i> В корзину</a>
+
         </div>
     </div>
 </div>
