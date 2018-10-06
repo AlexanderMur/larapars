@@ -83,7 +83,7 @@ class ParserClass
         foreach ($numbers as $number) {
             $numbersArr[] = $number->rawString();
         }
-        return $numbersArr;
+        return implode(', ', $numbersArr);
     }
 
     public function getCompanyPhone(Crawler $crawler, Donor $donor)
@@ -98,7 +98,7 @@ class ParserClass
         return [
             'site'       => $crawler->query($donor->single_site)->getText(),
             'reviews'    => $this->getReviewsOnPage($crawler, $donor),
-            'phones'     => $this->getCompanyPhone($crawler, $donor),
+            'phone'      => $this->getCompanyPhone($crawler, $donor),
             'address'    => $crawler->query($donor->single_address)->getText(),
             'title'      => $crawler->query($donor->single_title)->getText(),
             'donor_page' => $crawler->getBaseHref(),

@@ -16,7 +16,9 @@ class CreateCompanyHistoriesTable extends Migration
         Schema::create('company_histories', function (Blueprint $table) {
             $table->increments('id');
             $table->string('field');
-            $table->string('value');
+            $table->text('old_value');
+            $table->text('new_value');
+            $table->text('parsed_company_id');
             $table->timestamp('created_at');
         });
     }

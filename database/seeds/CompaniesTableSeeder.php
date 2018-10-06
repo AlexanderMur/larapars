@@ -1,5 +1,6 @@
 <?php
 
+use App\CompanyHistory;
 use App\Models\Company;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
@@ -25,7 +26,9 @@ class CompaniesTableSeeder extends Seeder
         $this->donors = collect();
         $this->donors[] = factory(Donor::class, 'donor1')->create();
         $this->donors[] = factory(Donor::class, 'donor2')->create();
-        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
+
+//        $this->createCompanyHistory();
+//        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
 //        $companies = factory(Company::class, 6)->create();
 
 //        $companies
@@ -144,5 +147,20 @@ class CompaniesTableSeeder extends Seeder
             $model->save();
         }
         return $models;
+    }
+
+    public function createCompanyHistory()
+    {
+        $history = [
+            [
+                'field' => 'title',
+                'old_value' => 'test',
+                'new_value' => 'test2',
+                'parsed_company_id' => 1,
+            ],
+        ];
+        foreach ($history as $item) {
+            CompanyHistory::create($item);
+        }
     }
 }

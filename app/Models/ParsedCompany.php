@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\CompanyHistory;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -27,6 +28,7 @@ use Illuminate\Support\Collection;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Review[] $reviews
  * @property string|null $city
  * @property-write mixed $phones
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\CompanyHistory[] $history
  */
 class ParsedCompany extends Model
 {
@@ -37,6 +39,9 @@ class ParsedCompany extends Model
         'site',
         'title',
         'address',
+        'phones',
+    ];
+    protected $appends = [
         'phones',
     ];
     function donor()
@@ -55,6 +60,13 @@ class ParsedCompany extends Model
     }
     public function setPhonesAttribute($phones){
         $this->attributes['phone'] = implode(', ',$phones);
+    }
+    public function history(){
+        return $this->hasMany(CompanyHistory::class);
+    }
+    public function getPhonesAttribute(){
+
+        return $this->attributes['phone'] ? explode(', ',$this->attributes['phone']) : [];
     }
     /**
      * @param Collection|Review[] $reviews

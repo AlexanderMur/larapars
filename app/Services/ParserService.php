@@ -9,9 +9,11 @@
 namespace App\Services;
 
 
+use App\CompanyHistory;
 use App\Components\ParserClass;
 use App\Models\ParsedCompany;
 use App\Models\Review;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 
 
@@ -71,10 +73,66 @@ class ParserService
     {
         foreach ($new_companies as $new_company) {
 
-            $parsed_company = ParsedCompany::updateOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
+            $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
+            if (!$parsed_company->wasRecentlyCreated) {
+                if ($changed_attributes = $this->detectChanges2($parsed_company, $new_company)) {
+                    //Получить последние изменения...
+                    $actual_attrs = CompanyHistory
+                        ::select('company_histories.*')
+                        ->leftJoin('company_histories as m2', function (JoinClause $join) {
+                            $join
+                                ->on('company_histories.field', '=', 'm2.field')
+                                ->on('company_histories.id', '<', 'm2.id')
+                                ->on('company_histories.parsed_company_id', '=', 'm2.parsed_company_id');
+                        })
+                        ->where('company_histories.parsed_company_id', $parsed_company->id)
+                        ->where('m2.id', null)
+                        ->get()->keyBy('field')->toArray();
+
+                    foreach ($changed_attributes as $changed_attribute) {
+                        if(!isset($actual_attrs[$changed_attribute]) && $parsed_company->$changed_attribute == $new_company[$changed_attribute]){
+                            continue;
+                        }
+                        if (!isset($actual_attrs[$changed_attribute])
+                            || $actual_attrs[$changed_attribute]['new_value'] != $new_company[$changed_attribute]) {
+                            CompanyHistory::create([
+                                'field'             => $changed_attribute,
+                                'old_value'         => $actual_attrs[$changed_attribute]['new_value'] ?? $parsed_company->$changed_attribute,
+                                'new_value'         => $new_company[$changed_attribute],
+                                'parsed_company_id' => $parsed_company->id,
+                            ]);
+                        }
+                    }
+                };
+
+
+            }
             $this->saveReviews($parsed_company, $new_company);
         }
     }
 
+    public function detectChanges(ParsedCompany $parsedCompany, $newCompany)
+    {
+        $changed_attributes = [];
+        foreach ($parsedCompany->toArray() as $key => $attribute) {
+            if (isset($newCompany[$key])) {
+                if ($newCompany[$key] !== $attribute) {
+                    $changed_attributes[] = $key;
+                }
+            }
+        }
+        return $changed_attributes;
+    }
+
+    public function detectChanges2(ParsedCompany $parsedCompany, $newCompany)
+    {
+        $changed_attributes = [];
+        foreach ($parsedCompany->toArray() as $key => $attribute) {
+            if (isset($newCompany[$key])) {
+                $changed_attributes[] = $key;
+            }
+        }
+        return $changed_attributes;
+    }
 
 }
