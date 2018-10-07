@@ -52,11 +52,26 @@ $factory->defineAs(App\Models\Donor::class, 'donor2', function (Faker $faker) {
         'single_title'        => 'h1.entry-title',
     ];
 });
-$factory->define(App\Models\Donor::class, function (Faker $faker) {
-    $title = $faker->sentence(1) . ' ' . join(' ', $faker->randomElements(['Отзыв', 'Avto', 'Rate', 'Car'], 2));
-    $title = str_replace_first('.', '', $title);
+$factory->defineAs(App\Models\Donor::class, 'donor3', function (Faker $faker) {
     return [
-        'link'  => 'http://' . str_slug($title) . '.ru',
-        'title' => $title,
+        'link'                => 'http://rater.club/',
+        'title'               => 'Rater Club',
+        'loop_address'        => '.su-post-excerpt',
+        'loop_item'           => '.su-post',
+        'loop_link'           => 'h2 a',
+        'loop_title'          => 'h2',
+        'replace_search'      => '',
+        'replace_to'          => '',
+        'reviews_all'         => '.rbox',
+        'reviews_ignore_text' => '',
+        'reviews_rating'      => '',
+        'reviews_text'        => '.comment-body',
+        'reviews_title'       => '.comment-title',
+        'reviews_name'        => '.comment-author',
+        'reviews_id'          => '//*[@class="comment-anchor"]/@id',
+        'single_site'         => '//tr//*/text()[contains(.,"Сайт")]/../..',
+        'single_address'      => '//tr//*/text()[contains(.,"Адрес")]/../..',
+        'single_tel'          => '//tr//*/text()[contains(.,"Телефон")]/../..',
+        'single_title'        => 'h1',
     ];
 });

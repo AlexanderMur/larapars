@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Donor
  *
- * @property CompanyDonor|DonorReview $pivot
  * @property int $id
  * @property string $link
  * @property string $title

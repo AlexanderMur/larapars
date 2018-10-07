@@ -45,11 +45,12 @@ class ParserController extends Controller
     public function manualParser()
     {
         if (\request()->isMethod('POST')) {
-            $company = $this->parserClass
-                ->parseCompany(\request('page'), Donor::find(\request('donor_id')))
-                ->wait();
-            dump($company);
-            $this->parserService->handleParsedData([$company]);
+            request()->flash();
+
+            $this->parserService->parseCompaniesByUrls(
+                preg_split('/\r\n/', request('page'))
+            );
+
         }
         $donors = Donor::all();
         return view('admin.parser.manual', [
@@ -61,23 +62,15 @@ class ParserController extends Controller
     {
 
 
-        $parsers = \App\Models\Parser::all();
         LogService::log('bold', 'запуск парсера');
-        $parserClass = $this->parserClass;
-        foreach ($parsers as $parser) {
-            $link      = $parser->donor->link;
-            $companies = $parserClass->parseData($link, $parser->donor)->wait();
-            LogService::log('info', 'спарсено ' . count($companies) . ' компаний', $link);
-            foreach ($companies as $key => $company) {
 
-                $companies[$key] = array_merge(
-                    $companies[$key],
-                    $parserClass->parseCompany($company['donor_page'], $parser->donor)->wait()
-                );
-                LogService::log('info', 'спарсено ' . count($companies[$key]['reviews']) . ' отзывов', $companies[$key]['donor_page']);
-            }
-            $this->parserService->handleParsedData($companies);
+        $parsers = \App\Models\Parser::all();
+        $links = [];
+        foreach ($parsers as $parser) {
+            $links[] = $parser->donor->link;
         }
+        $this->parserService->parseArchivePagesByUrls($links);
+
         LogService::log('bold', 'работа парсера завершена');
         return 'ok';
     }

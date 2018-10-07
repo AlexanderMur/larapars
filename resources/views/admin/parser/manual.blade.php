@@ -13,18 +13,22 @@
         <div class="col-lg-8">
             <form method="post">
                 @csrf
+                <p>Введите ссылки на компании. Разделять через новую строку. Например:<br>
+                    https://avtosalon-otzyv.ru/avtosalon-aleaavto/<br>
+                    https://otziv-avto.ru/avtosalon-armada-spb-otzyvy/
+                </p>
+                <p>
+                    Доноры ищутся автоматически на основании хоста
+                </p>
+                <p>Доступные доноры:</p>
+                <ul>
+                    @foreach ($donors as $donor)
+                        <li>{{$donor->link}} {{$donor->title}}</li>
+                    @endforeach
+                </ul>
                 <div class="form-group">
-                    <label for="page">Ссылка</label>
-                    <textarea id="page" name="page" class="form-control"></textarea>
-                    <p class="help-block">Введите ссылку на компанию. Например: https://avtosalon-otzyv.ru/avtosalon-aleaavto/</p>
-                </div>
-                <div class="form-group">
-                    <label for="donor_id">Донор</label>
-                    <select id="donor_id" name="donor_id" class="form-control">
-                        @foreach ($donors as $donor)
-                            <option value="{{$donor->id}}">{{$donor->link}} {{$donor->title}}</option>
-                        @endforeach
-                    </select>
+                    <label for="page">Ссылки</label>
+                    <textarea id="page" name="page" class="form-control">{{old('page')}}</textarea>
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
             </form>

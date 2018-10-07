@@ -165,7 +165,9 @@ $(function ($) {
         setTimeout(startUpdateLogs, 2000);
     }
 
-    startUpdateLogs();
+    if($('.logs').length){
+        startUpdateLogs();
+    }
 
     $('.start-parsing').click(async function () {
         $(this).button('loading');

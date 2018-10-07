@@ -23,6 +23,7 @@ class ParserClass
 
     /**
      * parse archive page
+     *
      * @param $link
      * @param Donor $donor
      * @param int $how_many
@@ -35,6 +36,7 @@ class ParserClass
             ->then(function (Response $response) use ($link, $how_many, $donor) {
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
+                $html = preg_replace('/<blockquote>.*<\/blockquote>/','',$html);
                 $crawler = new Crawler($html, $link);
                 return $this->getDataOnPage($crawler, $donor, $how_many);
             });
@@ -42,6 +44,7 @@ class ParserClass
 
     /**
      * parse single page
+     *
      * @param $link
      * @param Donor $donor
      * @return \GuzzleHttp\Promise\PromiseInterface
@@ -52,6 +55,7 @@ class ParserClass
             ->then(function (Response $response) use ($link, $donor) {
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
+                $html = preg_replace('/<blockquote>.*<\/blockquote>/','',$html);
                 $crawler = new Crawler($html, $link);
                 return $this->getDataOnSinglePage($crawler, $donor);
             });

@@ -45,6 +45,7 @@ class ParsedCompany extends Model
     protected $appends = [
         'phones',
     ];
+
     function donor()
     {
         return $this->belongsTo(Donor::class);
@@ -59,13 +60,19 @@ class ParsedCompany extends Model
     {
         return $this->hasMany(Review::class);
     }
-    public function setPhonesAttribute($phones){
-        $this->attributes['phone'] = implode(', ',$phones);
+
+    public function setPhonesAttribute($phones)
+    {
+        $this->attributes['phone'] = implode(', ', $phones);
     }
-    public function history(){
+
+    public function history()
+    {
         return $this->hasMany(CompanyHistory::class);
     }
-    public function lastHistoryRecord(){
+
+    public function lastHistoryRecord()
+    {
         return $this->history()
             ->select('company_histories.*')
             ->leftJoin('company_histories as m2', function (JoinClause $join) {
@@ -77,19 +84,29 @@ class ParsedCompany extends Model
             ->where('m2.id', null)
             ->get()->keyBy('field')->toArray();
     }
-    public function getPhonesAttribute(){
+    public function getActualAttrs(){
 
-        return $this->attributes['phone'] ? explode(', ',$this->attributes['phone']) : [];
+        return array_merge(
+            $this->getAttributes(),
+            array_pluck($this->lastHistoryRecord(),'new_value','field')
+        );
     }
+    public function getPhonesAttribute()
+    {
+
+        return $this->attributes['phone'] ? explode(', ', $this->attributes['phone']) : [];
+    }
+
     /**
      * @param Collection|Review[] $reviews
      * @return bool
      */
-    public function saveReviews($reviews){
+    public function saveReviews($reviews)
+    {
         foreach ($reviews as $review) {
             $review->parsed_company_id = $this->id;
-            $review->created_at = Carbon::now();
-            $review->updated_at = $review->created_at;
+            $review->created_at        = Carbon::now();
+            $review->updated_at        = $review->created_at;
         }
         return $this->reviews()->insert($reviews instanceof Collection ? $reviews->toArray() : $reviews);
     }
