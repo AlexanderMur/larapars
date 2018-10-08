@@ -65,70 +65,75 @@ class ParserService
     }
 
     /**
-     * @param array $new_companies
+     * @param $new_company
      */
-    public function handleParsedData($new_companies)
+    public function handleParsedCompany($new_company)
     {
-        foreach ($new_companies as $new_company) {
 
-            $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
-            if (!$parsed_company->wasRecentlyCreated) {
-                foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
-                    if (!isset($new_company[$key])) {
-                        continue;
-                    }
-                    if ($attribute != $new_company[$key]) {
-                        CompanyHistory::create([
-                            'field'             => $key,
-                            'old_value'         => $attribute,
-                            'new_value'         => $new_company[$key],
-                            'parsed_company_id' => $parsed_company->id,
-                        ]);
-                    }
+        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
+        if (!$parsed_company->wasRecentlyCreated) {
+            foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
+                if (!isset($new_company[$key])) {
+                    continue;
+                }
+                if ($attribute != $new_company[$key]) {
+                    CompanyHistory::create([
+                        'field'             => $key,
+                        'old_value'         => $attribute,
+                        'new_value'         => $new_company[$key],
+                        'parsed_company_id' => $parsed_company->id,
+                    ]);
                 }
             }
-            $this->handleParsedReviews($parsed_company, $new_company);
         }
+        $this->handleParsedReviews($parsed_company, $new_company);
     }
 
-    public function parseCompaniesByUrls($urls)
+    public function parseCompanyByUrl($url, Donor $donor)
     {
-        $urls = $this->mapUrlsWithDonor($urls);
-        $companies = [];
-        foreach ($urls as $url) {
-            $data = $this->parserClass->parseCompany($url['url'],$url['donor'])->wait();
-            $companies[] = $data;
-            dump($data);
-        }
-        $this->handleParsedData($companies);
+
+        return $this->parserClass->parseCompany($url, $donor)
+            ->then(function ($data) {
+                dump($data);
+                $this->handleParsedCompany($data);
+            });
+
     }
-    public function parseArchivePagesByUrls($urls){
-        $urls = $this->mapUrlsWithDonor($urls);
+
+    public function parseCompaniesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
+        foreach ($urls as $url) {
+            $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
+        }
+    }
+
+    public function parseArchivePagesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
 
         foreach ($urls as $url) {
-            /** @var Donor $donor */
-            $donor     = $url['donor'];
-            $companies = $this->parserClass->parseData($url['url'], $donor)->wait();
-            LogService::log('info', 'спарсено ' . count($companies) . ' компаний', $url['url']);
-            foreach ($companies as $key => $company) {
-                $companies[$key] = array_merge(
-                    $companies[$key],
-                    $this->parserClass->parseCompany($company['donor_page'], $donor)->wait()
-                );
-                LogService::log('info', 'спарсено ' . count($companies[$key]['reviews']) . ' отзывов', $companies[$key]['donor_page']);
-            }
-            $this->handleParsedData($companies);
+            $this->parseCompaniesByUrls(
+                $this->parserClass->parseData($url['donor_page'], $url['donor'])->wait(),
+                false
+            );
         }
     }
-    public function mapUrlsWithDonor($urls) {
+
+    public function mapUrlsWithDonor($urls)
+    {
         $donorsQuery = Donor::select();
-        $mappedUrls = [];
+        $mappedUrls  = [];
         foreach ($urls as $key => $url) {
-            $host       = parse_url($url)['host'];
-            $mappedUrls[] = ['url' => $url, 'host' => $host];
+            $host         = parse_url($url)['host'];
+            $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
             $donorsQuery->orWhere('link', 'like', "%$host%");
         }
-        $donors = $donorsQuery->get()->keyBy(function(Donor $donor){
+        $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
             return parse_url($donor->link)['host'];
         });
         foreach ($mappedUrls as $key => $url) {

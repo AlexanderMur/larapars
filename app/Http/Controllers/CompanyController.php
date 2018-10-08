@@ -68,12 +68,12 @@ class CompanyController extends Controller
     public function search()
     {
 
-        $companies = Company::select();
+        $companies  = Company::select();
         $attributes = Company::first()->getAttributes();
-        $term      = request()->get('term');
+        $term       = request()->get('term');
 
         foreach (explode(' ', $term) as $word) {
-            $companies->where(function($query) use ($word, $attributes) {
+            $companies->where(function ($query) use ($word, $attributes) {
                 foreach ($attributes as $key => $attribute) {
                     $query->orWhereRaw("LOWER(`$key`) LIKE '%$word%'");
                 }
@@ -90,10 +90,10 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        if(request()->has('ids')){
-            $ids = explode(',',request()->get('ids'));
-            $parsed_companies = ParsedCompany::whereIn('id',$ids)->get();
-            return view('admin.companies.create',[
+        if (request()->has('ids')) {
+            $ids              = explode(',', request()->get('ids'));
+            $parsed_companies = ParsedCompany::whereIn('id', $ids)->get();
+            return view('admin.companies.create', [
                 'parsed_companies' => $parsed_companies,
             ]);
         }
@@ -109,11 +109,11 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
 
-        $company = Company::create(\request()->all());
+        $company              = Company::create(\request()->all());
         $parsed_companies_ids = \request()->get('parsed_companies_ids');
-        ParsedCompany::whereIn('id',$parsed_companies_ids)->update(['company_id'=>$company->id]);
-        Review::whereIn('parsed_company_id',$parsed_companies_ids)->update(['company_id'=>$company->id]);
-        return redirect()->route('companies.show',$company);
+        ParsedCompany::whereIn('id', $parsed_companies_ids)->update(['company_id' => $company->id]);
+        Review::whereIn('parsed_company_id', $parsed_companies_ids)->update(['company_id' => $company->id]);
+        return redirect()->route('companies.show', $company);
     }
 
     /**
@@ -124,9 +124,16 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        $company->load(['reviews' => function ($query) {
-            $query->withTrashed();
-        }]);
+        $company->load([
+            'parsed_companies',
+            'parsed_companies.reviews',
+            'parsed_companies.reviews.group',
+            'parsed_companies.reviews.donor',
+            'reviews.donor',
+            'reviews.group',
+            'reviews' => function ($query) {
+                $query->withTrashed();
+            }]);
         return view('admin.companies.show', [
             'company' => $company,
         ]);

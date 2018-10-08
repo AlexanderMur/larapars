@@ -11,3 +11,11 @@ function nl2p($string)
 
     return $paragraphs;
 }
+function external_link($link){
+
+
+    if(!starts_with('http://',$link) && !starts_with('https://',$link)){
+        return 'http://'.$link;
+    }
+    return $link;
+}

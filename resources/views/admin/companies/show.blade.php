@@ -14,7 +14,7 @@
             </a>
             {{$company->title}}
         </h2>
-
+        <a href="{{external_link('google.com')}}" target="_blank">google</a>
         <p>
             Телефон: {{$company->phone}}
         </p>
@@ -37,10 +37,11 @@
             Дата обновления в бд: {{$company->updated_at}}
         </p>
         <div class="row mt-5">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 @include('admin.partials.company-tabs',[
                     'reviews' => $company->reviews,
                     'parsed_companies' => $company->parsed_companies,
+
                 ])
             </div>
         </div>

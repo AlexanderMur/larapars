@@ -3,7 +3,13 @@
  * @var \App\Models\Review $review
  */
 
-$class = $review->good === true ? 'review-good' : $review->good === false ? 'review-bad' : '';
+if ($review->good === true) {
+    $class = 'review-good';
+} else if ($review->good === false){
+    $class = 'review-bad';
+} else {
+    $class = '';
+}
 ?>
 <div class="panel panel-default has-actions _review {{$class}}">
     <div class="panel-body">
