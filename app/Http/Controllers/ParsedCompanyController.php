@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Donor;
 use App\Models\ParsedCompany;
+use App\Models\Review;
 use App\ParserLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
@@ -136,6 +137,7 @@ class ParsedCompanyController extends Controller
             $ids        = $request->get('ids');
             $company_id = $request->get('company_id');
             ParsedCompany::whereIn('id', $ids)->update(['company_id' => $company_id]);
+            Review::whereIn('parsed_company_id', $ids)->update(['company_id' => $company_id]);
 
             return redirect()->back()->with('companies_grouped', $company_id);
         }
@@ -147,7 +149,8 @@ class ParsedCompanyController extends Controller
         return redirect()->back();
     }
     public function detach(ParsedCompany $parsedCompany){
-        $parsedCompany->company()->dissociate();
+        $parsedCompany->company_id = null;
+        $parsedCompany->reviews()->update(['company_id'=>null]);
         $parsedCompany->save();
         return redirect()->back()->with('success','Компания отвязана!');
     }
