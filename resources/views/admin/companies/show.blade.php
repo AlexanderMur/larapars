@@ -14,7 +14,6 @@
             </a>
             {{$company->title}}
         </h2>
-        <a href="{{external_link('google.com')}}" target="_blank">google</a>
         <p>
             Телефон: {{$company->phone}}
         </p>

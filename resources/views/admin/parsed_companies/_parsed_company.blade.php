@@ -22,14 +22,14 @@
                 <a
                     role="button"
                     data-toggle="collapse"
-                    href="#collapseExample"
+                    href="#donor__info-{{$parsed_company->id}}"
                     aria-expanded="false"
-                    aria-controls="collapseExample"
+                    aria-controls="donor__info-{{$parsed_company->id}}"
                 >
                     Информация
                     <span class="caret"></span>
                 </a>
-                <div class="collapse" id="collapseExample">
+                <div class="collapse" id="donor__info-{{$parsed_company->id}}">
                     <div class="well">
                         <p>
                             Телефон: {{$parsed_company->phone}}
@@ -64,10 +64,25 @@
                     </div>
                 </div>
 
-                @include('admin.reviews._tabs',[
-                    'reviews' => $parsed_company->reviews,
-                    'collapse' => true,
-                ])
+                <p>
+                    <a
+                        role="button"
+                        data-toggle="collapse"
+                        href="#donor__reviews-{{$parsed_company->id}}"
+                        aria-expanded="false"
+                        aria-controls="donor__reviews-{{$parsed_company->id}}"
+                    >
+                        Показать отзывы
+                        <span class="caret"></span>
+                    </a>
+                </p>
+                <div class="collapse" id="donor__reviews-{{$parsed_company->id}}">
+                    @include('admin.reviews._tabs',[
+                        'reviews' => $parsed_company->reviews,
+                        'collapse' => true,
+                    ])
+                </div>
+
             </div>
             <div class="tab-pane fade" id="history-{{$parsed_company->id}}">
                 <div class="mt-5">
