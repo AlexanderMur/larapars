@@ -61,6 +61,9 @@
                                 target="_blank"
                             >{{str_limit($parsed_company->donor_page,60)}}</a>
                         </p>
+                        <p>
+                            <a href="{{route('parsed_companies.detach',$parsed_company->id)}}" onclick="return confirm('Отвязать донора?')">Отвязать донора</a>
+                        </p>
                     </div>
                 </div>
 

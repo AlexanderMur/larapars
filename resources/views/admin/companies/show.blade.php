@@ -8,6 +8,7 @@
 @section('content')
     <div id="page-wrapper">
         <h1 class="page-header">Company show</h1>
+        @include('admin.partials.messages')
         <h2>
             <a href="{{route('companies.edit',$company)}}" type="button" class="btn btn-sm btn-success">
                 <i class="fa fa-edit"></i>

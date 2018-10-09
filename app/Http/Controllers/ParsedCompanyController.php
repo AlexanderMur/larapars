@@ -146,7 +146,11 @@ class ParsedCompanyController extends Controller
         }
         return redirect()->back();
     }
-
+    public function detach(ParsedCompany $parsedCompany){
+        $parsedCompany->company()->dissociate();
+        $parsedCompany->save();
+        return redirect()->back()->with('success','Компания отвязана!');
+    }
     /**
      * Remove the specified resource from storage.
      *
