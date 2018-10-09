@@ -88,6 +88,7 @@ $(function ($) {
         });
 
 
+    //like/dislike
     $(document)
         .on('click', '.like', function () {
             reviewsEndpoint('like', this.dataset.reviewId);
@@ -159,20 +160,28 @@ $(function ($) {
         $('.logs').html(json.table);
         $('.statistics').html(json.statistics);
     }
-
+    let canUpdateLogs = false;
     async function startUpdateLogs() {
-        await updateLogs();
-        setTimeout(startUpdateLogs, 2000);
+        if (canUpdateLogs) {
+            await updateLogs();
+        }
+        setTimeout(startUpdateLogs, 1000);
     }
-
-    if($('.logs').length){
-        startUpdateLogs();
+    if($('.statistics').length){
+        updateLogs()
     }
-
-    $('.start-parsing').click(async function () {
+    startUpdateLogs();
+    $('.start-parsing').click(function () {
         $(this).button('loading');
-        await $.post(route('pars.test'));
-        $(this).button('reset');
+        canUpdateLogs = true;
+        $.post(route('pars.test'), $(this).parents('form').serialize())
+            .catch(() => alert('Ошибка'))
+            .then(() => {
+                $(this).button('reset');
+                canUpdateLogs = false;
+                updateLogs()
+            });
+        return false;
     });
 
 });

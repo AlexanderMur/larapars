@@ -3,14 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Components\ParserClass;
+use App\Http\Requests\StartParserRequest;
 use App\Models\Donor;
-use App\Models\ParsedCompany;
-use App\Models\Review;
 use App\ParserLog;
-use App\Services\LogService;
 use App\Services\ParserService;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class ParserController extends Controller
 {
@@ -36,7 +32,7 @@ class ParserController extends Controller
 
     public function start()
     {
-        $logs = ParserLog::query()->paginate();
+        $logs = ParserLog::paginate();
         return view('admin.parser', [
             'logs' => $logs,
         ]);
@@ -58,40 +54,25 @@ class ParserController extends Controller
         ]);
     }
 
-    public function parse(Request $request)
+    public function parse(StartParserRequest $request)
     {
-
-
-        LogService::log('bold', 'запуск парсера');
-
-        $parsers = \App\Models\Parser::all();
-        $links = [];
-        foreach ($parsers as $parser) {
-            $links[] = $parser->donor->link;
+        if ($request->donor_id === 'all') {
+            $links = Donor::all()->pluck('link');
+        } else {
+            $links = [Donor::find($request->donor_id)->link];
         }
         $this->parserService->parseArchivePagesByUrls($links);
 
-        LogService::log('bold', 'работа парсера завершена');
         return 'ok';
     }
 
     public function logs()
     {
         $logs = ParserLog::orderBy('id', 'desc')->paginate();
-
-
-        $statistics = [
-            'parsed_companies_count'     => ParsedCompany::where('company_id', null)->count(),
-            'new_parsed_companies_count' => ParsedCompany::where('company_id', null)->where('created_at', '=', Carbon::now()->subMinute(5))->count(),
-            'reviews_count'              => Review::where('good', null)->count(),
-            'new_reviews_count'          => Review::where('company_id', null)->where('created_at', '=', Carbon::now()->subMinute(5))->count(),
-        ];
-
-
         return response()->json([
             'table'      => '' . view('admin.partials.logs', ['logs' => $logs,]),
             'statistics' => '' . view('admin.partials.parser.statistics', [
-                    'statistics' => $statistics,
+                    'statistics' => $this->parserService->getStatistics(),
                 ]),
         ]);
     }

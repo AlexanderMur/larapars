@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\ParserLog;
 use Illuminate\Http\Request;
@@ -64,9 +65,11 @@ class ParsedCompanyController extends Controller
                 'updated_at',
             ]);
         $logs = ParserLog::paginate();
+        $donors = Donor::all();
         return view('admin.parsed_companies.index', [
             'html' => $html,
             'logs' => $logs,
+            'donors' => $donors,
         ]);
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var \App\Models\Review[]|\Illuminate\Support\Collection $reviews
  */

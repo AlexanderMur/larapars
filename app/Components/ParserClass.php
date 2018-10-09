@@ -29,7 +29,7 @@ class ParserClass
      * @param int $how_many
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function parseData($link, Donor $donor, $how_many = 10)
+    public function getCompanyUrlsOnArchive($link, Donor $donor, $how_many = 2)
     {
 
         return $this->client->getAsync($link)

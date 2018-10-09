@@ -1,13 +1,25 @@
+
+<?php
+/**
+ * @var \App\Models\Donor $donor
+ */
+?>
+
 <div>
     <div class="row">
         <div class="col-lg-6 statistics">
 
         </div>
         <div class="col-lg-6">
-            <select class="form-control select-medium" name="select_parser" id="">
-                <option value="1">Все</option>
-            </select>
-            <button class="btn btn-primary start-parsing">Парсить</button>
+            <form action="">
+                <select class="form-control select-medium" name="donor_id" id="">
+                    <option value="all">Все</option>
+                    @foreach ($donors as $donor)
+                        <option value="{{$donor->id}}">{{$donor->link}}</option>
+                    @endforeach
+                </select>
+                <button class="btn btn-primary start-parsing">Парсить</button>
+            </form>
         </div>
     </div>
     <div class="mb-5">

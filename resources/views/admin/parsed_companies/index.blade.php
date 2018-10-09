@@ -7,6 +7,7 @@
 
 
 @section('content')
+
     <div id="page-wrapper">
         <h1 class="page-header">Start</h1>
         @include('admin.partials.messages')

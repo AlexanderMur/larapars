@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Donor;
 use App\Models\Group;
 use App\Models\Review;
+use App\ParserLog;
+use App\Services\ParserService;
 use App\Services\ReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
@@ -20,13 +23,17 @@ class ReviewController extends Controller
      * @var ReviewService
      */
     public $reviewService;
+    /**
+     * @var ParserService
+     */
+    public $parserService;
 
-    public function __construct(Builder $builder,ReviewService $reviewService)
+    public function __construct(Builder $builder, ReviewService $reviewService, ParserService $parserService)
     {
 
-        $this->builder = $builder;
-
+        $this->builder       = $builder;
         $this->reviewService = $reviewService;
+        $this->parserService = $parserService;
     }
 
     /**
@@ -94,7 +101,7 @@ class ReviewController extends Controller
      */
     public function show($id)
     {
-        if(request()->get('_method') == 'delete'){
+        if (request()->get('_method') == 'delete') {
             return $this->destroy($id);
         }
         return 'ok';
@@ -130,7 +137,7 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
 
-        $review = Review::withTrashed()->where('id', $id)->first();
+        $review       = Review::withTrashed()->where('id', $id)->first();
         $review->good = $request->has('good');
         $review->update($request->all());
         $request->session()->flash('success', 'Отзыв изменен');
@@ -139,11 +146,15 @@ class ReviewController extends Controller
         }
         return redirect()->back();
     }
-    public function like(Review $review){
+
+    public function like(Review $review)
+    {
         $this->reviewService->likeReview($review);
         return response()->json('ok');
     }
-    public function dislike(Review $review){
+
+    public function dislike(Review $review)
+    {
         $this->reviewService->dislikeReview($review);
         return response()->json('ok');
     }
@@ -208,9 +219,16 @@ class ReviewController extends Controller
             ->take(20)
             ->get();
 
-        return view('admin.reviews.new', [
-            'reviews' => $reviews,
-        ]);
+        $logs = ParserLog::paginate();
+        $donors = Donor::all();
+        return view('admin.reviews.new', array_merge(
+            $this->parserService->getStatistics(),
+            [
+                'logs' => $logs,
+                'donors' => $donors,
+                'reviews' => $reviews,
+            ]
+        ));
     }
 
     function archive()
@@ -219,15 +237,15 @@ class ReviewController extends Controller
         if (request()->ajax()) {
             return \DataTables
                 ::eloquent(
-                    Review::with(['company'])
+                    Review::with(['company', 'donor'])
                         ->select('reviews.*')
                         ->where('good', '!=', null)
                 )
-                ->editColumn('id',function (Review $review){
+                ->editColumn('id', function (Review $review) {
                     return new HtmlString("<input type='checkbox' value='$review->id' name='reviews[]'/>");
                 })
                 ->editColumn('company.title', function (Review $review) {
-                    if($review->company_id){
+                    if ($review->company_id) {
                         ob_start();
                         ?>
                         <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
@@ -272,34 +290,44 @@ class ReviewController extends Controller
 
         $html = $this->builder
             ->columns([
-                'id' => ['orderable' => false,'title'=>''],
+                'id'   => ['orderable' => false, 'title' => ''],
                 'name',
                 'title',
                 'text',
                 'good' => ['width' => '1%'],
                 'rated_at',
                 'company.title',
+                'donor.title',
             ])
             ->parameters([
                 'order' => [[5, "desc"]],
 
             ]);
-        return view('admin.reviews.archive', [
-            'html' => $html,
-        ]);
+        $logs = ParserLog::paginate();
+        $donors = Donor::all();
+        return view('admin.reviews.archive', array_merge(
+            $this->parserService->getStatistics(),
+            [
+                'html' => $html,
+                'logs' => $logs,
+                'donors' => $donors,
+            ]
+        ));
     }
-    function updateMany(){
-        if(request()->get('action') == 'group'){
-            $ids = \request()->get('reviews');
-            $review_with_group = Review::where('group_id','!=',null)->first();
-            if($review_with_group){
+
+    function updateMany()
+    {
+        if (request()->get('action') == 'group') {
+            $ids               = \request()->get('reviews');
+            $review_with_group = Review::where('group_id', '!=', null)->first();
+            if ($review_with_group) {
                 $group_id = $review_with_group->group_id;
-                $num = Review::whereIn('id',$ids)->update(['group_id'=>$group_id]);
-                return redirect()->back()->with('success',$num . ' отзыва(ов) сгруппированы');
+                $num      = Review::whereIn('id', $ids)->update(['group_id' => $group_id]);
+                return redirect()->back()->with('success', $num . ' отзыва(ов) сгруппированы');
             }
             $group = Group::create();
-            $num = Review::whereIn('id',$ids)->update(['group_id'=>$group->id]);
-            return redirect()->back()->with('success',$num . ' отзыва(ов) сгруппированы');
+            $num   = Review::whereIn('id', $ids)->update(['group_id' => $group->id]);
+            return redirect()->back()->with('success', $num . ' отзыва(ов) сгруппированы');
         }
     }
 }
