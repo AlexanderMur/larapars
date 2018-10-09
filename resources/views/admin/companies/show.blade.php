@@ -18,7 +18,7 @@
             Телефон: {{$company->phone}}
         </p>
         <p>
-            Сайт: {{$company->site}}
+            Сайт: <a href="{{$company->site}}" target="_blank">{{$company->site}}</a>
         </p>
         <p>
             Название: {{$company->title}}

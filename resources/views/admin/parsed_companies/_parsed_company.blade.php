@@ -35,7 +35,7 @@
                             Телефон: {{$parsed_company->phone}}
                         </p>
                         <p>
-                            Сайт: {{$parsed_company->site}}
+                            Сайт: <a href="{{$parsed_company->site}}" target="_blank">{{$parsed_company->site}}</a>
                         </p>
                         <p>
                             Название: {{$parsed_company->title}}
