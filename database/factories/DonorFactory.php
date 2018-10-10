@@ -75,3 +75,26 @@ $factory->defineAs(App\Models\Donor::class, 'donor3', function (Faker $faker) {
         'single_title'        => 'h1',
     ];
 });
+$factory->defineAs(App\Models\Donor::class, 'donor4', function (Faker $faker) {
+    return [
+        'link'                => 'http://mail-auto.ru/',
+        'title'               => 'Mail Auto',
+        'loop_address'        => '.su-post-excerpt',
+        'loop_item'           => '.su-post',
+        'loop_link'           => 'h2 a',
+        'loop_title'          => 'h2',
+        'replace_search'      => '',
+        'replace_to'          => '',
+        'reviews_all'         => '.rbox',
+        'reviews_ignore_text' => '',
+        'reviews_rating'      => '',
+        'reviews_text'        => '.comment-body',
+        'reviews_title'       => '.comment-title',
+        'reviews_name'        => '.comment-author',
+        'reviews_id'          => '//*[@class="comment-anchor"]/@id',
+        'single_site'         => '//article[@class="uk-article"]//p/text()[contains(.,"Сайт")]',
+        'single_address'      => '//article[@class="uk-article"]//p/text()[contains(.,"Адрес")]',
+        'single_tel'          => '//article[@class="uk-article"]//p/text()[contains(.,"Телефон")]',
+        'single_title'        => 'h1.uk-article-title',
+    ];
+});

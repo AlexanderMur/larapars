@@ -27,6 +27,7 @@ class CompaniesTableSeeder extends Seeder
         $this->donors[] = factory(Donor::class, 'donor1')->create();
         $this->donors[] = factory(Donor::class, 'donor2')->create();
         $this->donors[] = factory(Donor::class, 'donor3')->create();
+        $this->donors[] = factory(Donor::class, 'donor4')->create();
 
 //        $this->createCompanyHistory();
 //        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */

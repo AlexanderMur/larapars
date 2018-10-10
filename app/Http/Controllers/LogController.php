@@ -59,6 +59,7 @@ class LogController
                     }
                     return new HtmlString(ob_get_clean());
                 })
+                ->orderColumn('created_at','id $1')
                 ->toJson();
         }
         $html = $this->builder
@@ -66,6 +67,9 @@ class LogController
                 'created_at',
                 'message',
                 'url' => ['visible' => false],
+            ])
+            ->parameters([
+                'order' => [[0, "desc"]],
             ])
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
