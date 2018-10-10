@@ -60,6 +60,9 @@ class CompanyController extends Controller
                 'created_at',
                 'updated_at',
             ])
+            ->parameters([
+                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
+            ])
             ->addCheckbox([], true);;
 
         return view('users.index', compact('html'));

@@ -148,9 +148,9 @@ $(function ($) {
     });
 
     if ($('#dataTableBuilder_length').length) {
-        $('#dataTableBuilder_length').find('select')[0].innerHTML += '<option value="150">150</option>';
+
         dataTable().on('search.dt', function () {
-            dataTable().page.len(150);
+            dataTable().page.len(200);
         });
     }
 

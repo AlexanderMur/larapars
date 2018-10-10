@@ -40,20 +40,21 @@ class ParsedCompanyController extends Controller
                         ::select([
                             'parsed_companies.*',
                         ])
+                        ->withCount('reviews')
                         ->where('company_id', null)
                 )
                 ->editColumn('id', function (ParsedCompany $parsedCompany) {
                     return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
                 })
                 ->editColumn('site', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . $parsedCompany->site . "' target='_blank'>" . $parsedCompany->site . "</a>");
+                    return new HtmlString("<a href='" . external_link($parsedCompany->site) . "' target='_blank'>" . $parsedCompany->site . "</a>");
                 })
                 ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page,50) . "</a>");
+                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page, 50) . "</a>");
                 })
                 ->toJson();
         }
-        $html = $this->builder
+        $html   = $this->builder
             ->columns([
                 'id' => ['orderable' => false, 'title' => ''],
                 'title',
@@ -62,14 +63,18 @@ class ParsedCompanyController extends Controller
                 'site',
                 'city',
                 'address',
+                'reviews_count',
                 'created_at',
                 'updated_at',
+            ])
+            ->parameters([
+                "lengthMenu" => [[20, 50, 100, 200, 500],[20, 50, 100, 200, 500],],
             ]);
-        $logs = ParserLog::paginate();
+        $logs   = ParserLog::paginate();
         $donors = Donor::all();
         return view('admin.parsed_companies.index', [
-            'html' => $html,
-            'logs' => $logs,
+            'html'   => $html,
+            'logs'   => $logs,
             'donors' => $donors,
         ]);
     }
@@ -148,12 +153,15 @@ class ParsedCompanyController extends Controller
         }
         return redirect()->back();
     }
-    public function detach(ParsedCompany $parsedCompany){
+
+    public function detach(ParsedCompany $parsedCompany)
+    {
         $parsedCompany->company_id = null;
-        $parsedCompany->reviews()->update(['company_id'=>null]);
+        $parsedCompany->reviews()->update(['company_id' => null]);
         $parsedCompany->save();
-        return redirect()->back()->with('success','Компания отвязана!');
+        return redirect()->back()->with('success', 'Компания отвязана!');
     }
+
     /**
      * Remove the specified resource from storage.
      *

@@ -301,7 +301,7 @@ class ReviewController extends Controller
             ])
             ->parameters([
                 'order' => [[5, "desc"]],
-
+                "lengthMenu" => [[20, 50, 100, 200, 500],[20, 50, 100, 200, 500],],
             ]);
         $logs = ParserLog::paginate();
         $donors = Donor::all();
