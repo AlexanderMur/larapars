@@ -36,7 +36,6 @@ class ParserClass
             ->then(function (Response $response) use ($link, $how_many, $donor) {
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
-                $html = preg_replace('/<blockquote>.*<\/blockquote>/','',$html);
                 $crawler = new Crawler($html, $link);
                 return $this->getDataOnPage($crawler, $donor, $how_many);
             });
@@ -55,7 +54,6 @@ class ParserClass
             ->then(function (Response $response) use ($link, $donor) {
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
-                $html = preg_replace('/<blockquote>.*<\/blockquote>/','',$html);
                 $crawler = new Crawler($html, $link);
                 return $this->getDataOnSinglePage($crawler, $donor);
             });
@@ -137,8 +135,31 @@ class ParserClass
 
     public function getReviewText(Crawler $crawler, Donor $donor)
     {
-        $text = $crawler->query($donor->reviews_text)->getText();
-        return str_replace($donor->reviews_ignore_text, '', $text);
+        $html = $crawler->query($donor->reviews_text)->html();
+        $html = strip_tags($html,'<blockquote>');
+
+        $id = uniqid();
+        $html = str_replace('<blockquote>','        
+            <div class="panel-group">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#quote-' . $id . '">Collapsible panel</a>
+                  </h4>
+                </div>
+                <div id="quote-' . $id . '" class="panel-collapse collapse">
+                  <blockquote>
+        ',$html);
+
+        $html = str_replace('</blockquote>','        
+                    </blockquote>
+                </div>
+              </div>
+            </div>
+        ',$html);
+
+        $html = str_replace($donor->reviews_ignore_text, '', $html);
+        return $html;
     }
 
     public function getDonorCommentId(Crawler $crawler, Donor $donor)
