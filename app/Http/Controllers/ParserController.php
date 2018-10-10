@@ -56,12 +56,17 @@ class ParserController extends Controller
 
     public function parse(StartParserRequest $request)
     {
-        if ($request->donor_id === 'all') {
-            $links = Donor::all()->pluck('link');
-        } else {
-            $links = [Donor::find($request->donor_id)->link];
+        if($request->donor_id){
+            if ($request->donor_id === 'all') {
+                $links = Donor::all()->pluck('link');
+            } else {
+                $links = [Donor::find($request->donor_id)->link];
+            }
+            $this->parserService->parseArchivePagesByUrls($links);
         }
-        $this->parserService->parseArchivePagesByUrls($links);
+        if($request->pages){
+            $this->parserService->parseCompaniesByUrls($request->pages);
+        }
 
         return 'ok';
     }
