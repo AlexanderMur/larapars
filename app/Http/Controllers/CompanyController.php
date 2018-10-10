@@ -49,22 +49,23 @@ class CompanyController extends Controller
             ->columns([
                 'action'             => ['searchable' => false, 'orderable' => false],
                 'id',
-                'title',
-                'phone',
-                'site',
-                'city',
-                'address',
-                'donors_count'       => ['searchable' => false],
-                'good_reviews_count' => ['searchable' => false],
-                'bad_reviews_count'  => ['searchable' => false],
-                'reviews_count'      => ['searchable' => false],
-                'created_at',
-                'updated_at',
+                'title'              => ['title' => __('company.title')],
+                'phone'              => ['title' => __('company.phone')],
+                'site'               => ['title' => __('company.site')],
+                'city'               => ['title' => __('company.city')],
+                'address'            => ['title' => __('company.address')],
+                'donors_count'       => ['title' => __('company.donors_count'), 'searchable' => false],
+                'good_reviews_count' => ['title' => __('company.good_reviews_count'), 'searchable' => false],
+                'bad_reviews_count'  => ['title' => __('company.bad_reviews_count'), 'searchable' => false],
+                'reviews_count'      => ['title' => __('company.reviews_count'), 'searchable' => false],
+                'created_at'         => ['title' => __('company.created_at')],
+                'updated_at'         => ['title' => __('company.updated_at')],
             ])
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
+                'language' => __('datatables'),
             ])
-            ->addCheckbox([], true);;
+            ->addCheckbox([], true);
 
         return view('users.index', compact('html'));
     }
@@ -130,20 +131,20 @@ class CompanyController extends Controller
     {
         $company->load([
             'parsed_companies',
-            'parsed_companies.reviews' => function($query){
+            'parsed_companies.reviews' => function ($query) {
                 $query->withTrashed();
             },
             'parsed_companies.reviews.group',
             'parsed_companies.reviews.donor',
             'reviews.donor',
             'reviews.group',
-            'reviews' => function ($query) {
+            'reviews'                  => function ($query) {
                 $query->withTrashed();
             }]);
         $logs = ParserLog::paginate();
         return view('admin.companies.show', [
             'company' => $company,
-            'logs' => $logs,
+            'logs'    => $logs,
         ]);
     }
 

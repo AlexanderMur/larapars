@@ -56,15 +56,15 @@ class ReviewController extends Controller
         $html = $builder
             ->columns([
                 'id',
-                'title',
-                'text',
-                'good',
-                'created_at',
-                'updated_at',
-                'name',
-                'company.title',
-                'company.site',
-                'company.single_page_link',
+                'title' => ['title' => __('company.title')],
+                'text' => ['title' => __('company.text')],
+                'good' => ['title' => __('company.good')],
+                'created_at' => ['title' => __('company.created_at')],
+                'updated_at' => ['title' => __('company.updated_at')],
+                'name' => ['title' => __('company.name')],
+                'company.title' => ['title' => __('company.company.title')],
+                'company.site' => ['title' => __('company.company.site')],
+                'company.single_page_link' => ['title' => __('company.company.single_page_link')],
 
             ])
             ->addCheckbox([], true);
@@ -219,13 +219,13 @@ class ReviewController extends Controller
             ->take(20)
             ->get();
 
-        $logs = ParserLog::paginate();
+        $logs   = ParserLog::paginate();
         $donors = Donor::all();
         return view('admin.reviews.new', array_merge(
             $this->parserService->getStatistics(),
             [
-                'logs' => $logs,
-                'donors' => $donors,
+                'logs'    => $logs,
+                'donors'  => $donors,
                 'reviews' => $reviews,
             ]
         ));
@@ -250,7 +250,7 @@ class ReviewController extends Controller
                         ?>
                         <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
                         <br>
-                        <a href="<?php echo $review->donor_link ?>">Перейти к странице донора</a>
+                        <a href="<?php echo $review->donor_link ?>" target="_blank">Перейти к странице донора</a>
                         <?php
                         return new HtmlString(ob_get_clean());
                     }
@@ -288,28 +288,29 @@ class ReviewController extends Controller
                 ->toJson();
         }
 
-        $html = $this->builder
+        $html   = $this->builder
             ->columns([
-                'id'   => ['orderable' => false, 'title' => ''],
-                'name',
-                'title',
-                'text',
-                'good' => ['width' => '1%'],
-                'rated_at',
-                'company.title',
-                'donor.title',
+                'id'            => ['orderable' => false, 'title' => ''],
+                'name'          => ['title' => __('company.name')],
+                'title'         => ['title' => __('company.title')],
+                'text'          => ['title' => __('company.text')],
+                'good'          => ['width' => '1%', 'title' => __('company.good')],
+                'rated_at'      => ['title' => __('company.rated_at')],
+                'company.title' => ['title' => __('company.company.title')],
+                'donor.title'   => ['title' => __('company.donor.title')],
             ])
             ->parameters([
-                'order' => [[5, "desc"]],
-                "lengthMenu" => [[20, 50, 100, 200, 500],[20, 50, 100, 200, 500],],
+                'order'      => [[5, "desc"]],
+                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
+                'language' => __('datatables'),
             ]);
-        $logs = ParserLog::paginate();
+        $logs   = ParserLog::paginate();
         $donors = Donor::all();
         return view('admin.reviews.archive', array_merge(
             $this->parserService->getStatistics(),
             [
-                'html' => $html,
-                'logs' => $logs,
+                'html'   => $html,
+                'logs'   => $logs,
                 'donors' => $donors,
             ]
         ));

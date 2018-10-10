@@ -53,26 +53,27 @@ class ParsedCompanyController extends Controller
                     return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page, 50) . "</a>");
                 })
                 ->editColumn('reviews_count', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . route('companies.create',['ids'=>$parsedCompany->id]) . "' target='_blank'>" . $parsedCompany->reviews_count . "</a>");
+                    return new HtmlString("<a href='" . route('companies.create', ['ids' => $parsedCompany->id]) . "' target='_blank'>" . $parsedCompany->reviews_count . "</a>");
                 })
                 ->toJson();
         }
         $html   = $this->builder
             ->columns([
                 'id'            => ['orderable' => false, 'title' => ''],
-                'title',
-                'phone',
-                'donor_page',
-                'site',
-                'city',
-                'address',
-                'reviews_count' => ['searchable' => false],
-                'created_at',
-                'updated_at',
+                'title'         => ['title' => __('company.title')],
+                'phone'         => ['title' => __('company.phone')],
+                'donor_page'    => ['title' => __('company.donor_page')],
+                'site'          => ['title' => __('company.site')],
+                'city'          => ['title' => __('company.city')],
+                'address'       => ['title' => __('company.address')],
+                'reviews_count' => ['title' => __('company.reviews_count'), 'searchable' => false],
+                'created_at'    => ['title' => __('company.created_at')],
+                'updated_at'    => ['title' => __('company.updated_at')],
             ])
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'order' => [[8, "desc"]]
+                'order'      => [[8, "desc"]],
+                'language' => __('datatables'),
             ]);
         $logs   = ParserLog::paginate();
         $donors = Donor::all();

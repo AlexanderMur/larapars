@@ -64,15 +64,14 @@ class LogController
         }
         $html = $this->builder
             ->columns([
-                'created_at',
-                'message',
+                'created_at' => ['title' => __('company.created_at')],
+                'message' => ['title' => __('company.message')],
                 'url' => ['visible' => false],
             ])
             ->parameters([
                 'order' => [[0, "desc"]],
-            ])
-            ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
+                'language' => __('datatables'),
             ]);
         return view('admin.logs.index', [
             'html' => $html,
