@@ -97,8 +97,10 @@ class ParserClass
 
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
+        $site = get_links_from_text($crawler->query($donor->single_site)->getText());
+        $site = implode(', ',$site);
         return [
-            'site'       => $crawler->query($donor->single_site)->getText(),
+            'site'       => $site,
             'reviews'    => $this->getReviewsOnPage($crawler, $donor),
             'phone'      => $this->getCompanyPhone($crawler, $donor),
             'address'    => $crawler->query($donor->single_address)->getText(),

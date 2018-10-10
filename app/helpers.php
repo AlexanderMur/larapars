@@ -56,3 +56,12 @@ function filter_text($html){
         ',$html);
     return $html;
 }
+
+
+function get_links_from_text($text){
+    preg_match_all('~[a-z]+://\S+~', $text, $out);
+    if(isset($out[0])){
+        return $out[0];
+    }
+    return [];
+}

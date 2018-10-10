@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\ParsedCompany;
 use App\Models\Review;
+use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Builder;
@@ -129,7 +130,9 @@ class CompanyController extends Controller
     {
         $company->load([
             'parsed_companies',
-            'parsed_companies.reviews',
+            'parsed_companies.reviews' => function($query){
+                $query->withTrashed();
+            },
             'parsed_companies.reviews.group',
             'parsed_companies.reviews.donor',
             'reviews.donor',
@@ -137,8 +140,10 @@ class CompanyController extends Controller
             'reviews' => function ($query) {
                 $query->withTrashed();
             }]);
+        $logs = ParserLog::paginate();
         return view('admin.companies.show', [
             'company' => $company,
+            'logs' => $logs,
         ]);
     }
 
