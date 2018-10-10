@@ -149,7 +149,10 @@ class ParserService
 
     public function parseCompanyByUrl($url, Donor $donor)
     {
-        $this->is_started = true;
+        if(!$this->is_started){
+            LogService::log('bold','Запуск парсера по конкретной ссылке',$url);
+            $this->is_started = true;
+        }
         LogService::log('info', 'парсим компанию...', $url);
         return $this->parserClass->parseCompany($url, $donor)
             ->then(function ($data) {
@@ -164,6 +167,10 @@ class ParserService
         if ($need_mapping) {
             $urls = $this->mapUrlsWithDonor($urls);
         }
+        if(!$this->is_started){
+            LogService::log('bold','Запуск парсера');
+            $this->is_started = true;
+        }
         foreach ($urls as $url) {
 
             $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
@@ -175,7 +182,10 @@ class ParserService
         if ($need_mapping) {
             $urls = $this->mapUrlsWithDonor($urls);
         }
-
+        if(!$this->is_started){
+            LogService::log('bold','Запуск парсера');
+            $this->is_started = true;
+        }
         foreach ($urls as $url) {
             LogService::log('info', 'получаем ссылки на компании из архива...', $url['donor_page']);
             $pages = $this->parserClass->getCompanyUrlsOnArchive($url['donor_page'], $url['donor'])->wait();
