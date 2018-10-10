@@ -41,7 +41,7 @@ if ($review->good === true) {
             </div>
         </div>
 
-        {!! nl2p($review->text) !!}
+        {!! filter_text($review->text) !!}
         <p>
             <b>{{$review->donor->title}}</b>
         </p>

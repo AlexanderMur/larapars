@@ -99,8 +99,10 @@ class ParserService
         foreach ($not_existing_reviews as $not_existing_review) {
             $new_reviews[] = new Review($not_existing_review);
         }
-
-
+//        $new_reviews = collect();
+//        foreach ($new_company['reviews'] as $review) {
+//                $new_reviews[] = Review::updateOrCreate(['donor_comment_id'=>$review['donor_comment_id']],$review);
+//        }
         $this->counts['new_reviews_count'] += $new_reviews->count();
         LogService::log(
             'info',
@@ -149,8 +151,8 @@ class ParserService
 
     public function parseCompanyByUrl($url, Donor $donor)
     {
-        if(!$this->is_started){
-            LogService::log('bold','Запуск парсера по конкретной ссылке',$url);
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера по конкретной ссылке', $url);
             $this->is_started = true;
         }
         LogService::log('info', 'парсим компанию...', $url);
@@ -167,8 +169,8 @@ class ParserService
         if ($need_mapping) {
             $urls = $this->mapUrlsWithDonor($urls);
         }
-        if(!$this->is_started){
-            LogService::log('bold','Запуск парсера');
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера');
             $this->is_started = true;
         }
         foreach ($urls as $url) {
@@ -182,8 +184,8 @@ class ParserService
         if ($need_mapping) {
             $urls = $this->mapUrlsWithDonor($urls);
         }
-        if(!$this->is_started){
-            LogService::log('bold','Запуск парсера');
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера');
             $this->is_started = true;
         }
         foreach ($urls as $url) {
