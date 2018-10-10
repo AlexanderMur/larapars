@@ -52,6 +52,9 @@ class ParsedCompanyController extends Controller
                 ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
                     return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page, 50) . "</a>");
                 })
+                ->editColumn('reviews_count', function (ParsedCompany $parsedCompany) {
+                    return new HtmlString("<a href='" . route('companies.create',['ids'=>$parsedCompany->id]) . "' target='_blank'>" . $parsedCompany->reviews_count . "</a>");
+                })
                 ->toJson();
         }
         $html   = $this->builder
