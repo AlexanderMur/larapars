@@ -56,19 +56,19 @@ class ParsedCompanyController extends Controller
         }
         $html   = $this->builder
             ->columns([
-                'id' => ['orderable' => false, 'title' => ''],
+                'id'            => ['orderable' => false, 'title' => ''],
                 'title',
                 'phone',
                 'donor_page',
                 'site',
                 'city',
                 'address',
-                'reviews_count',
+                'reviews_count' => ['searchable' => false],
                 'created_at',
                 'updated_at',
             ])
             ->parameters([
-                "lengthMenu" => [[20, 50, 100, 200, 500],[20, 50, 100, 200, 500],],
+                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
             ]);
         $logs   = ParserLog::paginate();
         $donors = Donor::all();
