@@ -216,8 +216,14 @@ class ReviewController extends Controller
     {
 
         $reviews = Review::where('good', null)
-            ->take(20)
-            ->get();
+            ->paginate(20);
+        if(\request()->ajax()){
+            return response()->json([
+                'currentPage' => $reviews->currentPage(),
+                'html' => ''.view('admin.reviews.partials._list',['reviews'=>$reviews]),
+
+            ]);
+        }
 
         $logs   = ParserLog::paginate();
         $donors = Donor::all();

@@ -129,7 +129,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        $company = Company::find($id)
+        $company = Company::where('id',$id)
             ->with([
                 'parsed_companies' => function ($query) {
                     $query->withCount([

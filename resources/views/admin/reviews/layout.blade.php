@@ -11,7 +11,7 @@
         <h1 class="page-header">Review edit</h1>
         @include('admin.partials.messages')
         @include('admin.partials.parser.controls')
-        <ul class="nav nav-pills nav-justified">
+        <ul class="nav nav-pills nav-justified mb-2">
             <li role="presentation" class="{{Route::currentRouteNamed('reviews.new') ? 'active' : ''}}">
                 <a href="{{route('reviews.new')}}">Новые ({{$reviews_count}})</a>
             </li>

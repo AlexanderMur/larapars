@@ -135,11 +135,21 @@ $(function ($) {
                 .then(html => $(this).parents('.reviews__tabs')[0].outerHTML = html);
             return false;
         })
-        .on('click','.reviews__tabs .page-link',function(){
+        .on('click', '.reviews__tabs .page-link', function () {
             $.get(this.href)
                 .then(html => $(this).parents('.reviews__tabs')[0].outerHTML = html);
             return false;
-        })
+        });
+    $(document)
+        .on('click', '.reviews__load-more', function () {
+            $(this).button('loading')
+            $.get(route('reviews.new'), {page: $(this).data('page') + 1})
+                .then((data) => {
+                    $(this).before(data.html)
+                    $(this).data('page',data.currentPage)
+                    $(this).button('reset')
+                });
+        });
     $('.final_data_choice_arrow')
         .on('click', '.data_choice--arrow__click', function (e) {
             const $parent = $(this).parents('.final_data_choice_arrow');
