@@ -4,11 +4,13 @@
 
 @extends('admin.layout')
 
-
+@section('title')
+    @yield('title')
+@endsection
 @section('content')
 
     <div id="page-wrapper">
-        <h1 class="page-header">Review edit</h1>
+        <h1 class="page-header">@yield('title')</h1>
         @include('admin.partials.messages')
         @include('admin.partials.parser.controls')
         <ul class="nav nav-pills nav-justified mb-2">

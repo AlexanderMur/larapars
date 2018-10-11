@@ -5,11 +5,11 @@
 ?>
 @extends('admin.layout')
 
-
+@section('title','Модерация')
 @section('content')
 
     <div id="page-wrapper">
-        <h1 class="page-header">Start</h1>
+        <h1 class="page-header">Модерация</h1>
         @include('admin.partials.messages')
         @include('admin.partials.parser.controls')
         <form action="{{route('parsed_companies.bulk')}}" method="POST">

@@ -15,10 +15,6 @@ class DonorController extends Controller
     public function index()
     {
 
-        $donors = Donor::all();
-        return view('admin.companies.index',[
-            'companies' => $donors,
-        ]);
     }
 
     /**

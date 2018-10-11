@@ -216,7 +216,7 @@ class ReviewController extends Controller
     {
 
         $reviews = Review::where('good', null)
-            ->paginate(20);
+            ->paginate(15);
         if(\request()->ajax()){
             return response()->json([
                 'currentPage' => $reviews->currentPage(),

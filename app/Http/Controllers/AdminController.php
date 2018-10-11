@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ModelExport;
-use App\Models\Company;
 use App\ParserLog;
 
 class AdminController extends Controller
@@ -11,10 +10,6 @@ class AdminController extends Controller
     public function allData()
     {
 
-        $companies = Company::with(['donors', 'reviews'])->get();
-        return view('admin.companies.index', [
-            'companies' => $companies,
-        ]);
     }
 
 

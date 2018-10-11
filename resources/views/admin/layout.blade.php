@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Admin</title>
+    <title>@yield('title')</title>
 
     <link href="{{asset('admin/admin.css')}}" rel="stylesheet">
     <meta name="csrf-token" content="{{csrf_token()}}">

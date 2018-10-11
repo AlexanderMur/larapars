@@ -67,7 +67,7 @@ class CompanyController extends Controller
             ])
             ->addCheckbox([], true);
 
-        return view('users.index', compact('html'));
+        return view('admin.companies.index',['html'=>$html]);
     }
 
     public function search()

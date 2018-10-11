@@ -6,7 +6,7 @@
 
 @extends('admin.reviews.layout')
 
-
+@section('title','Архив отзывов')
 @section('content2')
 
     <form action="{{route('reviews.updateMany')}}" method="post">

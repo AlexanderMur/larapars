@@ -4,10 +4,10 @@
 
 @extends('admin.layout')
 
-
+@section('title','Просмотр компанию')
 @section('content')
     <div id="page-wrapper">
-        <h1 class="page-header">Company show</h1>
+        <h1 class="page-header">Просмотр компании</h1>
         @include('admin.partials.messages')
         <h2>
             <a href="{{route('companies.edit',$company)}}" type="button" class="btn btn-sm btn-success">
