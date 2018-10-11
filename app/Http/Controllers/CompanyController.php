@@ -63,7 +63,7 @@ class CompanyController extends Controller
             ])
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'language' => __('datatables'),
+                'language'   => __('datatables'),
             ])
             ->addCheckbox([], true);
 
@@ -127,20 +127,54 @@ class CompanyController extends Controller
      * @param Company $company
      * @return \Illuminate\Http\Response
      */
-    public function show(Company $company)
+    public function show($id)
     {
-        $company->load([
-            'parsed_companies',
-            'parsed_companies.reviews' => function ($query) {
-                $query->withTrashed();
-            },
-            'parsed_companies.reviews.group',
-            'parsed_companies.reviews.donor',
-            'reviews.donor',
-            'reviews.group',
-            'reviews'                  => function ($query) {
-                $query->withTrashed();
-            }]);
+        $company = Company::find($id)
+            ->with([
+                'parsed_companies' => function ($query) {
+                    $query->withCount([
+                        'reviews',
+                        'reviews as good_reviews_count'    => function ($query) {
+                            $query->where('good', '=', true);
+                        },
+                        'reviews as bad_reviews_count'     => function ($query) {
+                            $query->where('good', '!=', false);
+                        },
+                        'reviews as unrated_reviews_count' => function ($query) {
+                            $query->where('good', '=', null);
+                        },
+                        'reviews as deleted_reviews_count' => function ($query) {
+                            $query->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+                        },
+                        'reviews as trashed_reviews_count' => function ($query) {
+                            $query->where('trashed_at', '!=', null);
+                        },
+                    ]);
+                },
+                'parsed_companies.donor',
+                'parsed_companies.history',
+                'reviews',
+                'reviews.donor',
+            ])
+            ->withCount([
+                'reviews',
+                'reviews as good_reviews_count'    => function ($query) {
+                    $query->where('good', '=', true);
+                },
+                'reviews as bad_reviews_count'     => function ($query) {
+                    $query->where('good', '!=', false);
+                },
+                'reviews as unrated_reviews_count' => function ($query) {
+                    $query->where('good', '=', null);
+                },
+                'reviews as deleted_reviews_count' => function ($query) {
+                    $query->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+                },
+                'reviews as trashed_reviews_count' => function ($query) {
+                    $query->where('trashed_at', '!=', null);
+                },
+            ])
+            ->first();
         $logs = ParserLog::paginate();
         return view('admin.companies.show', [
             'company' => $company,

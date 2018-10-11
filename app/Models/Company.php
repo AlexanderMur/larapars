@@ -24,6 +24,13 @@ use Illuminate\Database\Eloquent\Model;
  * @see CompanyController
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
  * @property string|null $city
+ *
+ * @property int reviews_count
+ * @property int good_reviews_count
+ * @property int bad_reviews_count
+ * @property int unrated_reviews_count
+ * @property int deleted_reviews_count
+ * @property int trashed_reviews_count
  */
 class Company extends Model
 {

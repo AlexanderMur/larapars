@@ -80,9 +80,9 @@
                     </a>
                 </p>
                 <div class="collapse" id="donor__reviews-{{$parsed_company->id}}">
-                    @include('admin.reviews._tabs',[
-                        'reviews' => $parsed_company->reviews,
-                        'collapse' => true,
+                    @include('admin.reviews.partials._tabs',[
+                        'company' => $parsed_company,
+                        'reviews' => [],
                     ])
                 </div>
 

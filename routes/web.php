@@ -26,9 +26,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::resource('companies', 'CompanyController');
 
     //Parsed companies routes
-    Route::resource('parsed_companies', 'ParsedCompanyController');
     Route::put('parsed_companies', 'ParsedCompanyController@bulk')->name('parsed_companies.bulk');
     Route::get('parsed_companies/{parsed_company}/detach', 'ParsedCompanyController@detach')->name('parsed_companies.detach');
+    Route::get('parsed_companies/{parsed_company}/getReviews','ParsedCompanyController@getReviews')->name('parsed_companies.getReviews');
+    Route::resource('parsed_companies', 'ParsedCompanyController');
 
     //Reviews routes
     Route::resource('reviews', 'ReviewController');

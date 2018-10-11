@@ -91,6 +91,7 @@ class Review extends Model
         }
         $this->attributes['good'] = $value;
     }
+
     /**
      * @throws \Exception
      */

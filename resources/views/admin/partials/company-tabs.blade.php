@@ -9,7 +9,7 @@
 <div>
     <div id="tab" class="btn-group btn-group-justified" data-toggle="buttons">
         <a href="#reviews" class="btn btn-primary active" data-toggle="tab">
-            <input type="radio"/>Отзывы ({{$reviews->count()}})
+            <input type="radio"/>Отзывы ({{$company->reviews_count ?? 0}})
         </a>
         <a href="#parsed_companies" class="btn btn-primary" data-toggle="tab">
             <input type="radio"/>Доноры ({{$parsed_companies->count()}})

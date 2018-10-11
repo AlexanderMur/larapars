@@ -73,7 +73,7 @@ class ParsedCompanyController extends Controller
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
                 'order'      => [[8, "desc"]],
-                'language' => __('datatables'),
+                'language'   => __('datatables'),
             ]);
         $logs   = ParserLog::paginate();
         $donors = Donor::all();
@@ -165,6 +165,56 @@ class ParsedCompanyController extends Controller
         $parsedCompany->reviews()->update(['company_id' => null]);
         $parsedCompany->save();
         return redirect()->back()->with('success', 'Компания отвязана!');
+    }
+
+    public function getReviews($id)
+    {
+        $parsed_company = ParsedCompany::find($id)->withCount([
+            'reviews',
+            'reviews as good_reviews_count'    => function ($query) {
+                $query->where('good', '=', true);
+            },
+            'reviews as bad_reviews_count'     => function ($query) {
+                $query->where('good', '!=', false);
+            },
+            'reviews as unrated_reviews_count' => function ($query) {
+                $query->where('good', '=', null);
+            },
+            'reviews as deleted_reviews_count' => function ($query) {
+                $query->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+            },
+            'reviews as trashed_reviews_count' => function ($query) {
+                $query->where('trashed_at', '!=', null);
+            },
+        ])->first();
+        $scope          = request('scope');
+
+        $reviews = collect();
+        if ($scope == 'all') {
+            $reviews = $parsed_company->reviews();
+        }
+        if ($scope == 'good') {
+            $reviews = $parsed_company->reviews()->where('good', '=', true);
+        }
+        if ($scope == 'bad') {
+            $reviews = $parsed_company->reviews()->where('good', '!=', false);
+        }
+        if ($scope == 'unrated') {
+            $reviews = $parsed_company->reviews()->where('good', '=', null);
+        }
+        if ($scope == 'deleted') {
+            $reviews = $parsed_company->reviews()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+        }
+        if ($scope == 'trashed') {
+            $reviews = $parsed_company->reviews()->where('trashed_at', '!=', null);
+        }
+        if($reviews->count() > 0){
+            $reviews = $reviews->paginate(3)->appends(['scope'=>$scope]);
+        }
+        return view('admin.reviews.partials._tabs',[
+            'company' => $parsed_company,
+            'reviews' => $reviews,
+        ]);
     }
 
     /**

@@ -127,6 +127,19 @@ $(function ($) {
             },
         },
     });
+    $(document)
+        .on('click', '.reviews__nav-link', function (e) {
+            let companyId = $(this).parents('.reviews__tabs').data('id');
+            let scope = $(this).data('scope');
+            $.get(route('parsed_companies.getReviews', companyId), {scope})
+                .then(html => $(this).parents('.reviews__tabs')[0].outerHTML = html);
+            return false;
+        })
+        .on('click','.reviews__tabs .page-link',function(){
+            $.get(this.href)
+                .then(html => $(this).parents('.reviews__tabs')[0].outerHTML = html);
+            return false;
+        })
     $('.final_data_choice_arrow')
         .on('click', '.data_choice--arrow__click', function (e) {
             const $parent = $(this).parents('.final_data_choice_arrow');
@@ -160,15 +173,18 @@ $(function ($) {
         $('.logs').html(json.table);
         $('.statistics').html(json.statistics);
     }
+
     let canUpdateLogs = false;
+
     async function startUpdateLogs() {
         if (canUpdateLogs) {
             await updateLogs();
         }
         setTimeout(startUpdateLogs, 1000);
     }
-    if($('.statistics').length){
-        updateLogs()
+
+    if ($('.statistics').length) {
+        updateLogs();
     }
     startUpdateLogs();
     $('.start-parsing').click(function () {
@@ -179,7 +195,7 @@ $(function ($) {
             .then(() => {
                 $(this).button('reset');
                 canUpdateLogs = false;
-                updateLogs()
+                updateLogs();
             });
         return false;
     });
