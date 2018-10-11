@@ -5,7 +5,7 @@
 
 if ($review->good === true) {
     $class = 'review-good';
-} else if ($review->good === false){
+} else if ($review->good === false) {
     $class = 'review-bad';
 } else {
     $class = '';
@@ -22,8 +22,10 @@ if ($review->good === true) {
 
                 </h3>
 
-                <a href="{{route('reviews.like',$review)}}" class="like-review"><i class="fa fa-2x fa-thumbs-up"></i></a>
-                <a href="{{route('reviews.dislike',$review)}}" class="dislike-review"><i class="fa fa-2x fa-thumbs-down"></i></a>
+                @empty($dont_show_likes)
+                    <a href="{{route('reviews.like',$review)}}" class="like-review"><i class="fa fa-2x fa-thumbs-up"></i></a>
+                    <a href="{{route('reviews.dislike',$review)}}" class="dislike-review"><i class="fa fa-2x fa-thumbs-down"></i></a>
+                @endempty
                 @isset($review->group->reviews)
                     @if ($review->group->reviews->count() >= 2)
                         @include('admin.companies.dublicates',[
