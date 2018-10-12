@@ -144,16 +144,18 @@ class CompanyController extends Controller
                             $query->where('good', '=', null);
                         },
                         'reviews as deleted_reviews_count' => function ($query) {
-                            $query->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+                            $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
                         },
                         'reviews as trashed_reviews_count' => function ($query) {
-                            $query->where('trashed_at', '!=', null);
+                            $query->withTrashed()->where('trashed_at', '!=', null);
                         },
                     ]);
                 },
                 'parsed_companies.donor',
                 'parsed_companies.history',
-                'reviews',
+                'reviews' => function($query){
+                    $query->withTrashed();
+                },
                 'reviews.donor',
             ])
             ->withCount([
@@ -168,10 +170,10 @@ class CompanyController extends Controller
                     $query->where('good', '=', null);
                 },
                 'reviews as deleted_reviews_count' => function ($query) {
-                    $query->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+                    $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
                 },
                 'reviews as trashed_reviews_count' => function ($query) {
-                    $query->where('trashed_at', '!=', null);
+                    $query->withTrashed()->where('trashed_at', '!=', null);
                 },
             ])
             ->first();
