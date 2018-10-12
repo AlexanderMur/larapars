@@ -25,35 +25,41 @@ function filter_text($html){
 
 
     $html = nl2p($html);
-    $html = str_replace('<blockquote>','        
-<div class="panel-group" role="tablist">
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="collapseListGroupHeading' . $id . '">
-            <h4 class="panel-title">
-                <a
-                    href="#collapseListGroup' . $id . '"
-                    class="collapsed"
-                    role="button"
-                    data-toggle="collapse"
-                >Показать цитату</a>
-            </h4>
-        </div>
-        <div
-            class="panel-collapse collapse"
-            role="tabpanel"
-            id="collapseListGroup' . $id . '"
-        >
-            <div class="panel-body">
-                <blockquote>
-        ',$html);
-
-    $html = str_replace('</blockquote>','        
-                        </blockquote>
+    $html = preg_replace_callback('/<blockquote>/',function ($match){
+        $id = uniqid();
+        return (
+        "<div class=\"panel-group\" role=\"tablist\">
+                <div class=\"panel panel-default\">
+                    <div class=\"panel-heading\" role=\"tab\" id=\"collapseListGroupHeading$id\">
+                        <h4 class=\"panel-title\">
+                            <a
+                                href=\"#collapseListGroup$id\"
+                                class=\"collapsed\"
+                                role=\"button\"
+                                data-toggle=\"collapse\"
+                            >Показать цитату</a>
+                        </h4>
+                    </div>
+                    <div
+                        class=\"panel-collapse collapse\"
+                        role=\"tabpanel\"
+                        id=\"collapseListGroup$id\"
+                    >
+                        <div class=\"panel-body\">
+                            $match[0]"
+        );
+    },$html);
+    $html = preg_replace_callback('/<\/blockquote>/',function ($match){
+        return (
+        "
+                            $match[0]
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        ',$html);
+            </div>"
+        );
+    },$html);
+
     return $html;
 }
 
