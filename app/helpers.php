@@ -21,9 +21,6 @@ function external_link($link){
 }
 
 function filter_text($html){
-    $id = uniqid();
-
-
     $html = nl2p($html);
     $html = preg_replace_callback('/<blockquote>/',function ($match){
         $id = uniqid();

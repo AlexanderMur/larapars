@@ -30,6 +30,7 @@ class ParserService
     public $deleted_reviews_count = 0;
     public $restored_reviews_count = 0;
     public $counts = [];
+    public $visitedPages = [];
 
     public function __construct()
     {
@@ -57,6 +58,72 @@ class ParserService
             SettingService::set('last_parse_counts', $this->counts);
         }
     }
+    public function parseArchivePageByUrl($url, Donor $donor)
+    {
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера');
+            $this->is_started = true;
+        }
+
+        LogService::log('info', 'получаем ссылки на компании из архива...', $url);
+
+        $archiveData = $this->parserClass->getArchiveData($url, $donor)->wait();
+
+        LogService::log('ok', 'получили ссылки на компании из архива (' . count($archiveData) . ')', $url);
+
+        foreach ($archiveData['items'] as $page) {
+            $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
+        }
+        foreach ($archiveData['pagination'] as $page) {
+            if (!in_array($page, $this->visitedPages)) {
+                $this->visitedPages[] = $page;
+                $this->parseArchivePageByUrl($page, $donor);
+            }
+        }
+    }
+
+    public function parseCompanyByUrl($url, Donor $donor)
+    {
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера по конкретной ссылке', $url);
+            $this->is_started = true;
+        }
+        LogService::log('info', 'парсим компанию...', $url);
+        return $this->parserClass->parseCompany($url, $donor)
+            ->then(function ($data) {
+                $this->handleParsedCompany($data);
+
+            });
+
+    }
+    public function parseCompaniesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера');
+            $this->is_started = true;
+        }
+        foreach ($urls as $url) {
+
+            $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
+        }
+    }
+
+    public function parseArchivePagesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
+        if (!$this->is_started) {
+            LogService::log('bold', 'Запуск парсера');
+            $this->is_started = true;
+        }
+        foreach ($urls as $url) {
+            $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+        }
+    }
 
     /**
      * @param ParsedCompany $parsed_company
@@ -74,41 +141,25 @@ class ParserService
             if (!$in_array && $review->deleted_at === null) {
                 $review->delete();
                 $this->counts['deleted_reviews_count']++;
-                LogService::log(
-                    'info',
-                    'Отзыв удален',
-                    $parsed_company->donor_page
-                );
+                LogService::log('info', 'Отзыв удален', $parsed_company->donor_page);
             }
             if ($in_array && $review->deleted_at !== null) {
                 $review->restore();
                 $this->counts['restored_reviews_count']++;
-                LogService::log(
-                    'info',
-                    'Отзыв возвращен',
-                    $parsed_company->donor_page
-                );
+                LogService::log('info', 'Отзыв возвращен', $parsed_company->donor_page);
             }
         }
 
-
-        $not_existing_reviews = Arr::where($new_company['reviews'], function ($new_review) use ($reviews) {
-            return !$reviews->contains('donor_comment_id', $new_review['donor_comment_id']);
-        });
-        $new_reviews          = collect();
-        foreach ($not_existing_reviews as $not_existing_review) {
-            $new_reviews[] = new Review($not_existing_review);
+        $new_reviews = collect();
+        foreach ($new_company['reviews'] as $new_review) {
+            if (!$reviews->contains('donor_comment_id', $new_review['donor_comment_id'])) {
+                $new_reviews[] = new Review($new_review);
+            }
         }
-//        $new_reviews = collect();
-//        foreach ($new_company['reviews'] as $review) {
-//                $new_reviews[] = Review::updateOrCreate(['donor_comment_id'=>$review['donor_comment_id']],$review);
-//        }
+
         $this->counts['new_reviews_count'] += $new_reviews->count();
-        LogService::log(
-            'info',
-            'Добавлено новых отзывов (' . count($new_reviews) . ')',
-            $parsed_company->donor_page
-        );
+        LogService::log('info',
+            'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company->donor_page);
 
         //insert many reviews
         $parsed_company->saveReviews($new_reviews);
@@ -149,56 +200,8 @@ class ParserService
         $this->handleParsedReviews($parsed_company, $new_company);
     }
 
-    public function parseCompanyByUrl($url, Donor $donor)
-    {
-        if (!$this->is_started) {
-            LogService::log('bold', 'Запуск парсера по конкретной ссылке', $url);
-            $this->is_started = true;
-        }
-        LogService::log('info', 'парсим компанию...', $url);
-        return $this->parserClass->parseCompany($url, $donor)
-            ->then(function ($data) {
-                $this->handleParsedCompany($data);
 
-            });
 
-    }
-
-    public function parseCompaniesByUrls($urls, $need_mapping = true)
-    {
-        if ($need_mapping) {
-            $urls = $this->mapUrlsWithDonor($urls);
-        }
-        if (!$this->is_started) {
-            LogService::log('bold', 'Запуск парсера');
-            $this->is_started = true;
-        }
-        foreach ($urls as $url) {
-
-            $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
-        }
-    }
-
-    public function parseArchivePagesByUrls($urls, $need_mapping = true)
-    {
-        if ($need_mapping) {
-            $urls = $this->mapUrlsWithDonor($urls);
-        }
-        if (!$this->is_started) {
-            LogService::log('bold', 'Запуск парсера');
-            $this->is_started = true;
-        }
-        foreach ($urls as $url) {
-            LogService::log('info', 'получаем ссылки на компании из архива...', $url['donor_page']);
-            $pages = $this->parserClass->getCompanyUrlsOnArchive($url['donor_page'], $url['donor'])->wait();
-
-            LogService::log('ok', 'получили ссылки на компании из архива (' . count($pages) . ')', $url['donor_page']);
-            $this->parseCompaniesByUrls(
-                $pages,
-                false
-            );
-        }
-    }
 
     public function mapUrlsWithDonor($urls)
     {

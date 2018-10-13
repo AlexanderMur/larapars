@@ -51,6 +51,7 @@ class CreateDonorsTable extends Migration
 
             //Убрать "Читать полностью..." у отзыва
             $table->string('reviews_ignore_text')->nullable();
+            $table->string('archive_pagination')->nullable();
 
             $table->timestamps();
         });

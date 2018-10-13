@@ -29,7 +29,7 @@ class ParserClass
      * @param int $how_many
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCompanyUrlsOnArchive($link, Donor $donor, $how_many = 2)
+    public function getArchiveData($link, Donor $donor, $how_many = 2)
     {
 
         return $this->client->getAsync($link)
@@ -75,7 +75,18 @@ class ParserClass
                     'donor_id'   => $donor->id,
                 ];
             });
-        return $items;
+        $pagination = [];
+        $crawler->query($donor->archive_pagination)
+            ->each(function(Crawler $crawler) use (&$pagination) {
+                $url = $crawler->link()->getUri();
+                if(!in_array($url,$pagination)){
+                    $pagination[] = $url;
+                }
+            });
+        return [
+            'items' => $items,
+            'pagination' => $pagination,
+        ];
     }
 
     public function getPhonesFromText($text)
@@ -98,7 +109,7 @@ class ParserClass
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
         $site = get_links_from_text($crawler->query($donor->single_site)->getText());
-        $site = implode(', ',$site);
+        $site = implode(', ', $site);
         return [
             'site'       => $site,
             'reviews'    => $this->getReviewsOnPage($crawler, $donor),
@@ -138,7 +149,7 @@ class ParserClass
     public function getReviewText(Crawler $crawler, Donor $donor)
     {
         $html = $crawler->query($donor->reviews_text)->html();
-        $html = strip_tags($html,'<blockquote>');
+        $html = strip_tags($html, '<blockquote><b>');
 
         $html = str_replace($donor->reviews_ignore_text, '', $html);
         return $html;

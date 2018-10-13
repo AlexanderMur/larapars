@@ -53,6 +53,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('pars-test', 'ParserController@start')->name('pars.test');
     Route::post('pars-test', 'ParserController@parse')->name('pars.parse');
 
+
     Route::get('manual-parser', 'ParserController@manualParser')->name('pars.manual');
     Route::post('manual-parser', 'ParserController@manualParser')->name('pars.manual');
 

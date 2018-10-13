@@ -39,11 +39,8 @@ class ParserController extends Controller
     {
         if (\request()->isMethod('POST')) {
             request()->flash();
-
-            $this->parserService->parseCompaniesByUrls(
-                preg_split('/\r\n/', request('page'))
-            );
-
+            $urls = preg_split('/\r\n/', request('page'));
+            $this->parserService->parseCompaniesByUrls($urls);
         }
         $donors = Donor::all();
         return view('admin.parser.manual', [

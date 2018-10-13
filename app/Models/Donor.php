@@ -61,6 +61,7 @@ class Donor extends Model
         'single_address',
         'single_tel',
         'single_title',
+        'archive_pagination',
     ];
     function companies(){
         return $this->hasMany(Company::class);
