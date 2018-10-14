@@ -4,22 +4,19 @@
 
 @extends('admin.layout')
 
-@section('title','Просмотр компанию')
+@section('title',$company->title)
 @section('content')
     <div id="page-wrapper">
-        <h1 class="page-header">Просмотр компании</h1>
+        <h1 class="page-header">{{$company->title}}</h1>
         @include('admin.partials.messages')
-        <h2>
-            <a href="{{route('companies.edit',$company)}}" type="button" class="btn btn-sm btn-success">
-                <i class="fa fa-edit"></i>
-            </a>
-            {{$company->title}}
-        </h2>
         <div>
             <div class="row mb-1">
-
                 <div class="col-lg-6">
                     <form action="">
+                        <a href="{{route('companies.edit',$company)}}" type="button" class="btn btn-sm btn-success">
+                            <i class="fa fa-edit"></i>
+                            редактировать
+                        </a>
                         @foreach ($company->parsed_companies as $parsed_company)
                             <input type="hidden" name="pages[]" value="{{$parsed_company->donor_page}}">
                         @endforeach

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ModelExport;
+use App\Http\Requests\Request;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\Review;
 use App\ParserLog;
-use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
 use Yajra\DataTables\Html\Builder;
 
@@ -57,7 +58,7 @@ class ParsedCompanyController extends Controller
                 })
                 ->toJson();
         }
-        $html   = $this->builder
+        $html = $this->builder
             ->columns([
                 'id'            => ['orderable' => false, 'title' => ''],
                 'title'         => ['title' => __('company.title')],
@@ -141,9 +142,13 @@ class ParsedCompanyController extends Controller
 
     public function bulk(Request $request)
     {
-        $action = $request->get('action');
 
-        if ($action == 'group') {
+
+
+        if($request->action2 === 'export' || $request->action === 'export'){
+           return \Excel::download(new ModelExport($request->ids), 'model.xls');
+        }
+        if ($request->action == 'group') {
             $ids        = $request->get('ids');
             $company_id = $request->get('company_id');
             ParsedCompany::whereIn('id', $ids)->update(['company_id' => $company_id]);
@@ -151,7 +156,7 @@ class ParsedCompanyController extends Controller
 
             return redirect()->back()->with('companies_grouped', $company_id);
         }
-        if ($action == 'new_company') {
+        if ($request->action == 'new_company') {
             $ids = $request->get('ids');
             //
             return redirect()->route('companies.create', ['ids' => implode(',', $ids)]);
@@ -208,10 +213,10 @@ class ParsedCompanyController extends Controller
         if ($scope == 'trashed') {
             $reviews = $parsed_company->reviews()->where('trashed_at', '!=', null);
         }
-        if($reviews->count() > 0){
-            $reviews = $reviews->paginate(3)->appends(['scope'=>$scope]);
+        if ($reviews->count() > 0) {
+            $reviews = $reviews->paginate(3)->appends(['scope' => $scope]);
         }
-        return view('admin.reviews.partials._tabs',[
+        return view('admin.reviews.partials._tabs', [
             'company' => $parsed_company,
             'reviews' => $reviews,
         ]);

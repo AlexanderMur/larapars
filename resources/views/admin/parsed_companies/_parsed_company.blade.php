@@ -19,6 +19,17 @@
             <div class="tab-pane fade active in" id="info-{{$parsed_company->id}}">
                 <h2>{{$parsed_company->title}}</h2>
 
+                <p>
+                    Страница донора: <a
+                        href="{{$parsed_company->donor_page}}"
+                        target="_blank"
+                    >{{str_limit($parsed_company->donor_page,60)}}</a>
+                    <a
+                        href="{{route('parsed_companies.detach',$parsed_company->id)}}"
+                        onclick="return confirm('Отвязать донора?')"
+                        class="text-danger"
+                    >Отвязать донора</a>
+                </p>
                 <a
                     role="button"
                     data-toggle="collapse"
@@ -53,38 +64,17 @@
                             Дата обновления в бд: {{$parsed_company->updated_at}}
                         </p>
                         <p>
-                            Название донора: <b>{{$parsed_company->donor->title}}</b>
+                            Донор: <a href="{{$parsed_company->donor->link}}" target="_blank">{{$parsed_company->donor->link}}</a>
                         </p>
-                        <p>
-                            Страница донора: <a
-                                href="{{$parsed_company->donor_page}}"
-                                target="_blank"
-                            >{{str_limit($parsed_company->donor_page,60)}}</a>
-                        </p>
-                        <p>
-                            <a href="{{route('parsed_companies.detach',$parsed_company->id)}}" onclick="return confirm('Отвязать донора?')">Отвязать донора</a>
-                        </p>
+
                     </div>
                 </div>
 
-                <p>
-                    <a
-                        role="button"
-                        data-toggle="collapse"
-                        href="#donor__reviews-{{$parsed_company->id}}"
-                        aria-expanded="false"
-                        aria-controls="donor__reviews-{{$parsed_company->id}}"
-                    >
-                        Показать отзывы
-                        <span class="caret"></span>
-                    </a>
-                </p>
-                <div class="collapse" id="donor__reviews-{{$parsed_company->id}}">
-                    @include('admin.reviews.partials._tabs',[
-                        'company' => $parsed_company,
-                        'reviews' => [],
-                    ])
-                </div>
+
+                @include('admin.reviews.partials._tabs',[
+                    'company' => $parsed_company,
+                    'reviews' => [],
+                ])
 
             </div>
             <div class="tab-pane fade" id="history-{{$parsed_company->id}}">

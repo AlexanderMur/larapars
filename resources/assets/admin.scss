@@ -102,3 +102,10 @@
     @extend .text-danger;
   }
 }
+
+.logs__table{
+  font-size: 0.85em;
+  & td:first-child{
+    width: 150px;
+  }
+}

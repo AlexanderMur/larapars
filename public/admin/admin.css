@@ -15200,3 +15200,11 @@ tr:hover .actions {
   display: inline-block;
 }
 
+.logs__table {
+  font-size: 0.85em;
+}
+
+.logs__table td:first-child {
+  width: 150px;
+}
+

@@ -15,13 +15,20 @@
         <form action="{{route('parsed_companies.bulk')}}" method="POST">
             @method('PUT')
             @csrf
+
+
+            <div class="mb-2">
+                <button class="btn btn-primary" name="action2" value="export">Экспортировать все в Excel</button>
+            </div>
+
             {{$html->table(['class' => 'table table-bordered'])}}
 
             <div class="form-group">
                 <select name="action" class="form-control select-medium bulk-select" title="Выберете действие">
-                    <option value="-1">Действия</option>
+                    <option value="">Действия</option>
                     <option value="new_company">Создать новую компанию</option>
                     <option value="group">Привязать к существующей</option>
+                    <option value="export">Экспортировать</option>
                 </select>
                 <select
                     class="select-medium company-select show-if-group"
