@@ -20,17 +20,28 @@
                         @foreach ($company->parsed_companies as $parsed_company)
                             <input type="hidden" name="pages[]" value="{{$parsed_company->donor_page}}">
                         @endforeach
-                        <button class="btn btn-primary start-parsing">Парсить</button>
+                        <button class="btn btn-primary parser__start">Парсить</button>
                     </form>
                 </div>
             </div>
-            <div class="mb-5">
-                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#demo">Показать логи</button>
-            </div>
-            <div id="demo" class="logs collapse" data-parser_ids="{{$logs->pluck('parser_id','parser_id')->implode(',')}}">
-                @include('admin.partials.logs',[
-                    'logs' => $logs,
-                ])
+            <div class="panel-group" role="tablist">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="parser__logs__heading">
+                        <h4 class="panel-title">
+                            <a
+                                href="#parser__logs__collapse"
+                                class="collapsed"
+                                role="button"
+                                data-toggle="collapse"
+                            >Показать логи</a>
+                        </h4>
+                    </div>
+                    <div class="panel-collapse collapse parser__logs__collapse" role="tabpanel" id="parser__logs__collapse">
+                        <div class="panel-body parser__logs__inner">
+                            @include('admin.partials.logs')
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <p>

@@ -47,6 +47,7 @@ class ParsedCompany extends Model
         'title',
         'address',
         'phones',
+        'city',
     ];
     protected $appends = [
         'phones',

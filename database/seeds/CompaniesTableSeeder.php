@@ -185,6 +185,7 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '#view1 + p',
                 'single_tel'          => '',
                 'single_title'        => 'h2.entry-title',
+                'single_city'         => '',
                 'archive_pagination'  => '',
             ],
             [
@@ -207,6 +208,7 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '//div[@id="primary"]//*/text()[contains(.,"Адрес")]',
                 'single_tel'          => '//div[@id="primary"]//*/text()[contains(.,"Тел")]',
                 'single_title'        => 'h1.entry-title',
+                'single_city'         => '',
                 'archive_pagination'  => '.menu-item-102 a',
             ],
             [
@@ -229,6 +231,7 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '//tr//*/text()[contains(.,"Адрес")]/../..',
                 'single_tel'          => '//tr//*/text()[contains(.,"Телефон")]/../..',
                 'single_title'        => 'h1',
+                'single_city'         => '',
                 'archive_pagination'  => '.uk-pagination li a',
             ],
             [
@@ -251,6 +254,7 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '//article[@class="uk-article"]//p/text()[contains(.,"Адрес")]',
                 'single_tel'          => '//article[@class="uk-article"]//p/text()[contains(.,"Телефон")]',
                 'single_title'        => 'h1.uk-article-title',
+                'single_city'         => '',
                 'archive_pagination'  => 'form .uk-pagination a, .uk-nav.uk-nav-navbar a',
             ],
             [
@@ -273,6 +277,7 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '//div[@id="listing"]//div/text()[contains(.,"Адрес")]/..',
                 'single_tel'          => '//div[@id="listing"]//div/text()[contains(.,"Телефон")]/..',
                 'single_title'        => 'h2',
+                'single_city'         => '',
                 'archive_pagination'  => '.pagination a',
             ],
             [
@@ -295,7 +300,31 @@ class CompaniesTableSeeder extends Seeder
                 'single_address'      => '//div[@id="listing"]//div/text()[contains(.,"Адрес")]/..',
                 'single_tel'          => '//div[@id="listing"]//div/text()[contains(.,"Телефон")]/..',
                 'single_title'        => 'h2',
+                'single_city'         => '',
                 'archive_pagination'  => '.pagination a',
+            ],
+            [
+                'link'                => 'https://auto-review.info/avtosalon',
+                'title'               => 'Auto review',
+                'loop_address'        => '',
+                'loop_item'           => '.itemContainer',
+                'loop_link'           => '.catItemHeader a',
+                'loop_title'          => '',
+                'replace_search'      => '',
+                'replace_to'          => '',
+                'reviews_all'         => '.li_otziv_',
+                'reviews_ignore_text' => '',
+                'reviews_rating'      => '',
+                'reviews_text'        => 'p',
+                'reviews_title'       => '.head_com',
+                'reviews_name'        => '.otziv_l_name',
+                'reviews_id'          => '',
+                'single_site'         => '//div[@class="des_salon"]//span/text()[contains(.,"Вебсайт")]/../..',
+                'single_address'      => '//div[@class="des_salon"]//span/text()[contains(.,"Адрес")]/../..',
+                'single_tel'          => '//div[@class="des_salon"]//span/text()[contains(.,"Телефон")]/../..',
+                'single_title'        => 'h1',
+                'single_city'         => '//div[@class="des_salon"]//span/text()[contains(.,"Город")]/../..',
+                'archive_pagination'  => '.k2Pagination a',
             ],
         ]);
 

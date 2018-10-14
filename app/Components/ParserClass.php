@@ -116,6 +116,7 @@ class ParserClass
             'phone'      => $this->getCompanyPhone($crawler, $donor),
             'address'    => $crawler->query($donor->single_address)->getText(),
             'title'      => $crawler->query($donor->single_title)->getText(),
+            'city'      => $crawler->query($donor->single_city)->getText(),
             'donor_page' => $crawler->getBaseHref(),
             'donor_id'   => $donor->id,
         ];

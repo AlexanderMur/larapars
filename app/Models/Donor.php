@@ -61,6 +61,7 @@ class Donor extends Model
         'single_address',
         'single_tel',
         'single_title',
+        'single_city',
         'archive_pagination',
     ];
     function companies(){

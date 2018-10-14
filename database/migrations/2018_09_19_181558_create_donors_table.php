@@ -33,6 +33,7 @@ class CreateDonorsTable extends Migration
             $table->string('single_address')->nullable();
             $table->string('single_tel')->nullable();
             $table->string('single_title')->nullable();
+            $table->string('single_city')->nullable();
 
 
             //Replace unclosed tags

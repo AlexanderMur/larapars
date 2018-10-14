@@ -15,6 +15,7 @@ use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\Review;
 use Carbon\Carbon;
+use GuzzleHttp\Exception\TooManyRedirectsException;
 use Illuminate\Support\Arr;
 
 
@@ -92,7 +93,8 @@ class ParserService
         return $this->parserClass->parseCompany($url, $donor)
             ->then(function ($data) {
                 $this->handleParsedCompany($data);
-
+            },function(TooManyRedirectsException $exception){
+                LogService::log('bold','Проблемы с соедением!!!! Too many redirects', $exception->getRequest()->getUri());
             });
 
     }
