@@ -43,6 +43,7 @@ class ParserService
             'deleted_reviews_count'      => 0,
             'restored_reviews_count'     => 0,
         ];
+
     }
 
     public function __destruct()
@@ -59,6 +60,7 @@ class ParserService
             SettingService::set('last_parse_counts', $this->counts);
         }
     }
+
     public function parseArchivePageByUrl($url, Donor $donor)
     {
         if (!$this->is_started) {
@@ -93,11 +95,12 @@ class ParserService
         return $this->parserClass->parseCompany($url, $donor)
             ->then(function ($data) {
                 $this->handleParsedCompany($data);
-            },function(TooManyRedirectsException $exception){
-                LogService::log('bold','Проблемы с соедением!!!! Too many redirects', $exception->getRequest()->getUri());
+            }, function (TooManyRedirectsException $exception) {
+                LogService::log('bold', 'Проблемы с соедением!!!! Too many redirects', $exception->getRequest()->getUri());
             });
 
     }
+
     public function parseCompaniesByUrls($urls, $need_mapping = true)
     {
         if ($need_mapping) {
@@ -201,8 +204,6 @@ class ParserService
         }
         $this->handleParsedReviews($parsed_company, $new_company);
     }
-
-
 
 
     public function mapUrlsWithDonor($urls)

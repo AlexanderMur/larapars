@@ -60,14 +60,18 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('all-data', 'AdminController@allData')->name('admin.alldata');
     Route::get('export', 'AdminController@export')->name('admin.export');
 
-    Route::get('/clear-cache', function () {
-        $exitCode = Artisan::call('cache:clear');
-        $exitCode = Artisan::call('config:clear');
-        $exitCode = Artisan::call('view:clear');
-        return $exitCode;
-        // return what you want
-    });
+
+    Route::get('settings', 'SettingController@index')->name('admin.settings');
+    Route::post('settings', 'SettingController@index')->name('admin.settings');
+
+
 });
 Auth::routes();
-
+Route::get('/clear-cache', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('view:clear');
+    return $exitCode;
+    // return what you want
+});
 Route::get('/home', 'HomeController@index')->name('home');

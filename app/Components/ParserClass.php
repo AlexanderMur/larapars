@@ -59,13 +59,10 @@ class ParserClass
             });
     }
 
-    public function getDataOnPage(Crawler $crawler, Donor $donor, $how_many)
+    public function getDataOnPage(Crawler $crawler, Donor $donor)
     {
         $items = $crawler
             ->query($donor->loop_item)
-            ->filter(function ($c, $i) use ($how_many) {
-                return $i < $how_many;
-            })
             ->map(function (Crawler $crawler, $i) use ($donor) {
                 return [
                     'title'      => $crawler->query($donor->loop_title)->getText(),

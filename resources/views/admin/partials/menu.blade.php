@@ -26,4 +26,7 @@
     <li>
         <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Експорт</a>
     </li>
+    <li>
+        <a href="{{route('admin.settings')}}"><i class="fa fa-gear fa-fw"></i> Настройки</a>
+    </li>
 </ul>
