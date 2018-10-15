@@ -175,7 +175,10 @@ class ParserService
      */
     public function handleParsedCompany($new_company)
     {
-
+        if(strlen($new_company['address']) > 100){
+            LogService::log('info', 'Адрес слишком длинный!!!!!!', $new_company['donor_page']);
+            $new_company['address'] = 'Адрес слишком длинный...';
+        }
         $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
         if (!$parsed_company->wasRecentlyCreated) {
             foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
@@ -193,7 +196,7 @@ class ParserService
                     $translate_field = __('company.' . $key);
                     LogService::log(
                         'info',
-                        "$parsed_company->title Поменяла поле \"{{$translate_field}}\" – было \"{{$attribute}}\" стало \"$new_company[$key]\"",
+                        "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
                         $parsed_company->donor_page
                     );
                 }
