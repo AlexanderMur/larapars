@@ -49,6 +49,7 @@ class CreateDonorsTable extends Migration
             $table->string('reviews_rating')->nullable();
             $table->string('reviews_name')->nullable();
             $table->string('reviews_id')->nullable();
+            $table->string('reviews_pagination')->nullable();
 
             //Убрать "Читать полностью..." у отзыва
             $table->string('reviews_ignore_text')->nullable();

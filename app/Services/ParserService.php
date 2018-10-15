@@ -15,7 +15,6 @@ use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\Review;
 use Carbon\Carbon;
-use GuzzleHttp\Exception\TooManyRedirectsException;
 use Illuminate\Support\Arr;
 
 
@@ -72,7 +71,7 @@ class ParserService
 
         $archiveData = $this->parserClass->getArchiveData($url, $donor)->wait();
 
-        LogService::log('ok', 'получили ссылки на компании из архива (' . count($archiveData) . ')', $url);
+        LogService::log('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')', $url);
 
         foreach ($archiveData['items'] as $page) {
             $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
@@ -88,17 +87,14 @@ class ParserService
     public function parseCompanyByUrl($url, Donor $donor)
     {
         if (!$this->is_started) {
-            LogService::log('bold', 'Запуск парсера по конкретной ссылке', $url);
+            LogService::log('bold', 'Запуск парсера по компании', $url);
             $this->is_started = true;
         }
         LogService::log('info', 'парсим компанию...', $url);
         return $this->parserClass->parseCompany($url, $donor)
-            ->then(function ($data) {
+            ->then(function ($data) use ($donor) {
                 $this->handleParsedCompany($data);
-            }, function (TooManyRedirectsException $exception) {
-                LogService::log('bold', 'Проблемы с соедением!!!! Too many redirects', $exception->getRequest()->getUri());
             });
-
     }
 
     public function parseCompaniesByUrls($urls, $need_mapping = true)
@@ -175,9 +171,9 @@ class ParserService
      */
     public function handleParsedCompany($new_company)
     {
-        if(strlen($new_company['address']) > 100){
+        if(strlen($new_company['address']) > 190){
             LogService::log('info', 'Адрес слишком длинный!!!!!!', $new_company['donor_page']);
-            $new_company['address'] = 'Адрес слишком длинный...';
+            $new_company['address'] = 'Адрес слишком длинный.';
         }
         $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
         if (!$parsed_company->wasRecentlyCreated) {
@@ -206,6 +202,7 @@ class ParserService
             $this->counts['new_parsed_companies_count']++;
         }
         $this->handleParsedReviews($parsed_company, $new_company);
+        return $parsed_company;
     }
 
 

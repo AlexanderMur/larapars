@@ -62,7 +62,8 @@ function filter_text($html){
 
 
 function get_links_from_text($text){
-    preg_match_all('~[a-z]+://\S+~', $text, $out);
+    preg_match_all('#((https?:\/\/)?(?:www\.|(?!www))[a-zA-Z0-9а-я][а-яa-zA-Z0-9-]+[а-яa-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})#u', $text, $out);
+
     if(isset($out[0])){
         return $out[0];
     }

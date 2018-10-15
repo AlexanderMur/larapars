@@ -62,7 +62,6 @@ class Crawler extends BaseCrawler
      */
     public function getText($default = null){
         if($this->count()){
-
             return trim($this->text());
         }
         return null;

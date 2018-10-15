@@ -37,7 +37,7 @@ class ParserClass
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
                 $crawler = new Crawler($html, $link);
-                return $this->getDataOnPage($crawler, $donor, $how_many);
+                return $this->getDataOnPage($crawler, $donor);
             });
     }
 
@@ -61,7 +61,7 @@ class ParserClass
 
     public function getDataOnPage(Crawler $crawler, Donor $donor)
     {
-        $items = $crawler
+        $items      = $crawler
             ->query($donor->loop_item)
             ->map(function (Crawler $crawler, $i) use ($donor) {
                 return [
@@ -72,18 +72,24 @@ class ParserClass
                     'donor_id'   => $donor->id,
                 ];
             });
+        $pagination = $this->getUniqueLinks($crawler->query($donor->archive_pagination), $donor);
+        return [
+            'items'      => $items,
+            'pagination' => $pagination,
+        ];
+    }
+
+    public function getUniqueLinks(Crawler $crawler, Donor $donor)
+    {
         $pagination = [];
-        $crawler->query($donor->archive_pagination)
-            ->each(function(Crawler $crawler) use (&$pagination) {
+        $crawler
+            ->each(function (Crawler $crawler) use (&$pagination) {
                 $url = $crawler->link()->getUri();
-                if(!in_array($url,$pagination)){
+                if (!in_array($url, $pagination)) {
                     $pagination[] = $url;
                 }
             });
-        return [
-            'items' => $items,
-            'pagination' => $pagination,
-        ];
+        return $pagination;
     }
 
     public function getPhonesFromText($text)
@@ -105,17 +111,19 @@ class ParserClass
 
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
-        $site = get_links_from_text($crawler->query($donor->single_site)->getText());
-        $site = implode(', ', $site);
+        $site       = get_links_from_text($crawler->query($donor->single_site)->getText());
+        $site       = implode(', ', $site);
+        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
         return [
             'site'       => $site,
             'reviews'    => $this->getReviewsOnPage($crawler, $donor),
             'phone'      => $this->getCompanyPhone($crawler, $donor),
             'address'    => $crawler->query($donor->single_address)->getText(),
             'title'      => $crawler->query($donor->single_title)->getText(),
-            'city'      => $crawler->query($donor->single_city)->getText(),
+            'city'       => $crawler->query($donor->single_city)->getText(),
             'donor_page' => $crawler->getBaseHref(),
             'donor_id'   => $donor->id,
+            'pagination' => $pagination,
         ];
     }
 
