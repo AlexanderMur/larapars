@@ -48,6 +48,7 @@ class ParsedCompanyController extends Controller
                     return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
                 })
                 ->editColumn('site', function (ParsedCompany $parsedCompany) {
+
                     return new HtmlString("<a href='" . external_link($parsedCompany->site) . "' target='_blank'>" . $parsedCompany->site . "</a>");
                 })
                 ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {

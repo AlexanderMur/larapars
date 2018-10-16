@@ -42,7 +42,6 @@ class ParserService
             'deleted_reviews_count'      => 0,
             'restored_reviews_count'     => 0,
         ];
-
     }
 
     public function __destruct()
@@ -57,14 +56,37 @@ class ParserService
             ');
             SettingService::set('last_parse_date', Carbon::now());
             SettingService::set('last_parse_counts', $this->counts);
+
+            $this->stop();
         }
+    }
+
+    public function start()
+    {
+        info('start');
+        if (!file_exists('check_file')) {
+            fopen('check_file', 'w');
+        }
+        $this->is_started = true;
+    }
+
+    public function stop()
+    {
+        if (file_exists('check_file')) {
+            unlink('check_file');
+        }
+    }
+
+    public function can_parse()
+    {
+        return file_exists('check_file');
     }
 
     public function parseArchivePageByUrl($url, Donor $donor)
     {
         if (!$this->is_started) {
             LogService::log('bold', 'Запуск парсера');
-            $this->is_started = true;
+            $this->start();
         }
 
         LogService::log('info', 'получаем ссылки на компании из архива...', $url);
@@ -74,10 +96,10 @@ class ParserService
         LogService::log('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')', $url);
 
         foreach ($archiveData['items'] as $page) {
-            $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
+            $this->can_parse() && $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
         }
         foreach ($archiveData['pagination'] as $page) {
-            if (!in_array($page, $this->visitedPages)) {
+            if (!in_array($page, $this->visitedPages) && $this->can_parse()) {
                 $this->visitedPages[] = $page;
                 $this->parseArchivePageByUrl($page, $donor);
             }
@@ -88,7 +110,7 @@ class ParserService
     {
         if (!$this->is_started) {
             LogService::log('bold', 'Запуск парсера по компании', $url);
-            $this->is_started = true;
+            $this->start();
         }
         LogService::log('info', 'парсим компанию...', $url);
         return $this->parserClass->parseCompany($url, $donor)
@@ -104,11 +126,11 @@ class ParserService
         }
         if (!$this->is_started) {
             LogService::log('bold', 'Запуск парсера');
-            $this->is_started = true;
+            $this->start();
         }
         foreach ($urls as $url) {
 
-            $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
+            $this->can_parse() && $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
         }
     }
 
@@ -119,10 +141,10 @@ class ParserService
         }
         if (!$this->is_started) {
             LogService::log('bold', 'Запуск парсера');
-            $this->is_started = true;
+            $this->start();
         }
         foreach ($urls as $url) {
-            $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+            $this->can_parse() && $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
         }
     }
 
@@ -171,7 +193,7 @@ class ParserService
      */
     public function handleParsedCompany($new_company)
     {
-        if(strlen($new_company['address']) > 190){
+        if (strlen($new_company['address']) > 190) {
             LogService::log('info', 'Адрес слишком длинный!!!!!!', $new_company['donor_page']);
             $new_company['address'] = 'Адрес слишком длинный.';
         }

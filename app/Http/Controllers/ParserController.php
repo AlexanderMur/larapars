@@ -50,6 +50,10 @@ class ParserController extends Controller
 
     public function parse(StartParserRequest $request)
     {
+        if($request->stop){
+            $this->parserService->stop();
+            return 'ok';
+        }
         if($request->donor_id){
             if ($request->donor_id === 'all') {
                 $links = Donor::all()->pluck('link');
@@ -73,6 +77,7 @@ class ParserController extends Controller
             'statistics' => '' . view('admin.partials.parser.statistics', [
                     'statistics' => $this->parserService->getStatistics(),
                 ]),
+            'is_parsing' => $this->parserService->can_parse(),
         ]);
     }
 }

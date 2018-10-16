@@ -15208,3 +15208,15 @@ tr:hover .actions {
   width: 150px;
 }
 
+.parser__stop {
+  display: none;
+}
+
+.parser--is-parsing .parser__stop {
+  display: inline-block;
+}
+
+.parser--is-parsing .parser__start {
+  display: none;
+}
+

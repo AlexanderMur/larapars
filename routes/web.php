@@ -1,5 +1,5 @@
 <?php
-
+declare(ticks = 1);
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -29,7 +29,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     //Parsed companies routes
     Route::put('parsed_companies', 'ParsedCompanyController@bulk')->name('parsed_companies.bulk');
     Route::get('parsed_companies/{parsed_company}/detach', 'ParsedCompanyController@detach')->name('parsed_companies.detach');
-    Route::get('parsed_companies/{parsed_company}/getReviews','ParsedCompanyController@getReviews')->name('parsed_companies.getReviews');
+    Route::get('parsed_companies/{parsed_company}/getReviews', 'ParsedCompanyController@getReviews')->name('parsed_companies.getReviews');
     Route::resource('parsed_companies', 'ParsedCompanyController');
 
     //Reviews routes
@@ -75,4 +75,51 @@ Route::get('/clear-cache', function () {
     return $exitCode;
     // return what you want
 });
+
+Route::get('test', function () {
+
+    if(isset($_GET['stop'])){
+        unlink('check_file');
+        return 'deleting!!!!';
+    }
+    if(!file_exists('check_file')){
+        fopen('check_file','w');
+    }
+    for ($i = 0; $i < 10; $i++) {
+        if(file_exists('check_file')){ //Есть другие варианты?
+            //времязатратная задача
+            info('working...');
+            sleep(1);
+        } else {
+            break;
+        }
+    }
+    info('job stopped. was working: ' . $i . ' seconds');
+
+    return 123;
+});
+Route::get('test', function () {
+    $can_work = true;
+    pcntl_signal(SIGTERM, function() use(&$can_work){
+        $can_work = false;
+    });
+    for ($i = 0; $i < 100; $i++) {
+        if($can_work){ //Есть другие варианты?
+            //времязатратная задача
+            info('working...');
+            sleep(1);
+        } else {
+            break;
+        }
+    }
+    info('job stopped. was working: ' . $i . ' seconds');
+
+    return 123;
+});
+Route::get('stop', function () {
+    session_start();
+    $_SESSION['stop'] = 1;
+    return 123;
+});
+
 Route::get('/home', 'HomeController@index')->name('home');

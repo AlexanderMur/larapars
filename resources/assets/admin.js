@@ -182,12 +182,15 @@ $(function ($) {
         console.log(json)
         $('.parser__logs__inner').html(json.table)
         $('.statistics').html(json.statistics)
+
+        $('.parser__start').parents('form').toggleClass('parser--is-parsing',json.is_parsing)
+        console.log(json.is_parsing)
     }
 
     let canUpdateLogs = false
 
     async function startUpdateLogs() {
-        if (canUpdateLogs) {
+        if ($('.parser--is-parsing').length) {
             await updateLogs()
         }
         setTimeout(startUpdateLogs, 1000)
@@ -198,15 +201,26 @@ $(function ($) {
     }
     startUpdateLogs()
     $('.parser__start').click(function () {
+        $(this).parents('form').addClass('parser--is-parsing')
         $('.parser__logs__collapse').collapse('show')
-        $(this).button('loading')
         canUpdateLogs = true
         $.post(route('pars.test'), $(this).parents('form').serialize())
             .catch(() => alert('Ошибка'))
             .then(() => {
-                $(this).button('reset')
+                $(this).parents('form').removeClass('parser--is-parsing')
                 canUpdateLogs = false
                 updateLogs()
+            })
+        return false
+    })
+    $('.parser__stop').click(function () {
+        $(this).button('loading')
+        $.post(route('pars.test'),'stop=1' )
+            .catch(() => alert('Ошибка'))
+            .then(() => {
+                canUpdateLogs = false
+                updateLogs()
+                $(this).button('reset')
             })
         return false
     })

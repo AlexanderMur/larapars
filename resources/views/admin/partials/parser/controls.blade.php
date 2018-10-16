@@ -18,6 +18,7 @@
                     @endforeach
                 </select>
                 <button class="btn btn-primary parser__start">Парсить</button>
+                <button class="btn btn-primary parser__stop">Остановить</button>
             </form>
         </div>
     </div>
