@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CompanyExport;
 use App\Models\Company;
 use App\Models\ParsedCompany;
 use App\Models\Review;
 use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
+use Illuminate\Support\HtmlString;
 use Yajra\DataTables\Html\Builder;
 
 class CompanyController extends Controller
@@ -40,6 +42,9 @@ class CompanyController extends Controller
                         ->leftJoin('reviews', 'reviews.company_id', '=', 'companies.id')
                         ->groupBy('id')
                 )
+                ->editColumn('id', function (Company $company) {
+                    return new HtmlString("<input type='checkbox' value='$company->id' name='ids[]'/>");
+                })
                 ->addColumn('action', function (Company $company) {
                     return view('admin.companies.actions', ['company' => $company,]);
                 })
@@ -47,8 +52,8 @@ class CompanyController extends Controller
         }
         $html = $builder
             ->columns([
+                'id'            => ['orderable' => false, 'title' => ''],
                 'action'             => ['searchable' => false, 'orderable' => false],
-                'id',
                 'title'              => ['title' => __('company.title')],
                 'phone'              => ['title' => __('company.phone')],
                 'site'               => ['title' => __('company.site')],
@@ -64,8 +69,7 @@ class CompanyController extends Controller
             ->parameters([
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
                 'language'   => __('datatables'),
-            ])
-            ->addCheckbox([], true);
+            ]);
 
         return view('admin.companies.index',['html'=>$html]);
     }
@@ -231,5 +235,20 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Maatwebsite\Excel\BinaryFileResponse
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function bulk(Request $request)
+    {
+
+        if($request->action2 === 'export' || $request->action === 'export'){
+            return \Excel::download(new CompanyExport($request->ids), 'model.xls');
+        }
+        return redirect()->back();
     }
 }

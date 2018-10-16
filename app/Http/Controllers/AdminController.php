@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ModelExport;
+use App\Exports\Export;
 use App\ParserLog;
 
 class AdminController extends Controller
@@ -15,7 +15,7 @@ class AdminController extends Controller
 
     public function export()
     {
-        return \Excel::download(new ModelExport, 'model.xls');
+        return \Excel::download(new Export, 'model.xls');
     }
 
     public function logs()

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ModelExport;
+use App\Exports\Export;
 use App\Http\Requests\Request;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
@@ -146,7 +146,7 @@ class ParsedCompanyController extends Controller
 
 
         if($request->action2 === 'export' || $request->action === 'export'){
-           return \Excel::download(new ModelExport($request->ids), 'model.xls');
+           return \Excel::download(new Export($request->ids), 'model.xls');
         }
         if ($request->action == 'group') {
             $ids        = $request->get('ids');
@@ -232,4 +232,5 @@ class ParsedCompanyController extends Controller
     {
         //
     }
+
 }

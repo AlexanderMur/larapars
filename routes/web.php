@@ -23,6 +23,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     //Companies routes
     Route::get('companies/search', 'CompanyController@search')->name('companies.search');
+    Route::get('companies/bulk', 'CompanyController@bulk')->name('companies.bulk');
     Route::resource('companies', 'CompanyController');
 
     //Parsed companies routes
