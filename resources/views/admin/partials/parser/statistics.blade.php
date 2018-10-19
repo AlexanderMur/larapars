@@ -5,7 +5,11 @@
 ?>
 
 <div>
-    <p>Последний раз парсер был запущен {{$task->created_at}}</p>
+    @isset($task->created_at)
+        <p>Последний раз парсер был запущен {{$task->created_at}}</p>
+    @else
+        <p>Парсер не запускался</p>
+    @endisset
 </div>
 <div class="row">
     <div class="col-lg-6">

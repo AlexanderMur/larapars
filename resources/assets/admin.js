@@ -46,7 +46,7 @@ function getEditPopup(href) {
 }
 
 // language=CSS
-function ajaxLoad(href,title = '') {
+function ajaxLoad(href, title = '') {
     return $.get(href)
         .then(function (data) {
             let modal = $('#myModal')
@@ -103,7 +103,7 @@ $(function ($) {
             return false
         })
     $(document)
-        .on('click','.ajax-load',(e)=> {
+        .on('click', '.ajax-load', (e) => {
             ajaxLoad(e.target.href)
             return false
         })
@@ -201,16 +201,24 @@ $(function ($) {
 
         let company_id = $('.parser__logs__inner').data('company_id')
         let json = {}
-        if(company_id){
-            json = await $.get(route('companies.logs',company_id))
+        if (company_id) {
+            json = await $.get(route('companies.logs', company_id))
         } else {
             json = await $.get(route('parsers.logs'))
         }
 
         $('.parser__logs__inner').html(json.table)
         $('.statistics').html(json.statistics)
-        $('.parser__start').parents('form').toggleClass('parser--is-parsing',json.is_parsing)
-        console.log(json.is_parsing)
+        $('.parser__start').parents('form').toggleClass('parser--is-parsing', json.is_parsing)
+
+        if(json.progress_max){
+            $('.parser__progress')
+                .css({'width': (json.progress / json.progress_max) * 100 + '%'})
+                .text(json.progress + ' из ' + json.progress_max)
+        } else {
+            // $('.parser__progress')
+            //     .css({'width': 0 + '%'})
+        }
     }
 
     let canUpdateLogs = false
@@ -241,7 +249,7 @@ $(function ($) {
     })
     $('.parser__stop').click(function () {
         $(this).button('loading')
-        $.post(route('pars.test'),'stop=1' )
+        $.post(route('pars.test'), 'stop=1')
             .catch(() => alert('Ошибка'))
             .then(() => {
                 canUpdateLogs = false
@@ -250,5 +258,17 @@ $(function ($) {
             })
         return false
     })
+
+
+    $(document).on('click', '.parsed-company__update', function () {
+        $(this).button('loading')
+        $.get(route('parsed_companies.getHistory', $(this).data('id')))
+            .then(html => {
+                $(this).parent().html(html)
+                $(this).button('reset')
+            })
+        return false
+    })
+
 
 })

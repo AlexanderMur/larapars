@@ -22,7 +22,7 @@
                     {{$log->created_at}}
                 </td>
                 <td>
-                    @if ($log->status == 'bold')
+                    @if ($log->type == 'bold')
                         <b>{{$log->message}}</b>
                     @else
                         {{$log->message}}
@@ -30,7 +30,7 @@
 
                     <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
 
-                    @if ($log->status == 'ok')
+                    @if ($log->type == 'ok')
                         <span class="label label-info">OK</span>
                     @endif
                     @if ($log->details)

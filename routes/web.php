@@ -31,6 +31,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::put('parsed_companies', 'ParsedCompanyController@bulk')->name('parsed_companies.bulk');
     Route::get('parsed_companies/{parsed_company}/detach', 'ParsedCompanyController@detach')->name('parsed_companies.detach');
     Route::get('parsed_companies/{parsed_company}/getReviews', 'ParsedCompanyController@getReviews')->name('parsed_companies.getReviews');
+    Route::get('parsed_companies/{parsed_company}/getHistory', 'Ajax\AjaxController@getParsedCompanyHistory')->name('parsed_companies.getHistory');
     Route::resource('parsed_companies', 'ParsedCompanyController');
 
     //Reviews routes

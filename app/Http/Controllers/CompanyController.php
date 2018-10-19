@@ -252,6 +252,7 @@ class CompanyController extends Controller
      * @throws \Throwable
      */
     public function logs(Company $company){
+
         return response()->json(
             view('admin.partials.logs',[
                 'logs' => $company->logs,

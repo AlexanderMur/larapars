@@ -22,11 +22,25 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer $restored_reviews_count
  * @property integer $new_companies_count
  * @property integer $updated_companies_count
+ * @property-read \App\Models\ProgressBar $progress
  */
 class ParserTask extends Model
 {
     public function logs(){
         return $this->hasMany(ParserLog::class);
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask $query
+     */
+    public function getGlobal($query)
+    {
+        $query->withStats();
+    }
+    public function createProgress($count){
+        return $this->progress()->create([
+            'progress_max' => $count,
+        ]);
     }
     public function scopeWithStats(Builder $query){
         return $query->withCount([
@@ -82,5 +96,9 @@ class ParserTask extends Model
     public function parsed_companies()
     {
         return $this->belongsToMany(ParsedCompany::class)->using(ParsedCompanyTask::class);
+    }
+
+    public function progress(){
+        return $this->hasOne(ProgressBar::class);
     }
 }

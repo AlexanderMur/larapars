@@ -81,6 +81,8 @@ class ParserController extends Controller
                     'task' => $task,
                 ]),
             'is_parsing' => $this->parserService->can_parse(),
+            'progress' => $task->progress->progress ?? 0,
+            'progress_max' => $task->progress->progress_max ?? 0,
         ]);
     }
 }

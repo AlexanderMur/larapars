@@ -79,20 +79,7 @@
             </div>
             <div class="tab-pane fade" id="history-{{$parsed_company->id}}">
                 <div class="mt-5">
-                    @forelse ($parsed_company->history as $record)
-                        <p>
-                            <b>{{$record->created_at}}</b><br>
-                            Изменено поле "{{__("company.$record->field")}}" – было "{{$record->old_value}}" стало
-                            "{{$record->new_value}}"
-                        </p>
-                    @empty
-                        <p>
-                            нет изменений
-                        </p>
-                    @endforelse
-                    <p>
-                        Дата парсинга: {{$parsed_company->created_at}}
-                    </p>
+                    @include('admin.parsed_companies.partials._history')
                 </div>
             </div>
         </div>
