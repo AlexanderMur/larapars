@@ -291,7 +291,7 @@ class ParserService
     {
         if (!isset($this->donor_counts[$donor->id])) {
             $this->donor_counts[$donor->id] = [
-                'title'                      => $donor->title,
+                'link'                      => $donor->link,
                 'new_parsed_companies_count' => 0,
                 'updated_companies_count'    => 0,
                 'new_reviews_count'          => 0,

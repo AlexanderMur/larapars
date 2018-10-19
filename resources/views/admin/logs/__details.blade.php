@@ -20,7 +20,7 @@
     <tbody>
         @foreach (json_decode($log->details)->donor_stats as $stat)
             <tr>
-                <td>{{$stat->title}}</td>
+                <td><a href="{{$stat->link}}" target="_blank">{{$stat->link}}</a></td>
                 <td>{{$stat->new_parsed_companies_count}}</td>
                 <td>{{$stat->updated_companies_count}}</td>
                 <td>{{$stat->new_reviews_count}}</td>
