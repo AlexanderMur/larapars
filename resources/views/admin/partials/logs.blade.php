@@ -33,7 +33,7 @@
                     @if ($log->type == 'ok')
                         <span class="label label-info">OK</span>
                     @endif
-                    @if ($log->details)
+                    @if (!is_numeric($log->details) && $log->details !== null)
                         <a href="{{route('logs.details',$log)}}" class="ajax-load">Показать детали <span class="caret"></span></a>
                     @endif
                 </td>

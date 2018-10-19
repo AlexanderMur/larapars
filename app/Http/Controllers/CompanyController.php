@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\CompanyExport;
 use App\Models\Company;
 use App\Models\ParsedCompany;
+use App\Models\ParserTask;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
@@ -49,7 +50,7 @@ class CompanyController extends Controller
         }
         $html = $builder
             ->columns([
-                'id'            => ['orderable' => false, 'title' => ''],
+                'id'                 => ['orderable' => false, 'title' => ''],
                 'action'             => ['searchable' => false, 'orderable' => false],
                 'title'              => ['title' => __('company.title')],
                 'phone'              => ['title' => __('company.phone')],
@@ -68,7 +69,7 @@ class CompanyController extends Controller
                 'language'   => __('datatables'),
             ]);
 
-        return view('admin.companies.index',['html'=>$html]);
+        return view('admin.companies.index', ['html' => $html]);
     }
 
     public function search()
@@ -129,7 +130,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        $company = Company::where('id',$id)
+        $company = Company::where('id', $id)
             ->with([
                 'parsed_companies' => function ($query) {
                     $query->withCount([
@@ -153,7 +154,7 @@ class CompanyController extends Controller
                 },
                 'parsed_companies.donor',
                 'parsed_companies.history',
-                'reviews' => function($query){
+                'reviews'          => function ($query) {
                     $query->withTrashed();
                 },
                 'reviews.donor',
@@ -240,7 +241,7 @@ class CompanyController extends Controller
     public function bulk(Request $request)
     {
 
-        if($request->action2 === 'export' || $request->action === 'export'){
+        if ($request->action2 === 'export' || $request->action === 'export') {
             return \Excel::download(new CompanyExport($request->ids), 'model.xls');
         }
         return redirect()->back();
@@ -251,12 +252,17 @@ class CompanyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function logs(Company $company){
-
-        return response()->json(
-            view('admin.partials.logs',[
-                'logs' => $company->logs,
-            ])->render()
-        );
+    public function logs(Company $company)
+    {
+        $task = ParserTask::latest('id')->withStats()->first();
+        return response()->json([
+            'table'        => view('admin.partials.logs',
+                [
+                    'logs' => $company->logs,
+                ]
+            )->render(),
+            'progress'     => $task->progress->progress ?? 0,
+            'progress_max' => $task->progress->progress_max ?? 0,
+        ]);
     }
 }
