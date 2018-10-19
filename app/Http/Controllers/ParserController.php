@@ -57,7 +57,7 @@ class ParserController extends Controller
         }
         if($request->donor_id){
             if ($request->donor_id === 'all') {
-                $links = Donor::all()->pluck('link');
+                $links = Donor::massParsing()->get()->pluck('link');
             } else {
                 $links = [Donor::find($request->donor_id)->link];
             }

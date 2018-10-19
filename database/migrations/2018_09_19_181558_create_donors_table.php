@@ -20,7 +20,7 @@ class CreateDonorsTable extends Migration
             $table->increments('id');
             $table->string('link');
             $table->string('title');
-
+            $table->boolean('mass_parsing')->default(1);
 
             //Archive page selector
             $table->string('loop_item')->nullable();
@@ -53,6 +53,8 @@ class CreateDonorsTable extends Migration
 
             //Убрать "Читать полностью..." у отзыва
             $table->string('reviews_ignore_text')->nullable();
+
+            //Пагинация или любые ссылки куда ведут на архив
             $table->string('archive_pagination')->nullable();
 
             $table->timestamps();

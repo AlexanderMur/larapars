@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 /**
  * App\Models\Donor
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $single_city
  * @property string|null $reviews_pagination
  * @property string|null $archive_pagination
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor massParsing()
  */
 class Donor extends Model
 {
@@ -72,5 +74,9 @@ class Donor extends Model
     }
     function reviews(){
         return $this->hasMany(Review::class);
+    }
+
+    function scopeMassParsing(Builder $query){
+        $query->where('mass_parsing',true);
     }
 }

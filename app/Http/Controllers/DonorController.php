@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DonorRequest;
 use App\Models\Donor;
-use Illuminate\Http\Request;
 
 class DonorController extends Controller
 {
@@ -14,7 +14,10 @@ class DonorController extends Controller
      */
     public function index()
     {
-
+        $donors = Donor::all();
+        return view('admin.donors.index',[
+            'donors' => $donors,
+        ]);
     }
 
     /**
@@ -24,40 +27,45 @@ class DonorController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.donors.form');
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param DonorRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DonorRequest $request)
     {
-        //
+        $donor = Donor::create($request->all());
+        return redirect()->route('donors.edit',[
+            'donor' => $donor,
+        ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Donor $donor
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function show($id)
+    public function show(Donor $donor)
     {
-        //
+        return view('admin.donors.form',[
+            'donor' => $donor,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param Donor $donor
      * @return \Illuminate\Http\Response
      */
     public function edit(Donor $donor)
     {
-        return view('admin.donors.edit',[
+        return view('admin.donors.form',[
             'donor' => $donor,
         ]);
     }
@@ -65,11 +73,11 @@ class DonorController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param DonorRequest $request
+     * @param Donor $donor
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Donor $donor)
+    public function update(DonorRequest $request, Donor $donor)
     {
 
         $donor->update($request->all());
@@ -79,11 +87,13 @@ class DonorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param Donor $donor
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
-    public function destroy($id)
+    public function destroy(Donor $donor)
     {
-        //
+        $donor->delete();
+        return redirect()->back();
     }
 }

@@ -21,7 +21,7 @@
         <a href="{{route('donors.index')}}"><i class="fa fa-thumb-tack fa-fw"></i> Доноры</a>
     </li>
     <li>
-        <a href="{{route('parsers.index')}}"><i class="fa fa-thumb-tack fa-fw"></i> Парсеры</a>
+        <a href="{{route('donors.create')}}"><i class="fa fa-thumb-tack fa-fw"></i> Создать донора</a>
     </li>
     <li>
         <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Експорт</a>
