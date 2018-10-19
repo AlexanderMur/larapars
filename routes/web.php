@@ -35,7 +35,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::resource('parsed_companies', 'ParsedCompanyController');
 
     //Reviews routes
-    Route::resource('reviews', 'ReviewController');
+    Route::resource('reviews', 'ReviewController', ['middleware' => 'dateformat']);
     Route::put('reviews', 'ReviewController@updateMany')->name('reviews.updateMany');
     Route::get('reviews2', 'ReviewController@main')->name('reviews.main');
     Route::get('reviews2/{review}/like', 'ReviewController@like')->name('reviews.like');

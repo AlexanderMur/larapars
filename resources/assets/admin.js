@@ -91,7 +91,7 @@ $(function ($) {
             $(this).find('.alert').remove()
             $(this).addClass('loading')
             $.ajax({
-                method: $(this).find('input[name="_method"]').val(),
+                method: $(this).find('input[name="_method"]').val() || this.method,
                 url: this.action,
                 data: $(this).serialize(),
             }).then((result) => {

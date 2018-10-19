@@ -133,6 +133,7 @@ class ReviewController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @param $id
      * @return \Illuminate\Http\Response
+     * @throws \Throwable
      */
     public function update(Request $request, $id)
     {
@@ -142,7 +143,9 @@ class ReviewController extends Controller
         $review->update($request->all());
         $request->session()->flash('success', 'Отзыв изменен');
         if ($request->ajax()) {
-            return view('admin.reviews.edit-form', ['review' => $review]);
+            return response()->json(
+                view('admin.reviews.edit-form', ['review' => $review])->render()
+            );
         }
         return redirect()->back();
     }

@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_id
  * @property int $donor_id
  * @property int $id
- * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $donor_created_at
  * @property string|null $good
  * @property string|null $name
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Donor $donor
  * @see \CreateReviewsTable
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Donor[] $donors
- * @property string|null $trashed_at
+ * @property \Illuminate\Support\Carbon|null $trashed_at
  * @property int|null $group_id
  * @property-read \App\Models\Group|null $group
  * @property string|null $donor_link
@@ -49,12 +49,14 @@ class Review extends Model
         'name',
         'good',
         'deleted_at',
+        'trashed_at',
         'donor_link',
         'donor_id',
         'donor_comment_id',
     ];
     protected $dates = [
         'deleted_at',
+        'trashed_at',
         'rated_at',
     ];
     protected $casts = [

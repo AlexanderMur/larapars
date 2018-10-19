@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $reviews_pagination
  * @property string|null $archive_pagination
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor massParsing()
+ * @property int $mass_parsing
  */
 class Donor extends Model
 {
