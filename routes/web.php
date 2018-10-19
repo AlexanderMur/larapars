@@ -24,6 +24,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     //Companies routes
     Route::get('companies/search', 'CompanyController@search')->name('companies.search');
     Route::get('companies/bulk', 'CompanyController@bulk')->name('companies.bulk');
+    Route::get('companies/{company}/logs', 'CompanyController@logs')->name('companies.logs');
     Route::resource('companies', 'CompanyController');
 
     //Parsed companies routes
@@ -47,6 +48,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     //Parsers routes
     Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');
+
+    Route::get('logs12/{log}/details', 'LogController@details')->name('logs.details');
     Route::get('logs', 'LogController@index')->name('logs.index');
 
     Route::resource('parsers', 'ParserController');
@@ -69,57 +72,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 });
 Auth::routes();
 Route::get('/clear-cache', function () {
-    $exitCode = Artisan::call('cache:clear');
-    $exitCode = Artisan::call('config:clear');
-    $exitCode = Artisan::call('view:clear');
-    return $exitCode;
-    // return what you want
-});
-
-Route::get('test', function () {
-
-    if(isset($_GET['stop'])){
-        unlink('check_file');
-        return 'deleting!!!!';
-    }
-    if(!file_exists('check_file')){
-        fopen('check_file','w');
-    }
-    for ($i = 0; $i < 10; $i++) {
-        if(file_exists('check_file')){ //Есть другие варианты?
-            //времязатратная задача
-            info('working...');
-            sleep(1);
-        } else {
-            break;
-        }
-    }
-    info('job stopped. was working: ' . $i . ' seconds');
-
-    return 123;
-});
-Route::get('test', function () {
-    $can_work = true;
-    pcntl_signal(SIGTERM, function() use(&$can_work){
-        $can_work = false;
-    });
-    for ($i = 0; $i < 100; $i++) {
-        if($can_work){ //Есть другие варианты?
-            //времязатратная задача
-            info('working...');
-            sleep(1);
-        } else {
-            break;
-        }
-    }
-    info('job stopped. was working: ' . $i . ' seconds');
-
-    return 123;
-});
-Route::get('stop', function () {
-    session_start();
-    $_SESSION['stop'] = 1;
-    return 123;
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    return redirect()->back();
 });
 
 Route::get('/home', 'HomeController@index')->name('home');

@@ -33,6 +33,8 @@ function reviewsEndpoint(endpoint, id, data) {
     return $.get(route('reviews.' + endpoint, id), data)
 }
 
+
+// language=CSS
 function getEditPopup(href) {
     return $.get(href)
         .then(function (data) {
@@ -40,6 +42,20 @@ function getEditPopup(href) {
             $myModal.find('.modal-body').html(data)
 
             $myModal.modal()
+        })
+}
+
+// language=CSS
+function ajaxLoad(href,title = '') {
+    return $.get(href)
+        .then(function (data) {
+            let modal = $('#myModal')
+            modal
+                .modal()
+                .find('.modal-body')
+                .html(data)
+
+            modal.find('.modal-title').html(title)
         })
 }
 
@@ -86,7 +102,11 @@ $(function ($) {
 
             return false
         })
-
+    $(document)
+        .on('click','.ajax-load',(e)=> {
+            ajaxLoad(e.target.href)
+            return false
+        })
 
     //like/dislike
     $(document)
@@ -178,11 +198,17 @@ $(function ($) {
     }
 
     async function updateLogs() {
-        const json = await $.get(route('parsers.logs'))
-        console.log(json)
+
+        let company_id = $('.parser__logs__inner').data('company_id')
+        let json = {}
+        if(company_id){
+            json = await $.get(route('companies.logs',company_id))
+        } else {
+            json = await $.get(route('parsers.logs'))
+        }
+
         $('.parser__logs__inner').html(json.table)
         $('.statistics').html(json.statistics)
-
         $('.parser__start').parents('form').toggleClass('parser--is-parsing',json.is_parsing)
         console.log(json.is_parsing)
     }

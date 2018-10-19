@@ -63,6 +63,9 @@ class ParserClass
     {
         $items      = $crawler
             ->query($donor->loop_item)
+            ->filter(function (Crawler $crawler, $i) {
+                return $i < 2;
+            })
             ->map(function (Crawler $crawler, $i) use ($donor) {
                 return [
                     'title'      => $crawler->query($donor->loop_title)->getText(),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ParserLog;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -24,13 +25,13 @@ use Illuminate\Database\Eloquent\Model;
  * @see CompanyController
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
  * @property string|null $city
- *
  * @property int reviews_count
  * @property int good_reviews_count
  * @property int bad_reviews_count
  * @property int unrated_reviews_count
  * @property int deleted_reviews_count
  * @property int trashed_reviews_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
  */
 class Company extends Model
 {
@@ -45,7 +46,7 @@ class Company extends Model
 
     function reviews()
     {
-        return $this->hasMany(Review::class);
+        return $this->hasManyThrough(Review::class, ParsedCompany::class);
     }
 
 
@@ -53,4 +54,17 @@ class Company extends Model
     {
         return $this->hasMany(ParsedCompany::class);
     }
+
+    public function logs()
+    {
+        return $this->hasManyThrough(
+            ParserLog::class,
+            ParsedCompany::class,
+            'company_id', // Foreign key on parsed_company table...
+            'url', // Foreign key on parser_logs table...
+            'id', // Local key on this table...
+            'donor_page' // Local key on parsed_company table...
+        )->latest('id');
+    }
+
 }

@@ -18,9 +18,8 @@ class CreateReviewsTable extends Migration
          */
         Schema::create('reviews', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('company_id')->nullable();
             $table->integer('parsed_company_id')->nullable();
-            $table->string('title')->nullable();
+            $table->text('title')->nullable();
             $table->string('name')->nullable();
             $table->text('text')->nullable();
             $table->boolean('good')->nullable();

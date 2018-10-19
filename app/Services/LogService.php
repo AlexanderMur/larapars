@@ -13,14 +13,13 @@ use App\ParserLog;
 
 class LogService
 {
-    public static function log($style, $message, $url = null, $parser_id = null, $data = null)
+    public static function log($style, $message, $url = null, $details = null)
     {
         ParserLog::create([
-            'parser_id' => $parser_id,
-            'status'    => $style,
-            'message'   => $message,
-            'url'       => $url,
-            'data'      => json_encode($data),
+            'status'  => $style,
+            'message' => $message,
+            'url'     => $url,
+            'details' => $details === null ? null : json_encode($details),
         ]);
     }
 

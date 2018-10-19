@@ -30,7 +30,6 @@ use Illuminate\Support\Collection;
  * @property string|null $city
  * @property-write mixed $phones
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\CompanyHistory[] $history
- *
  * @property int good_reviews_count
  * @property int bad_reviews_count
  * @property int unrated_reviews_count

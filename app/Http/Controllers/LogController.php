@@ -48,7 +48,7 @@ class LogController
                             <?php echo $log->message ?>
                             <a href="<?php echo $log->url ?>" target="_blank"><?php echo str_limit($log->url, 55) ?></a>
                             <?php
-                            if($log->status === 'ok'){
+                            if ($log->status === 'ok') {
                                 ?>
                                 <span class="label label-info">OK</span>
                                 <?php
@@ -59,22 +59,35 @@ class LogController
                     }
                     return new HtmlString(ob_get_clean());
                 })
-                ->orderColumn('created_at','id $1')
+                ->orderColumn('created_at', 'id $1')
                 ->toJson();
         }
         $html = $this->builder
             ->columns([
                 'created_at' => ['title' => __('company.created_at')],
-                'message' => ['title' => __('company.message')],
-                'url' => ['visible' => false],
+                'message'    => ['title' => __('company.message')],
+                'url'        => ['visible' => false],
             ])
             ->parameters([
-                'order' => [[0, "desc"]],
+                'order'      => [[0, "desc"]],
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'language' => __('datatables'),
+                'language'   => __('datatables'),
             ]);
         return view('admin.logs.index', [
             'html' => $html,
         ]);
+    }
+
+    /**
+     * @param ParserLog $log
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Throwable
+     */
+    public function details(ParserLog $log)
+    {
+        return response()->json(view('admin.logs.__details', [
+            'log' => $log,
+        ])->render());
+
     }
 }

@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $reviews_name
  * @property string|null $reviews_id
  * @property string|null $single_title
+ * @property string|null $single_city
+ * @property string|null $reviews_pagination
+ * @property string|null $archive_pagination
  */
 class Donor extends Model
 {

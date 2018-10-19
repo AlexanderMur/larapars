@@ -4,7 +4,6 @@
  */
 ?>
 
-
 <table class="table logs__table">
     <thead>
         <tr>
@@ -22,20 +21,22 @@
                 <td>
                     {{$log->created_at}}
                 </td>
-                @if ($log->status == 'bold')
-                    <td>
+                <td>
+                    @if ($log->status == 'bold')
                         <b>{{$log->message}}</b>
-                        <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
-                    </td>
-                @else
-                    <td>
+                    @else
                         {{$log->message}}
-                        <a href="{{$log->url}}" target="_blank">{{$log->url,55}}</a>
-                        @if ($log->status == 'ok')
-                            <span class="label label-info">OK</span>
-                        @endif
-                    </td>
-                @endif
+                    @endif
+
+                    <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
+
+                    @if ($log->status == 'ok')
+                        <span class="label label-info">OK</span>
+                    @endif
+                    @if ($log->details)
+                        <a href="{{route('logs.details',$log)}}" class="ajax-load">Показать детали <span class="caret"></span></a>
+                    @endif
+                </td>
             </tr>
         @endforeach
     </tbody>

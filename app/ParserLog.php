@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @mixin \Eloquent
+ * @property string|null $details
+ * @property int|null $donor_id
+ * @property int|null $parsed_company_id
+ * @property string|null $type
+ * @property int|null $parser_task_id
  */
 class ParserLog extends Model
 {
@@ -22,9 +27,10 @@ class ParserLog extends Model
     const UPDATED_AT = null;
     protected $fillable = [
         'url',
-        'status',
+        'type',
         'message',
-        'parser_id',
+        'details',
+        'parsed_company_id',
     ];
 
 }

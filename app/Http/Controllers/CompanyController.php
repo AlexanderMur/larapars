@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Exports\CompanyExport;
 use App\Models\Company;
 use App\Models\ParsedCompany;
-use App\Models\Review;
-use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
@@ -121,7 +119,6 @@ class CompanyController extends Controller
         $company              = Company::create(\request()->all());
         $parsed_companies_ids = \request()->get('parsed_companies_ids');
         ParsedCompany::whereIn('id', $parsed_companies_ids)->update(['company_id' => $company->id]);
-        Review::whereIn('parsed_company_id', $parsed_companies_ids)->update(['company_id' => $company->id]);
         return redirect()->route('companies.show', $company);
     }
 
@@ -181,10 +178,8 @@ class CompanyController extends Controller
                 },
             ])
             ->first();
-        $logs = ParserLog::paginate();
         return view('admin.companies.show', [
             'company' => $company,
-            'logs'    => $logs,
         ]);
     }
 
@@ -250,5 +245,18 @@ class CompanyController extends Controller
             return \Excel::download(new CompanyExport($request->ids), 'model.xls');
         }
         return redirect()->back();
+    }
+
+    /**
+     * @param Company $company
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Throwable
+     */
+    public function logs(Company $company){
+        return response()->json(
+            view('admin.partials.logs',[
+                'logs' => $company->logs,
+            ])->render()
+        );
     }
 }

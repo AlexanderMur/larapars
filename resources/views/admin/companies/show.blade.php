@@ -36,9 +36,15 @@
                             >Показать логи</a>
                         </h4>
                     </div>
-                    <div class="panel-collapse collapse parser__logs__collapse" role="tabpanel" id="parser__logs__collapse">
-                        <div class="panel-body parser__logs__inner">
-                            @include('admin.partials.logs')
+                    <div
+                        class="panel-collapse collapse parser__logs__collapse"
+                        role="tabpanel"
+                        id="parser__logs__collapse"
+                    >
+                        <div class="panel-body parser__logs__inner" data-company_id="{{$company->id}}">
+                            @include('admin.partials.logs',[
+                                'logs' => $company->logs,
+                            ])
                         </div>
                     </div>
                 </div>
