@@ -37,7 +37,6 @@ class CompanyController extends Controller
                                 $query->where('good', 0);
                             },
                         ])
-                        ->leftJoin('reviews', 'reviews.company_id', '=', 'companies.id')
                         ->groupBy('id')
                 )
                 ->editColumn('id', function (Company $company) {
