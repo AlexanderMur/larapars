@@ -9,7 +9,8 @@
 {{BootForm::text('name')}}
 {{BootForm::textarea('text')}}
 {{BootForm::checkbox('good')}}
-{{BootForm::date('date')}}
+{{BootForm::date('deleted_at')}}
+{{BootForm::date('trashed_at')}}
 
 <div class="form-group">
     <button type="submit" class="btn btn-primary">Send</button>

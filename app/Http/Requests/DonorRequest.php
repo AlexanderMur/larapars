@@ -16,6 +16,7 @@ class DonorRequest extends Request
     {
         return [
             'title' => 'required',
+            'link' => 'required',
         ];
     }
 }
