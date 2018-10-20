@@ -23,6 +23,7 @@ class CreateCompaniesTable extends Migration
             $table->string('title')->nullable();
             $table->string('city')->nullable();
             $table->string('address')->nullable();
+            $table->boolean('favourite')->default(false);
             $table->timestamps();
         });
     }

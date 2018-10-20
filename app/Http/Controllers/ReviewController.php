@@ -56,14 +56,14 @@ class ReviewController extends Controller
         $html = $builder
             ->columns([
                 'id',
-                'title' => ['title' => __('company.title')],
-                'text' => ['title' => __('company.text')],
-                'good' => ['title' => __('company.good')],
-                'created_at' => ['title' => __('company.created_at')],
-                'updated_at' => ['title' => __('company.updated_at')],
-                'name' => ['title' => __('company.name')],
-                'company.title' => ['title' => __('company.company.title')],
-                'company.site' => ['title' => __('company.company.site')],
+                'title'                    => ['title' => __('company.title')],
+                'text'                     => ['title' => __('company.text')],
+                'good'                     => ['title' => __('company.good')],
+                'created_at'               => ['title' => __('company.created_at')],
+                'updated_at'               => ['title' => __('company.updated_at')],
+                'name'                     => ['title' => __('company.name')],
+                'company.title'            => ['title' => __('company.company.title')],
+                'company.site'             => ['title' => __('company.company.site')],
                 'company.single_page_link' => ['title' => __('company.company.single_page_link')],
 
             ])
@@ -206,24 +206,14 @@ class ReviewController extends Controller
         return response()->json($reviews);
     }
 
-    function main()
-    {
-        $reviews = Review::with('donor')->take(10)->get();
-
-        return view('admin.reviews.new', [
-            'reviews' => $reviews,
-        ]);
-    }
 
     function new()
     {
-
-        $reviews = Review::where('good', null)
-            ->paginate(15);
-        if(\request()->ajax()){
+        $reviews = Review::filter(request()->all())->where('good', null)->paginate(15);
+        if (\request()->ajax()) {
             return response()->json([
                 'currentPage' => $reviews->currentPage(),
-                'html' => ''.view('admin.reviews.partials._list',['reviews'=>$reviews]),
+                'html'        => '' . view('admin.reviews.partials._list', ['reviews' => $reviews]),
 
             ]);
         }
@@ -311,7 +301,7 @@ class ReviewController extends Controller
             ->parameters([
                 'order'      => [[5, "desc"]],
                 "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'language' => __('datatables'),
+                'language'   => __('datatables'),
             ]);
         $logs   = ParserLog::paginate();
         $donors = Donor::all();

@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int deleted_reviews_count
  * @property int trashed_reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
+ * @property int $favourite
  */
 class Company extends Model
 {

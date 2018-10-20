@@ -244,6 +244,9 @@ class CompanyController extends Controller
         if ($request->action2 === 'export' || $request->action === 'export') {
             return \Excel::download(new CompanyExport($request->ids), 'model.xls');
         }
+        if ($request->action === 'favourite') {
+            Company::whereIn('id',$request->ids)->update(['favourite'=>true]);
+        }
         return redirect()->back();
     }
 

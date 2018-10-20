@@ -18,12 +18,8 @@
                 <select name="action" class="form-control select-medium bulk-select" title="Выберете действие">
                     <option value="">Действия</option>
                     <option value="export">Экспортировать</option>
+                    <option value="favourite">В избранное</option>
                 </select>
-                <select
-                    class="select-medium company-select show-if-group"
-                    title="Выберите компанию"
-                    name="company_id"
-                ></select>
                 <button class="btn btn-primary" type="submit">Применить</button>
             </div>
         </form>
