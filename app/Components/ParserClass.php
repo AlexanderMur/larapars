@@ -20,6 +20,22 @@ class ParserClass
         $this->client = new Client();
 
     }
+
+    /**
+     * @param $link
+     * @param Donor $donor
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public function getPage($link, Donor $donor)
+    {
+        return $this->client->getAsync($link)
+            ->then(function (Response $response) use ($link, $donor) {
+                $html = $response->getBody()->getContents();
+                $html = str_replace($donor->replace_search, $donor->replace_to, $html);
+                return new Crawler($html, $link);
+            });
+    }
+
     /**
      * parse archive page
      *
@@ -31,11 +47,8 @@ class ParserClass
     public function getArchiveData($link, Donor $donor)
     {
 
-        return $this->client->getAsync($link)
-            ->then(function (Response $response) use ($link,$donor) {
-                $html    = $response->getBody()->getContents();
-                $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
-                $crawler = new Crawler($html, $link);
+        return $this->getPage($link, $donor)
+            ->then(function (Crawler $crawler) use ($link, $donor) {
                 return $this->getDataOnPage($crawler, $donor);
             });
     }
@@ -49,15 +62,20 @@ class ParserClass
      */
     public function parseCompany($link, Donor $donor)
     {
-        return $this->client->getAsync($link)
-            ->then(function (Response $response) use ($link, $donor) {
-                $html    = $response->getBody()->getContents();
-                $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
-                $crawler = new Crawler($html, $link);
+        return $this->getPage($link, $donor)
+            ->then(function (Crawler $crawler) use ($link, $donor) {
                 return $this->getDataOnSinglePage($crawler, $donor);
             });
     }
 
+    /**
+     * @param Crawler $crawler
+     * @param Donor $donor
+     * @return array
+     */
+    public function getPaginateLinks(Crawler $crawler, Donor $donor){
+        return $this->getUniqueLinks($crawler->query($donor->archive_pagination), $donor);
+    }
     public function getDataOnPage(Crawler $crawler, Donor $donor)
     {
         $items      = $crawler

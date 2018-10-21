@@ -86,21 +86,22 @@ class ParserService
     {
         $this->mb_start($url);
 
-        $this->parser_task->log('info', 'получаем ссылки на компании из архива...', $url);
-
+        $pending = $this->parser_task->log('info', 'парсинг ссылок из архива...',$url);
         $archiveData = $this->parserClass->getArchiveData($url, $donor)->wait();
 
-        $this->parser_task->log('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')', $url);
+        $pending->updateStatus('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')');
 
-        foreach ($archiveData['items'] as $page) {
-            $this->can_parse() && $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
-        }
 
         foreach ($archiveData['pagination'] as $page) {
             if (!in_array($page, $this->visitedPages) && $this->can_parse()) {
                 $this->visitedPages[] = $page;
                 $this->parseArchivePageByUrl($page, $donor);
             }
+        }
+        foreach ($archiveData['items'] as $page) {
+            if ($this->can_parse()) {
+                $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
+            };
         }
     }
 
@@ -135,7 +136,7 @@ class ParserService
      */
     public function parseDonors($donors = null)
     {
-        if($donors === null){
+        if ($donors === null) {
             $donors = Donor::all();
         }
         $this->mb_start($donors);
@@ -215,7 +216,7 @@ class ParserService
             }
         }
 
-        $this->new_reviews_count                   += $new_reviews->count();
+        $this->new_reviews_count                             += $new_reviews->count();
         $this->donor_counts[$donor->id]['new_reviews_count'] += $new_reviews->count();
         $this->parser_task->log('new_reviews',
             'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));

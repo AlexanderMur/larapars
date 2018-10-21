@@ -32,5 +32,10 @@ class ParserLog extends Model
         'details',
         'parsed_company_id',
     ];
-
+    public function updateStatus($status,$message){
+        return $this->update([
+            'type' => $status,
+            'message' => $message,
+        ]);
+    }
 }

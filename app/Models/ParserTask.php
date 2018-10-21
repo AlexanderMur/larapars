@@ -65,11 +65,13 @@ class ParserTask extends Model
             },
         ]);
     }
+
     /**
      * @param $type
      * @param $message
      * @param ParsedCompany|null $parsedCompany
      * @param null $details
+     * @return ParserLog
      */
     public function log($type, $message, $parsedCompany, $details = null)
     {
@@ -78,7 +80,7 @@ class ParserTask extends Model
         } else {
             $url = $parsedCompany;
         }
-        $this->logs()->create([
+        return $this->logs()->create([
             'type'  => $type,
             'message' => $message,
             'url'     => $url,

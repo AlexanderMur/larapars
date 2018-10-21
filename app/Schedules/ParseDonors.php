@@ -15,6 +15,7 @@ class ParseDonors
 {
     public function __invoke(ParserService $parserService)
     {
+        info('calling crom job...');
         $parserService->parseDonors();
     }
 }
