@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\ParserLog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\Company
@@ -33,6 +35,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int trashed_reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
  * @property int $favourite
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParserTask[] $tasks
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Company withStats()
  */
 class Company extends Model
 {
@@ -68,4 +72,45 @@ class Company extends Model
         )->latest('id');
     }
 
+    public function getTasks()
+    {
+        $donor_pages = $this->parsed_companies->pluck('donor_page');
+
+        return ParserTask
+            ::whereHas('logs', function (Builder $query) use ($donor_pages) {
+                $query->whereIn('url', $donor_pages)->limit(5);
+            })
+            ->with(['logs' => function (HasMany $query) use ($donor_pages) {
+                $query->whereIn('url', $donor_pages)
+                    ->orWhere('url', null)->limit(15)->latest('id');
+            }])
+            ->get();
+    }
+    public function getRelatedLogs()
+    {
+
+        return $this->getTasks()->flatMap->logs;
+    }
+
+    public function scopeWithStats(Builder $query)
+    {
+        $query->withCount([
+            'reviews',
+            'reviews as good_reviews_count'    => function (Builder $query) {
+                $query->where('good', '=', true);
+            },
+            'reviews as bad_reviews_count'     => function (Builder $query) {
+                $query->where('good', '!=', false);
+            },
+            'reviews as unrated_reviews_count' => function (Builder $query) {
+                $query->where('good', '=', null);
+            },
+            'reviews as deleted_reviews_count' => function ($query) {
+                $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+            },
+            'reviews as trashed_reviews_count' => function ($query) {
+                $query->withTrashed()->where('trashed_at', '!=', null);
+            },
+        ]);
+    }
 }

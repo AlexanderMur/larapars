@@ -133,24 +133,7 @@ class CompanyController extends Controller
         $company = Company::where('id', $id)
             ->with([
                 'parsed_companies' => function ($query) {
-                    $query->withCount([
-                        'reviews',
-                        'reviews as good_reviews_count'    => function ($query) {
-                            $query->where('good', '=', true);
-                        },
-                        'reviews as bad_reviews_count'     => function ($query) {
-                            $query->where('good', '!=', false);
-                        },
-                        'reviews as unrated_reviews_count' => function ($query) {
-                            $query->where('good', '=', null);
-                        },
-                        'reviews as deleted_reviews_count' => function ($query) {
-                            $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
-                        },
-                        'reviews as trashed_reviews_count' => function ($query) {
-                            $query->withTrashed()->where('trashed_at', '!=', null);
-                        },
-                    ]);
+                    $query->withStats();
                 },
                 'parsed_companies.donor',
                 'parsed_companies.history',
@@ -159,25 +142,10 @@ class CompanyController extends Controller
                 },
                 'reviews.donor',
             ])
-            ->withCount([
-                'reviews',
-                'reviews as good_reviews_count'    => function ($query) {
-                    $query->where('good', '=', true);
-                },
-                'reviews as bad_reviews_count'     => function ($query) {
-                    $query->where('good', '!=', false);
-                },
-                'reviews as unrated_reviews_count' => function ($query) {
-                    $query->where('good', '=', null);
-                },
-                'reviews as deleted_reviews_count' => function ($query) {
-                    $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
-                },
-                'reviews as trashed_reviews_count' => function ($query) {
-                    $query->withTrashed()->where('trashed_at', '!=', null);
-                },
-            ])
+            ->withStats()
             ->first();
+
+
         return view('admin.companies.show', [
             'company' => $company,
         ]);
@@ -206,7 +174,7 @@ class CompanyController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param Company $company
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Company $company)
@@ -234,7 +202,7 @@ class CompanyController extends Controller
 
     /**
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Maatwebsite\Excel\BinaryFileResponse
+     * @return mixed
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
@@ -261,7 +229,7 @@ class CompanyController extends Controller
         return response()->json([
             'table'        => view('admin.partials.logs',
                 [
-                    'logs' => $company->logs,
+                    'logs' => $company->getRelatedLogs(),
                 ]
             )->render(),
             'progress'     => $task->progress->progress ?? 0,

@@ -1,6 +1,8 @@
 import {$, axios} from './bootstrap'
 
 import 'select2'
+import toastr from 'toastr'
+//SB Admin 2
 import 'sb-admin-2/vendor/bootstrap/js/bootstrap.js'
 import 'sb-admin-2/vendor/datatables/js/dataTables.bootstrap.js'
 import 'sb-admin-2/vendor/metisMenu/metisMenu.min.js'
@@ -12,6 +14,8 @@ import Vue from 'vue'
 import Example from './components/Example.vue'
 import Reviews from './components/Reviews.vue'
 import route from 'ziggy'
+
+window.toastr = toastr
 
 Vue.component(Example.name, Example)
 Vue.component(Reviews.name, Reviews)
@@ -269,6 +273,5 @@ $(function ($) {
             })
         return false
     })
-
 
 })

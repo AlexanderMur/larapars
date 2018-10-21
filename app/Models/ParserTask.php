@@ -23,13 +23,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer $new_companies_count
  * @property integer $updated_companies_count
  * @property-read \App\Models\ProgressBar $progress
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask whereParsedCompanies($arr)
  */
 class ParserTask extends Model
 {
     public function logs(){
         return $this->hasMany(ParserLog::class);
     }
-
+    public function scopeWhereParsedCompanies(Builder $query,$arr){
+        return $query->whereIn('url',$arr);
+    }
     /**
      * @param \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask $query
      */
@@ -42,6 +45,7 @@ class ParserTask extends Model
             'progress_max' => $count,
         ]);
     }
+
     public function scopeWithStats(Builder $query){
         return $query->withCount([
             'logs as new_reviews_count' => function(Builder $query){

@@ -12,6 +12,7 @@ declare(ticks = 1);
 */
 
 
+info('awake');
 Route::get('/', function () {
     return view('welcome');
 });
@@ -64,18 +65,22 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('all-data', 'AdminController@allData')->name('admin.alldata');
     Route::get('export', 'AdminController@export')->name('admin.export');
 
-
+    //Settings route
     Route::get('settings', 'SettingController@index')->name('admin.settings');
-    Route::post('settings', 'SettingController@index')->name('admin.settings');
+    Route::post('settings/restoreDefaults', 'SettingController@restoreDefaults')->name('admin.settings.restoreDefaults');
+    Route::post('settings/updateParser', 'SettingController@updateParser')->name('admin.settings.updateParser');
 
 
+    Route::get('/clear-cache', function () {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        return redirect()->back();
+    });
+});
+Route::get('/schedule', function () {
+    $code = Artisan::call('schedule:run');
+    return response()->json($code);
 });
 Auth::routes();
-Route::get('/clear-cache', function () {
-    Artisan::call('cache:clear');
-    Artisan::call('config:clear');
-    Artisan::call('view:clear');
-    return redirect()->back();
-});
-
 Route::get('/home', 'HomeController@index')->name('home');

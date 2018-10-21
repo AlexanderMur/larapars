@@ -3,7 +3,7 @@
 
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 5.7.3 on 2018-10-20 12:34:18.
+ * Generated for Laravel 5.7.3 on 2018-10-21 11:58:24.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -15668,6 +15668,110 @@ namespace Watson\BootstrapForm\Facades {
  
 }
 
+namespace Brian2694\Toastr\Facades { 
+
+    /**
+     * 
+     *
+     */ 
+    class Toastr {
+        
+        /**
+         * 
+         *
+         * @static 
+         */ 
+        public static function message()
+        {
+            return \Brian2694\Toastr\Toastr::message();
+        }
+        
+        /**
+         * Add a flash message to session.
+         *
+         * @param string $type Must be one of info, success, warning, error.
+         * @param string $message The flash message content.
+         * @param string $title The flash message title.
+         * @param array $options The custom options.
+         * @return void 
+         * @static 
+         */ 
+        public static function add($type, $message, $title = null, $options = array())
+        {
+            \Brian2694\Toastr\Toastr::add($type, $message, $title, $options);
+        }
+        
+        /**
+         * Add an info flash message to session.
+         *
+         * @param string $message The flash message content.
+         * @param string $title The flash message title.
+         * @param array $options The custom options.
+         * @return void 
+         * @static 
+         */ 
+        public static function info($message, $title = null, $options = array())
+        {
+            \Brian2694\Toastr\Toastr::info($message, $title, $options);
+        }
+        
+        /**
+         * Add a success flash message to session.
+         *
+         * @param string $message The flash message content.
+         * @param string $title The flash message title.
+         * @param array $options The custom options.
+         * @return void 
+         * @static 
+         */ 
+        public static function success($message, $title = null, $options = array())
+        {
+            \Brian2694\Toastr\Toastr::success($message, $title, $options);
+        }
+        
+        /**
+         * Add an warning flash message to session.
+         *
+         * @param string $message The flash message content.
+         * @param string $title The flash message title.
+         * @param array $options The custom options.
+         * @return void 
+         * @static 
+         */ 
+        public static function warning($message, $title = null, $options = array())
+        {
+            \Brian2694\Toastr\Toastr::warning($message, $title, $options);
+        }
+        
+        /**
+         * Add an error flash message to session.
+         *
+         * @param string $message The flash message content.
+         * @param string $title The flash message title.
+         * @param array $options The custom options.
+         * @return void 
+         * @static 
+         */ 
+        public static function error($message, $title = null, $options = array())
+        {
+            \Brian2694\Toastr\Toastr::error($message, $title, $options);
+        }
+        
+        /**
+         * Clear messages
+         *
+         * @return void 
+         * @static 
+         */ 
+        public static function clear()
+        {
+            \Brian2694\Toastr\Toastr::clear();
+        }
+         
+    }
+ 
+}
+
 namespace Collective\Html { 
 
     /**
@@ -19165,6 +19269,8 @@ namespace  {
     class BootForm extends \Watson\BootstrapForm\Facades\BootstrapForm {}
 
     class Debugbar extends \Barryvdh\Debugbar\Facade {}
+
+    class Toastr extends \Brian2694\Toastr\Facades\Toastr {}
 
     class Form extends \Collective\Html\FormFacade {}
 

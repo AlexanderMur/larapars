@@ -273,7 +273,7 @@
 <!-- /#wrapper -->
 
 <script type="text/javascript" src="{{asset('admin/admin.js')}}"></script>
-
+{!! Toastr::message() !!}
 @stack('scripts')
 </body>
 

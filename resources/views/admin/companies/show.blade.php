@@ -1,5 +1,9 @@
 <?php
-/** @var \App\Models\Company $company */
+/**
+ * @var \App\Models\Company $company
+ * @var \App\Models\ParserTask[]|\Illuminate\Support\Collection $tasks
+ *
+ */
 ?>
 
 @extends('admin.layout')
@@ -49,7 +53,7 @@
                     >
                         <div class="panel-body parser__logs__inner" data-company_id="{{$company->id}}">
                             @include('admin.partials.logs',[
-                                'logs' => $company->logs,
+                                'logs' => $company->getRelatedLogs(),
                             ])
                         </div>
                     </div>

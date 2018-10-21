@@ -20,6 +20,10 @@ function external_link($link){
     return $link;
 }
 
+function setting($key,$default = null){
+    return \App\Services\SettingService::get($key,$default);
+}
+
 function filter_text($html){
     $html = nl2p($html);
     $html = preg_replace_callback('/<blockquote>/',function ($match){

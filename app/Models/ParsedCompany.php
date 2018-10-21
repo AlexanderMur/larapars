@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\CompanyHistory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
@@ -35,6 +36,7 @@ use Illuminate\Support\Collection;
  * @property int unrated_reviews_count
  * @property int deleted_reviews_count
  * @property int trashed_reviews_count
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParsedCompany withStats()
  */
 class ParsedCompany extends Model
 {
@@ -90,6 +92,26 @@ class ParsedCompany extends Model
             ->where('m2.id', null)
             ->get()->keyBy('field')->toArray();
     }
+    public function scopeWithStats(Builder $query){
+        $query->withCount([
+            'reviews',
+            'reviews as good_reviews_count'    => function (Builder $query) {
+                $query->where('good', '=', true);
+            },
+            'reviews as bad_reviews_count'     => function (Builder $query) {
+                $query->where('good', '!=', false);
+            },
+            'reviews as unrated_reviews_count' => function (Builder $query) {
+                $query->where('good', '=', null);
+            },
+            'reviews as deleted_reviews_count' => function (Builder $query) {
+                $query->withTrashed()->where('deleted_at', '!=', null)->where('trashed_at', '=', null);
+            },
+            'reviews as trashed_reviews_count' => function (Builder $query) {
+                $query->withTrashed()->where('trashed_at', '!=', null);
+            },
+        ]);
+    }
     public function getActualAttrs(){
 
         return array_merge(
@@ -102,7 +124,6 @@ class ParsedCompany extends Model
 
         return $this->attributes['phone'] ? explode(', ', $this->attributes['phone']) : [];
     }
-
     /**
      * @param Collection|Review[] $reviews
      * @return bool

@@ -20,7 +20,6 @@ class ParserClass
         $this->client = new Client();
 
     }
-
     /**
      * parse archive page
      *
@@ -29,11 +28,11 @@ class ParserClass
      * @param int $how_many
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getArchiveData($link, Donor $donor, $how_many = 2)
+    public function getArchiveData($link, Donor $donor)
     {
 
         return $this->client->getAsync($link)
-            ->then(function (Response $response) use ($link, $how_many, $donor) {
+            ->then(function (Response $response) use ($link,$donor) {
                 $html    = $response->getBody()->getContents();
                 $html    = str_replace($donor->replace_search, $donor->replace_to, $html);
                 $crawler = new Crawler($html, $link);
@@ -63,9 +62,6 @@ class ParserClass
     {
         $items      = $crawler
             ->query($donor->loop_item)
-            ->filter(function (Crawler $crawler, $i) {
-                return $i < 2;
-            })
             ->map(function (Crawler $crawler, $i) use ($donor) {
                 return [
                     'title'      => $crawler->query($donor->loop_title)->getText(),
@@ -162,11 +158,6 @@ class ParserClass
 
         $html = str_replace($donor->reviews_ignore_text, '', $html);
         return $html;
-    }
-
-    public function getDonorCommentId(Crawler $crawler, Donor $donor)
-    {
-
     }
 
 }

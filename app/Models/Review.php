@@ -44,7 +44,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review whereLike($column, $value, $boolean = 'and')
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withTrashed()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withoutTrashed()
- *
  * @see ReviewFilter
  */
 class Review extends Model

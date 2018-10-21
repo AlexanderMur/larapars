@@ -5,6 +5,7 @@ use App\Models\Company;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\Review;
+use App\Services\SettingService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -22,44 +23,10 @@ class CompaniesTableSeeder extends Seeder
      */
     public function run()
     {
+        $this->createDefaultSettings();
+
         $this->donors = $this->createDonors();
 
-//        $this->createCompanyHistory();
-//        /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies */
-//        $companies = factory(Company::class, 6)->create();
-
-//        $companies
-//            ->each(function (Company $company) {
-//
-//                /** @var Collection|Review[] $reviews */
-//                $reviews = factory(Review::class, random_int(0, 10))->states('not rated')->make();
-//
-//                $this->associateReviewsWithCompany($reviews, $company);
-//            })
-//            ->each(function (Company $company) {
-//
-//                /** @var Collection|Review[] $reviews */
-//
-//                $reviews = factory(Review::class, random_int(0, 10))->make();
-//                $this->associateReviewsWithCompany($reviews, $company);
-//
-//                $reviews->count() && $reviews->random()->trash();
-//                $reviews->count() && $reviews->random()->delete();
-//            });
-
-//        $this->makeReviewsForCompanies(
-//            $this->saveMany(
-//                $this->makeParsedCompanies('company2', 11)
-//            )
-//        );
-        /**
-         * @var Company $company
-         */
-//        $company = factory(Company::class, 'company1')->create();
-//
-//        $parsed_companies = $this->makeParsedCompanies('company1', 11);
-//
-//        $this->saveMany($parsed_companies);
     }
 
     /**
@@ -160,13 +127,16 @@ class CompaniesTableSeeder extends Seeder
             CompanyHistory::create($item);
         }
     }
-
+    public function createDefaultSettings(){
+        SettingService::set('time',4);
+    }
     public function createDonors()
     {
         $donors = collect([
             [
-                'link'  => 'https://avtosalon-otzyv.ru/',
-                'title' => 'Автосалон отзыв',
+                'link'         => 'https://avtosalon-otzyv.ru/',
+                'title'        => 'Автосалон отзыв',
+                'mass_parsing' => true,
 
                 'loop_address'        => '.entry-summary p:last-child',
                 'loop_item'           => 'main article',
@@ -192,6 +162,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://otziv-avto.ru/',
                 'title'               => 'Отзыв авто',
+                'mass_parsing'        => true,
                 'loop_address'        => '.su-post-excerpt',
                 'loop_item'           => '.su-post',
                 'loop_link'           => 'h2 a',
@@ -215,6 +186,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://rater.club/',
                 'title'               => 'Rater Club',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.uk-article',
                 'loop_link'           => 'h1 a',
@@ -238,6 +210,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://mail-auto.ru/',
                 'title'               => 'Mail Auto',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => 'tbody tr',
                 'loop_link'           => 'a',
@@ -261,6 +234,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://xn----7sbgzkqfjydk.xn--p1ai/avtosalony',
                 'title'               => 'авто-путник',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.listing-summary',
                 'loop_link'           => 'h3 a',
@@ -284,6 +258,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://mnenieavto.ru',
                 'title'               => 'Мнение авто',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.listing-summary',
                 'loop_link'           => 'h3 a',
@@ -307,6 +282,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://auto-review.info/avtosalon',
                 'title'               => 'Auto review',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.itemContainer',
                 'loop_link'           => '.catItemHeader a',
@@ -331,6 +307,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://avtosalon-review.ru/',
                 'title'               => 'avtosalon-review',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h1 a',
@@ -355,6 +332,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://kritika.su/otzyvy/auto/avtosalony.html',
                 'title'               => 'kritika.su',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.listing-summary',
                 'loop_link'           => 'h3 a',
@@ -379,6 +357,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://rtdm-auto.ru/',
                 'title'               => 'rtdm-auto',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h2 a',
@@ -403,6 +382,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://trueslns.ru/?limitstart=0',
                 'title'               => 'trueslns',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.listing-summary',
                 'loop_link'           => 'h3 a',
@@ -427,6 +407,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://acauto.su',
                 'title'               => 'acauto.su',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h3 a',
@@ -451,6 +432,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'https://xn----dtbas7abcdze4h.xn--p1ai/katalog-avtosalonov/',
                 'title'               => 'топ-отзывов',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.su-post',
                 'loop_link'           => 'h2 a',
@@ -475,6 +457,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://rusavtodiler.ru',
                 'title'               => 'rusavtodiler',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h1 a',
@@ -499,6 +482,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://bp-auto.ru/news/',
                 'title'               => 'bp-auto',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h5 a',
@@ -523,6 +507,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://dealer-auto.ru/avtosalony/',
                 'title'               => 'dealer-auto',
+                'mass_parsing'        => true,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h2 a',
@@ -547,6 +532,7 @@ class CompaniesTableSeeder extends Seeder
             [
                 'link'                => 'http://bookrates.ru/',
                 'title'               => 'Book rates',
+                'mass_parsing'        => false,
                 'loop_address'        => '',
                 'loop_item'           => '.post',
                 'loop_link'           => 'h2 a',
