@@ -5,6 +5,7 @@ namespace App\DataTables;
 
 
 use App\Models\ParsedCompany;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 
 class ParsedCompaniesDataTable extends DataTable
@@ -25,6 +26,23 @@ class ParsedCompaniesDataTable extends DataTable
             ->eloquent(
                 $this->query()
             )
+            ->filter(function (Builder $query) {
+
+                $query->where(function (Builder $query) {
+                    $phones = request('phone') ? explode(' ', request('phone')) : [];
+
+                    foreach ($phones as $phone) {
+                        // language=MySQL prefix=SELECT/**/*/**/from/**/parsed_companies/**/WHERE/**/
+                        $query->orWhereRaw("replace(replace(replace(replace(replace(phone,' ',''),'(',''),')',''),'+',''),'-','') LIKE '%$phone%'");
+                    }
+                    $sites = request('site') ? explode(' ', request('site')) : [];
+
+                    foreach ($sites as $site) {
+                        // language=MySQL prefix=SELECT/**/*/**/from/**/parsed_companies/**/WHERE/**/
+                        $query->orWhereRaw("site LIKE '%$site%'");
+                    }
+                });
+            }, true)
             ->editColumn('id', function (ParsedCompany $parsedCompany) {
                 return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
             })
@@ -48,7 +66,7 @@ class ParsedCompaniesDataTable extends DataTable
         return $this->builder
             ->columns([
                 'id'            => ['orderable' => false, 'title' => ''],
-                'action'            => ['orderable' => false, 'title' => ''],
+                'action'        => ['orderable' => false, 'title' => ''],
                 'title'         => ['title' => __('company.title')],
                 'phone'         => ['title' => __('company.phone')],
                 'donor_page'    => ['title' => __('company.donor_page')],
@@ -59,8 +77,14 @@ class ParsedCompaniesDataTable extends DataTable
                 'created_at'    => ['title' => __('company.created_at')],
                 'updated_at'    => ['title' => __('company.updated_at')],
             ])
+            ->ajax([
+                'data' => 'function (d) {
+    d.site = $(\'input[name=site]\').val()
+    d.phone = $(\'input[name=phone]\').val()
+}',
+            ])
             ->parameters([
-                'order'      => [[8, "desc"]],
+                'order' => [[8, "desc"]],
             ]);
     }
 }

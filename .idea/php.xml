@@ -102,6 +102,7 @@
       <path value="$PROJECT_DIR$/vendor/tightenco/ziggy" />
       <path value="$PROJECT_DIR$/vendor/watson/bootstrap-form" />
       <path value="$PROJECT_DIR$/vendor/tucker-eric/eloquentfilter" />
+      <path value="$PROJECT_DIR$/vendor/brian2694/laravel-toastr" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />

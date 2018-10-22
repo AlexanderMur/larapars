@@ -11,9 +11,16 @@ namespace App\DataTables;
 
 use App\Models\Review;
 use Illuminate\Support\HtmlString;
+use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class ReviewsDataTable extends DataTable
 {
+    public function __construct(DataTables $dataTables, Builder $builder)
+    {
+        parent::__construct($dataTables, $builder);
+    }
+
     public function query()
     {
         return Review::with(['parsed_company.company', 'donor'])
@@ -25,7 +32,6 @@ class ReviewsDataTable extends DataTable
 
     public function ajax()
     {
-        xdebug_break();
         return $this->dataTables
             ->eloquent(
                 $this->query()
@@ -75,6 +81,7 @@ class ReviewsDataTable extends DataTable
 
                 return new HtmlString(ob_get_clean());
             })
+            ->orderColumn('title','id $1')
             ->toJson();
     }
 
@@ -91,6 +98,7 @@ class ReviewsDataTable extends DataTable
                 'company.title' => ['title' => __('company.company.title')],
                 'donor.title'   => ['title' => __('company.donor.title')],
             ])
+            
             ->parameters([
                 'order' => [[5, "desc"]],
             ]);

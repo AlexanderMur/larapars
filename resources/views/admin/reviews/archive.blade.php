@@ -12,6 +12,8 @@
     <form action="{{route('reviews.updateMany')}}" method="post">
         @method('PUT')
         @csrf
+
+
         {{$html->table()}}
 
         <div>

@@ -20,7 +20,16 @@
             <div class="mb-2">
                 <button class="btn btn-primary" name="action2" value="export">Экспортировать все в Excel</button>
             </div>
-
+            <div class="form-inline">
+                <div class="form-group">
+                    <label for="site">Сайт</label>
+                    <input type="text" class="form-control" name="site" id="site">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="text" class="form-control" name="phone" id="phone">
+                </div>
+            </div>
             {{$html->table(['class' => 'table table-bordered'])}}
 
             <div class="form-group">
