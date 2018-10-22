@@ -2,86 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\ParsedCompaniesDataTable;
 use App\Exports\Export;
 use App\Http\Requests\Request;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\ParserLog;
-use Illuminate\Support\HtmlString;
-use Yajra\DataTables\Html\Builder;
 
 class ParsedCompanyController extends Controller
 {
-    /**
-     * @var \DataTables
-     */
-    /**
-     * @var \DataTables|Builder
-     */
-    public $builder;
+
 
     /**
-     * Display a listing of the resource.
-     *
-     * @param Builder $builder
+     * @param ParsedCompaniesDataTable $dataTable
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
-    public function __construct(Builder $builder)
-    {
-
-        $this->builder = $builder;
-    }
-
-    public function index()
+    public function index(ParsedCompaniesDataTable $dataTable)
     {
         if (request()->ajax()) {
-            return \DataTables
-                ::eloquent(
-                    ParsedCompany
-                        ::select([
-                            'parsed_companies.*',
-                        ])
-                        ->withCount('reviews')
-                        ->where('company_id', null)
-                )
-                ->editColumn('id', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
-                })
-                ->editColumn('site', function (ParsedCompany $parsedCompany) {
-
-                    return new HtmlString("<a href='" . external_link($parsedCompany->site) . "' target='_blank'>" . $parsedCompany->site . "</a>");
-                })
-                ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . $parsedCompany->donor_page . "' target='_blank'>" . str_limit($parsedCompany->donor_page, 50) . "</a>");
-                })
-                ->editColumn('reviews_count', function (ParsedCompany $parsedCompany) {
-                    return new HtmlString("<a href='" . route('companies.create', ['ids' => $parsedCompany->id]) . "' target='_blank'>" . $parsedCompany->reviews_count . "</a>");
-                })
-                ->toJson();
+            return $dataTable->ajax();
         }
-        $html = $this->builder
-            ->columns([
-                'id'            => ['orderable' => false, 'title' => ''],
-                'title'         => ['title' => __('company.title')],
-                'phone'         => ['title' => __('company.phone')],
-                'donor_page'    => ['title' => __('company.donor_page')],
-                'site'          => ['title' => __('company.site')],
-                'city'          => ['title' => __('company.city')],
-                'address'       => ['title' => __('company.address')],
-                'reviews_count' => ['title' => __('company.reviews_count'), 'searchable' => false],
-                'created_at'    => ['title' => __('company.created_at')],
-                'updated_at'    => ['title' => __('company.updated_at')],
-            ])
-            ->parameters([
-                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'order'      => [[8, "desc"]],
-                'language'   => __('datatables'),
-            ]);
-        $logs   = ParserLog::paginate();
-        $donors = Donor::all();
+
         return view('admin.parsed_companies.index', [
-            'html'   => $html,
-            'logs'   => $logs,
-            'donors' => $donors,
+            'html'   => $dataTable->html(),
+            'logs'   => ParserLog::paginate(),
+            'donors' => Donor::all(),
         ]);
     }
 
@@ -144,9 +89,8 @@ class ParsedCompanyController extends Controller
     {
 
 
-
-        if($request->action2 === 'export' || $request->action === 'export'){
-           return \Excel::download(new Export($request->ids), 'model.xls');
+        if ($request->action2 === 'export' || $request->action === 'export') {
+            return \Excel::download(new Export($request->ids), 'model.xls');
         }
         if ($request->action == 'group') {
             $ids        = $request->get('ids');

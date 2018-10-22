@@ -2,72 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\CompanyDataTable;
 use App\Exports\CompanyExport;
 use App\Models\Company;
 use App\Models\ParsedCompany;
 use App\Models\ParserTask;
-use Illuminate\Database\Eloquent\Builder as Query;
 use Illuminate\Http\Request;
-use Illuminate\Support\HtmlString;
-use Yajra\DataTables\Html\Builder;
 
 class CompanyController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param Builder $builder
+     * @param CompanyDataTable $dataTable
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Builder $builder)
+    public function index(CompanyDataTable $dataTable)
     {
         if (request()->ajax()) {
-            return \DataTables
-                ::eloquent(
-                    Company
-                        ::select([
-                            'companies.*',
-                        ])
-                        ->withCount([
-                            'reviews',
-                            'parsed_companies as donors_count',
-                            'reviews as good_reviews_count' => function (Query $query) {
-                                $query->where('good', 1);
-                            },
-                            'reviews as bad_reviews_count'  => function (Query $query) {
-                                $query->where('good', 0);
-                            },
-                        ])
-                        ->groupBy('id')
-                )
-                ->editColumn('id', function (Company $company) {
-                    return new HtmlString("<input type='checkbox' value='$company->id' name='ids[]'/>");
-                })
-                ->addColumn('action', function (Company $company) {
-                    return view('admin.companies.actions', ['company' => $company,]);
-                })
-                ->toJson();
+            return $dataTable->ajax();
         }
-        $html = $builder
-            ->columns([
-                'id'                 => ['orderable' => false, 'title' => ''],
-                'action'             => ['searchable' => false, 'orderable' => false],
-                'title'              => ['title' => __('company.title')],
-                'phone'              => ['title' => __('company.phone')],
-                'site'               => ['title' => __('company.site')],
-                'city'               => ['title' => __('company.city')],
-                'address'            => ['title' => __('company.address')],
-                'donors_count'       => ['title' => __('company.donors_count'), 'searchable' => false],
-                'good_reviews_count' => ['title' => __('company.good_reviews_count'), 'searchable' => false],
-                'bad_reviews_count'  => ['title' => __('company.bad_reviews_count'), 'searchable' => false],
-                'reviews_count'      => ['title' => __('company.reviews_count'), 'searchable' => false],
-                'created_at'         => ['title' => __('company.created_at')],
-                'updated_at'         => ['title' => __('company.updated_at')],
-            ])
-            ->parameters([
-                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'language'   => __('datatables'),
-            ]);
+        $html = $dataTable->html();
 
         return view('admin.companies.index', ['html' => $html]);
     }

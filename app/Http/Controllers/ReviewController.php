@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\ReviewsDataTable;
 use App\Models\Donor;
 use App\Models\Group;
 use App\Models\Review;
@@ -9,7 +10,6 @@ use App\ParserLog;
 use App\Services\ParserService;
 use App\Services\ReviewService;
 use Illuminate\Http\Request;
-use Illuminate\Support\HtmlString;
 use Yajra\DataTables\Html\Builder;
 
 class ReviewController extends Controller
@@ -36,41 +36,6 @@ class ReviewController extends Controller
         $this->parserService = $parserService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param Request $request
-     * @param Builder $builder
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(Request $request, Builder $builder)
-    {
-        if (request()->ajax()) {
-            return \DataTables
-                ::eloquent(
-                    Review::with(['company'])->select('reviews.*')
-                )
-                ->toJson();
-        }
-
-        $html = $builder
-            ->columns([
-                'id',
-                'title'                    => ['title' => __('company.title')],
-                'text'                     => ['title' => __('company.text')],
-                'good'                     => ['title' => __('company.good')],
-                'created_at'               => ['title' => __('company.created_at')],
-                'updated_at'               => ['title' => __('company.updated_at')],
-                'name'                     => ['title' => __('company.name')],
-                'company.title'            => ['title' => __('company.company.title')],
-                'company.site'             => ['title' => __('company.company.site')],
-                'company.single_page_link' => ['title' => __('company.company.single_page_link')],
-
-            ])
-            ->addCheckbox([], true);
-
-        return view('users.index', compact('html'));
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -214,105 +179,33 @@ class ReviewController extends Controller
             return response()->json([
                 'currentPage' => $reviews->currentPage(),
                 'html'        => '' . view('admin.reviews.partials._list', ['reviews' => $reviews]),
-
             ]);
         }
-
-        $logs   = ParserLog::paginate();
-        $donors = Donor::all();
-        return view('admin.reviews.new', array_merge(
+        return view('admin.reviews.new',
             $this->parserService->getStatistics(),
             [
-                'logs'    => $logs,
-                'donors'  => $donors,
+                'logs'    => ParserLog::paginate(),
+                'donors'  => Donor::all(),
                 'reviews' => $reviews,
             ]
-        ));
+        );
     }
 
-    function archive()
+    function archive(ReviewsDataTable $dataTable)
     {
 
         if (request()->ajax()) {
-            return \DataTables
-                ::eloquent(
-                    Review::with(['company', 'donor'])
-                        ->select('reviews.*')
-                        ->where('good', '!=', null)
-                )
-                ->editColumn('id', function (Review $review) {
-                    return new HtmlString("<input type='checkbox' value='$review->id' name='reviews[]'/>");
-                })
-                ->editColumn('company.title', function (Review $review) {
-                    if ($review->company_id) {
-                        ob_start();
-                        ?>
-                        <b><a href="<?php echo route('companies.show', $review->company_id) ?>"><?php echo $review->company->title ?></a></b>
-                        <br>
-                        <a href="<?php echo $review->donor_link ?>" target="_blank">Перейти к странице донора</a>
-                        <?php
-                        return new HtmlString(ob_get_clean());
-                    }
-                })
-                ->editColumn('text', function (Review $review) {
-                    ob_start();
-                    echo $review->text
-                    ?>
-                    <div class="actions">
-                        <span class="model-edit"><a href="<?php echo route('reviews.edit', $review) ?>">Редактировать</a></span>
-                        |
-                        <span class="model-trash"><a
-                                class="text-danger"
-                                href="<?php echo route('reviews.destroy', $review) ?>"
-                            >В корзину</a></span>
-                    </div>
-                    <?php
-                    return new HtmlString(ob_get_clean());
-                })
-                ->editColumn('good', function (Review $review) {
-                    ob_start();
-                    if ($review->good === true) {
-                        ?>
-                        <i class="fa fa-fw fa-2x fa-thumbs-up text-success"></i>
-                        <?php
-                    }
-                    if ($review->good === false) {
-                        ?>
-                        <i class="fa fa-fw fa-2x fa-thumbs-down text-danger"></i>
-                        <?php
-                    }
-
-                    return new HtmlString(ob_get_clean());
-                })
-                ->toJson();
+            return $dataTable->ajax();
         }
 
-        $html   = $this->builder
-            ->columns([
-                'id'            => ['orderable' => false, 'title' => ''],
-                'name'          => ['title' => __('company.name')],
-                'title'         => ['title' => __('company.title')],
-                'text'          => ['title' => __('company.text')],
-                'good'          => ['width' => '1%', 'title' => __('company.good')],
-                'rated_at'      => ['title' => __('company.rated_at')],
-                'company.title' => ['title' => __('company.company.title')],
-                'donor.title'   => ['title' => __('company.donor.title')],
-            ])
-            ->parameters([
-                'order'      => [[5, "desc"]],
-                "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
-                'language'   => __('datatables'),
-            ]);
-        $logs   = ParserLog::paginate();
-        $donors = Donor::all();
-        return view('admin.reviews.archive', array_merge(
+        return view('admin.reviews.archive',
             $this->parserService->getStatistics(),
             [
-                'html'   => $html,
-                'logs'   => $logs,
-                'donors' => $donors,
+                'html'   => $dataTable->html(),
+                'logs'   => ParserLog::paginate(),
+                'donors' => Donor::all(),
             ]
-        ));
+        );
     }
 
     function updateMany()
