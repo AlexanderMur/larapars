@@ -79,12 +79,12 @@ $(function ($) {
         $(this).tab('show')
     })
     $(document)
-        .on('click', '.model-edit', function (/**Event*/e) {
-            getEditPopup(this.href)
+        .on('click', '.model-edit', function (e) {
+            getEditPopup(e.target.href)
             return false
         })
         .on('click', '.model-trash', function (e) {
-            deleteReview(this.href)
+            deleteReview(e.target.href)
                 .then(reloadDataTable)
                 .catch(data => {
                     alert(data)

@@ -10,7 +10,7 @@ return [
     'address'               => 'Адрес',
     'city'                  => 'Город',
     'donors_count'          => 'Кол-во доноров',
-    'reviews_count'         => 'Отзывы всего',
+    'reviews_count'         => 'Отзывы',
     'bad_reviews_count'     => 'Отзывы -',
     'good_reviews_count'    => 'Отзывы +',
     'deleted_reviews_count' => 'Отзывы удалены',

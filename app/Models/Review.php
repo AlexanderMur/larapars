@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Donor|null $donor
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Group|null $group
- * @property-read \App\Models\ParsedCompany|null $parsedCompany
+ * @property-read \App\Models\ParsedCompany|null $parsed_company
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review filter($input = array(), $filter = null)
  * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Review onlyTrashed()
@@ -75,9 +75,9 @@ class Review extends Model
      * @return \App\Models\Company|null
      */
     public function getCompanyAttribute(){
-        return $this->parsedCompany->company;
+        return $this->parsed_company->company;
     }
-    public function parsedCompany()
+    public function parsed_company()
     {
         return $this->belongsTo(ParsedCompany::class);
     }

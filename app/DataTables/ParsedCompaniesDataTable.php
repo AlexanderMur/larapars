@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jople
- * Date: 22.10.2018
- * Time: 13:39
- */
+
 
 namespace App\DataTables;
 
@@ -33,8 +28,10 @@ class ParsedCompaniesDataTable extends DataTable
             ->editColumn('id', function (ParsedCompany $parsedCompany) {
                 return new HtmlString("<input type='checkbox' value='$parsedCompany->id' name='ids[]'/>");
             })
+            ->addColumn('action', function (ParsedCompany $parsedCompany) {
+                return new HtmlString("<a href='" . route('parsed_companies.bulk') . "'>Найти дубли</a>");
+            })
             ->editColumn('site', function (ParsedCompany $parsedCompany) {
-
                 return new HtmlString("<a href='" . external_link($parsedCompany->site) . "' target='_blank'>" . $parsedCompany->site . "</a>");
             })
             ->editColumn('donor_page', function (ParsedCompany $parsedCompany) {
@@ -51,6 +48,7 @@ class ParsedCompaniesDataTable extends DataTable
         return $this->builder
             ->columns([
                 'id'            => ['orderable' => false, 'title' => ''],
+                'action'            => ['orderable' => false, 'title' => ''],
                 'title'         => ['title' => __('company.title')],
                 'phone'         => ['title' => __('company.phone')],
                 'donor_page'    => ['title' => __('company.donor_page')],

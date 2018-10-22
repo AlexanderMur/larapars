@@ -16,13 +16,16 @@ class ReviewsDataTable extends DataTable
 {
     public function query()
     {
-        return Review::with(['company', 'donor'])
+        return Review::with(['parsed_company.company', 'donor'])
             ->select('reviews.*')
+            ->leftJoin('parsed_companies','parsed_companies.id','=','reviews.parsed_company_id')
+            ->leftJoin('companies as company','company.id','=','parsed_companies.company_id')
             ->where('good', '!=', null);
     }
 
     public function ajax()
     {
+        xdebug_break();
         return $this->dataTables
             ->eloquent(
                 $this->query()
