@@ -1,4 +1,7 @@
 <?php
+
+use libphonenumber\PhoneNumberUtil;
+
 function nl2p($string)
 {
     $paragraphs = '';
@@ -72,4 +75,16 @@ function get_links_from_text($text){
         return $out[0];
     }
     return [];
+}
+function find_numbers($text){
+    return PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
+}
+function get_phones_from_text($text)
+{
+    $numbers    = PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
+    $numbersArr = [];
+    foreach ($numbers as $number) {
+        $numbersArr[] = $number->rawString();
+    }
+    return implode(', ', $numbersArr);
 }

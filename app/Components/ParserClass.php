@@ -7,7 +7,6 @@ namespace App\Components;
 use App\Models\Donor;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use libphonenumber\PhoneNumberUtil;
 
 class ParserClass
 {
@@ -109,19 +108,10 @@ class ParserClass
         return $pagination;
     }
 
-    public function getPhonesFromText($text)
-    {
-        $numbers    = PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
-        $numbersArr = [];
-        foreach ($numbers as $number) {
-            $numbersArr[] = $number->rawString();
-        }
-        return implode(', ', $numbersArr);
-    }
 
     public function getCompanyPhone(Crawler $crawler, Donor $donor)
     {
-        return $this->getPhonesFromText(
+        return get_phones_from_text(
             $crawler->query($donor->single_tel)->getText()
         );
     }

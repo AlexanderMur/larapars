@@ -12,7 +12,7 @@
         <h1 class="page-header">Модерация</h1>
         @include('admin.partials.messages')
         @include('admin.partials.parser.controls')
-        <form action="{{route('parsed_companies.bulk')}}" method="POST">
+        <form action="{{route('parsed_companies.bulk')}}" method="POST" class="table__form">
             @method('PUT')
             @csrf
 
@@ -20,14 +20,21 @@
             <div class="mb-2">
                 <button class="btn btn-primary" name="action2" value="export">Экспортировать все в Excel</button>
             </div>
-            <div class="form-inline">
+            <div class="form-inline table__controls">
+                <div class="form-group">
+                    <label for="title">Название</label>
+                    <input type="text" class="form-control" name="title" id="title" value="{{request('title')}}">
+                </div>
                 <div class="form-group">
                     <label for="site">Сайт</label>
-                    <input type="text" class="form-control" name="site" id="site">
+                    <input type="text" class="form-control" name="site" id="site" value="{{request('site')}}">
                 </div>
                 <div class="form-group">
                     <label for="phone">Телефон</label>
-                    <input type="text" class="form-control" name="phone" id="phone">
+                    <input type="text" class="form-control" name="phone" id="phone" value="{{request('phone')}}">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-default table__search" value="Поиск">
                 </div>
             </div>
             {{$html->table(['class' => 'table table-bordered'])}}

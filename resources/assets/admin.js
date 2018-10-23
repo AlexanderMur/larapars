@@ -7,13 +7,13 @@ import 'sb-admin-2/vendor/bootstrap/js/bootstrap.js'
 import 'sb-admin-2/vendor/datatables/js/dataTables.bootstrap.js'
 import 'sb-admin-2/vendor/metisMenu/metisMenu.min.js'
 import 'sb-admin-2/dist/js/sb-admin-2.js'
-
+import 'mark.js/dist/jquery.mark.js'
 
 import Vue from 'vue'
 
 import Example from './components/Example.vue'
 import Reviews from './components/Reviews.vue'
-import route from 'ziggy'
+import route from 'ziggy' //нужно постоянно устанавливать
 
 window.toastr = toastr
 
@@ -274,4 +274,9 @@ $(function ($) {
         return false
     })
 
+    // language=CSS
+    $(document).on('click','.table__search',function(e){
+        $(this).parents('form').find('.dataTable').DataTable().ajax.reload()
+        return false
+    })
 })
