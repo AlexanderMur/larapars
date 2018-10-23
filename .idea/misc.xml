@@ -3,4 +3,9 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="JSX" />
   </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/public/admin/admin.css" />
+    <file url="file://$PROJECT_DIR$/public/admin/admin.js" />
+    <file url="file://$PROJECT_DIR$/public/admin/admin.js" />
+  </component>
 </project>

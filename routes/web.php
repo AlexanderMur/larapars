@@ -76,6 +76,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Artisan::call('cache:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
+        Artisan::call('cache:cache');
+        Artisan::call('config:cache');
+        Artisan::call('view:cache');
         return redirect()->back();
     });
 });

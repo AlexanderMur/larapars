@@ -215,7 +215,7 @@ $(function ($) {
         $('.statistics').html(json.statistics)
         $('.parser__start').parents('form').toggleClass('parser--is-parsing', json.is_parsing)
 
-        if(json.progress_max){
+        if (json.progress_max) {
             $('.parser__progress')
                 .css({'width': (json.progress / json.progress_max) * 100 + '%'})
                 .text(json.progress + ' из ' + json.progress_max)
@@ -243,7 +243,10 @@ $(function ($) {
         $('.parser__logs__collapse').collapse('show')
         canUpdateLogs = true
         $.post(route('pars.test'), $(this).parents('form').serialize())
-            .catch(() => alert('Ошибка'))
+            .catch((e) => {
+                console.log(e)
+                alert(JSON.stringify(e))
+            })
             .then(() => {
                 $(this).parents('form').removeClass('parser--is-parsing')
                 canUpdateLogs = false
@@ -254,7 +257,10 @@ $(function ($) {
     $('.parser__stop').click(function () {
         $(this).button('loading')
         $.post(route('pars.test'), 'stop=1')
-            .catch(() => alert('Ошибка'))
+            .catch((e) => {
+                console.log(e)
+                alert(JSON.stringify(e))
+            })
             .then(() => {
                 canUpdateLogs = false
                 updateLogs()
@@ -274,9 +280,15 @@ $(function ($) {
         return false
     })
 
+    let lastSearchTimeout = 0
     // language=CSS
-    $(document).on('click','.table__search',function(e){
-        $(this).parents('form').find('.dataTable').DataTable().ajax.reload()
+
+
+    $(document).on('input', '.table__controls input', function (e) {
+        clearTimeout(lastSearchTimeout)
+        lastSearchTimeout = setTimeout(() => {
+            $(this).parents('form').find('.dataTable').DataTable().ajax.reload()
+        }, 300)
         return false
     })
 })

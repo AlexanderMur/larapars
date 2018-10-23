@@ -40,7 +40,7 @@ class ParsedCompaniesDataTable extends DataTable
     public function normalizeTitle($title)
     {
         $title           = mb_convert_case($title, MB_CASE_LOWER, "UTF-8");
-        $words_to_remove = ['автосалон', 'отзывы', 'дилерский центр', 'покупателей'];
+        $words_to_remove = ['автосалон', 'отзывы', 'дилерский центр', 'покупателей','автомобильный центр'];
 
         foreach ($words_to_remove as $word_to_remove) {
             $title = str_replace($word_to_remove, '', $title);
@@ -61,7 +61,8 @@ class ParsedCompaniesDataTable extends DataTable
 
         $parsed_sites = [];
         foreach ($phones as $site) {
-            $parsed_sites[] = str_replace('www.', '', str_replace('http://', '', str_replace('https://', '', $site)));
+            $site = str_replace('www.', '', str_replace('http://', '', str_replace('https://', '', $site)));
+            $parsed_sites[] = rtrim($site,'/');
         }
         return implode(', ', $parsed_sites);
     }
@@ -144,7 +145,9 @@ class ParsedCompaniesDataTable extends DataTable
                 'drawCallback' => // language=JavaScript prefix=( suffix=)
                     'function (e) {
     $(e.nTable).find(\'tbody tr td:nth-child(3)\').mark($(\'input[name=title]\').val())
-    $(e.nTable).find(\'tbody tr td:nth-child(4)\').mark($(\'input[name=phone]\').val())
+    var regex= new RegExp($(\'input[name=phone]\').val().split(\'\').join(\'.*?\'))
+    console.log(regex)
+    $(e.nTable).find(\'tbody tr td:nth-child(4)\').markRegExp(regex)
     $(e.nTable).find(\'tbody tr td:nth-child(6)\').mark($(\'input[name=site]\').val())
 }',
             ]);
