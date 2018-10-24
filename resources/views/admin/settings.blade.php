@@ -28,7 +28,7 @@
                                     name="time"
                                     title="Сколько часов"
                                     type="number"
-                                    value="{{setting('time')}}"
+                                    value="{{setting()->time}}"
                                 >
                             </div>
                             <div class="form-group">
@@ -38,7 +38,7 @@
                                     id="proxies"
                                     name="proxies"
                                     rows="10"
-                                >{{setting('proxies')}}</textarea>
+                                >{{setting()->proxies}}</textarea>
                             </div>
                             <button class="btn btn-primary">
                                 Submit

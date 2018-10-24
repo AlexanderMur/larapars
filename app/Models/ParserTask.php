@@ -69,7 +69,7 @@ class ParserTask extends Model
     /**
      * @param $type
      * @param $message
-     * @param ParsedCompany|null $parsedCompany
+     * @param ParsedCompany|string|null $parsedCompany
      * @param null $details
      * @return ParserLog
      */

@@ -13,11 +13,12 @@ class ParserClass
     public $link;
     public $client;
     public $items = array();
-
+    public $proxies;
+    protected $onErrorFn;
     public function __construct()
     {
-        $this->client = new Client();
-
+        $this->client = new Client(['proxy'=>['http'=>'127.0.0.1:8080']]);
+        $this->proxies = setting()->getProxies();
     }
 
     /**
@@ -27,10 +28,16 @@ class ParserClass
      */
     public function getPage($link, Donor $donor)
     {
-        return $this->client->getAsync($link)
+        return $this->client->getAsync($link,[
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
+            ]
+        ])
             ->then(function (Response $response) use ($link, $donor) {
+                info('success');
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
+                info(memory_get_usage(true)/1024/1024 . 'MB');
                 return new Crawler($html, $link);
             });
     }
@@ -51,7 +58,9 @@ class ParserClass
                 return $this->getDataOnPage($crawler, $donor);
             });
     }
-
+    public function onError($func){
+        $this->onErrorFn = $func;
+    }
     /**
      * parse single page
      *

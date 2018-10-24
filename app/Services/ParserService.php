@@ -15,8 +15,8 @@ use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\ParserTask;
 use App\Models\Review;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Arr;
-
 
 class ParserService
 {
@@ -39,10 +39,12 @@ class ParserService
      */
     public $parser_task;
     public $parsed_companies_counts = [];
+    public $client;
 
     public function __construct()
     {
         $this->parserClass = new ParserClass();
+        $this->parserClass->onError([$this,'handleError']);
         $this->counts      = [
             'new_parsed_companies_count' => 0,
             'updated_companies_count'    => 0,
@@ -70,7 +72,6 @@ class ParserService
         }
     }
 
-
     public function parseCompanyByUrl($url, Donor $donor)
     {
         $this->mb_start($url);
@@ -78,7 +79,15 @@ class ParserService
         $this->parser_task->log('info', 'парсим компанию...', $url);
         return $this->parserClass->parseCompany($url, $donor)
             ->then(function ($data) use ($donor) {
+                info('handle');
                 $this->handleParsedCompany($data, $donor);
+            },function (ClientException $exception) use ($url) {
+                if($exception->getCode() == 404){
+                    $this->parser_task->log('not_found','404',$url);
+                } else {
+                    $this->parser_task->log('error','Ошибка с подключением:'.$exception->getCode(),$url);
+                }
+                return [];
             });
     }
 
@@ -87,7 +96,19 @@ class ParserService
         $this->mb_start($url);
 
         $pending = $this->parser_task->log('info', 'парсинг ссылок из архива...',$url);
-        $archiveData = $this->parserClass->getArchiveData($url, $donor)->wait();
+        try{
+            $archiveData = $this->parserClass->getArchiveData($url, $donor)->wait();
+        } catch (ClientException $exception){
+            if($exception->getCode() == 404){
+                $pending->updateStatus('not_found','404');
+            } else {
+                $pending->updateStatus('error','Ошибка с подключением:'.$exception->getCode());
+            }
+            $archiveData = [
+                'pagination' => [],
+                'items' => [],
+            ];
+        }
 
         $pending->updateStatus('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')');
 
@@ -113,8 +134,9 @@ class ParserService
             $this->parser_task->createProgress(count($urls));
             $this->parser_task->log('bold', 'Запуск парсера', null);
             if (!file_exists('check_file')) {
-                fopen('check_file', 'w');
+                fopen(storage_path(getmypid().'-check_file'), 'w');
             }
+            config()->set('debugbar.collectors.db',false);
             $this->is_started = true;
         }
     }
@@ -122,13 +144,13 @@ class ParserService
     public function stop()
     {
         if (file_exists('check_file')) {
-            unlink('check_file');
+            unlink(storage_path(getmypid().'-check_file'));
         }
     }
 
     public function can_parse()
     {
-        return file_exists('check_file');
+        return file_exists(storage_path(getmypid().'-check_file'));
     }
 
     /**
@@ -232,6 +254,9 @@ class ParserService
      */
     public function handleParsedCompany($new_company, Donor $donor)
     {
+        if(!$new_company){
+            return null;
+        }
         $this->mb_register_donor($donor);
         if (strlen($new_company['address']) > 190) {
             $new_company['address'] = '';

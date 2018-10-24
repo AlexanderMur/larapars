@@ -3,7 +3,6 @@
 namespace App\Console;
 
 use App\Schedules\ParseDonors;
-use App\Services\SettingService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $hours = SettingService::get('time',4);
+        $hours = setting()->time ?? 4;
         $schedule->call(new ParseDonors)->cron('0 */' . $hours . ' * * *');
     }
 

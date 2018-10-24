@@ -141,7 +141,7 @@ class ParsedCompaniesDataTable extends DataTable
 }',
             ])
             ->parameters([
-                'order'        => [[8, "desc"]],
+                'order'        => [[9, "desc"]],
                 'drawCallback' => // language=JavaScript prefix=( suffix=)
                     'function (e) {
     $(e.nTable).find(\'tbody tr td:nth-child(3)\').mark($(\'input[name=title]\').val())

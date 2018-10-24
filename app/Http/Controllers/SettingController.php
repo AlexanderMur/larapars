@@ -10,7 +10,6 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Requests\UpdateParserRequest;
-use App\Services\SettingService;
 
 class SettingController extends Controller
 {
@@ -26,8 +25,8 @@ class SettingController extends Controller
     }
     function updateParser(UpdateParserRequest $request)
     {
-        SettingService::set('time',$request->time);
-        SettingService::set('proxies',$request->proxies);
+        setting()->setSetting('time',$request->time);
+        setting()->setSetting('proxies',$request->proxies);
         \Toastr::success('Настройки обновлены');
         return redirect()->back();
     }

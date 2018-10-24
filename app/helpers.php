@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\SettingService;
 use libphonenumber\PhoneNumberUtil;
 
 function nl2p($string)
@@ -23,8 +24,16 @@ function external_link($link){
     return $link;
 }
 
-function setting($key,$default = null){
-    return \App\Services\SettingService::get($key,$default);
+/**
+ * @param null $key
+ * @param null $default
+ * @return SettingService
+ */
+function setting($key = null,$default = null){
+    if($key == null){
+        return app(SettingService::class);
+    }
+    return app(SettingService::class)->getSetting($key,$default);
 }
 
 function filter_text($html){

@@ -5,7 +5,6 @@ use App\Models\Company;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\Review;
-use App\Services\SettingService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -128,7 +127,7 @@ class CompaniesTableSeeder extends Seeder
         }
     }
     public function createDefaultSettings(){
-        SettingService::set('time',4);
+        setting()->setSetting('time',4);
     }
     public function createDonors()
     {
