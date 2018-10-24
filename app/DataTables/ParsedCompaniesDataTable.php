@@ -145,7 +145,7 @@ class ParsedCompaniesDataTable extends DataTable
                 'drawCallback' => // language=JavaScript prefix=( suffix=)
                     'function (e) {
     $(e.nTable).find(\'tbody tr td:nth-child(3)\').mark($(\'input[name=title]\').val())
-    var regex= new RegExp($(\'input[name=phone]\').val().split(\'\').join(\'.*?\'))
+    var regex= new RegExp($(\'input[name=phone]\').val().split(\'\').join(\'(?!,).{0,2}\'))
     console.log(regex)
     $(e.nTable).find(\'tbody tr td:nth-child(4)\').markRegExp(regex)
     $(e.nTable).find(\'tbody tr td:nth-child(6)\').mark($(\'input[name=site]\').val())

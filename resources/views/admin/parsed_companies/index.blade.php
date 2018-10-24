@@ -33,9 +33,6 @@
                     <label for="phone">Телефон</label>
                     <input type="text" class="form-control" name="phone" id="phone" value="{{request('phone')}}">
                 </div>
-                <div class="form-group">
-                    <input type="submit" class="btn btn-default table__search" value="Поиск">
-                </div>
             </div>
             {{$html->table(['class' => 'table table-bordered'])}}
 
