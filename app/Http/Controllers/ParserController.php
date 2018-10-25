@@ -80,7 +80,7 @@ class ParserController extends Controller
                     'statistics' => $this->parserService->getStatistics(),
                     'task' => $task,
                 ]),
-            'is_parsing' => $this->parserService->can_parse(),
+            'is_parsing' => $this->parserService->is_parsing(),
             'progress' => $task->progress->progress ?? 0,
             'progress_max' => $task->progress->progress_max ?? 0,
         ]);

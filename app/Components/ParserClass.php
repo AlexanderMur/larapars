@@ -6,84 +6,20 @@ namespace App\Components;
 
 use App\Models\Donor;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
 
 class ParserClass
 {
     public $link;
     public $client;
     public $items = array();
-    public $proxies;
-    protected $onErrorFn;
+
     public function __construct()
     {
-        $this->client = new Client(['proxy'=>['http'=>'127.0.0.1:8080']]);
-        $this->proxies = setting()->getProxies();
+        $this->client  = new Client(['proxy' => ['http' => '127.0.0.1:8080']]);
+
     }
 
-    /**
-     * @param $link
-     * @param Donor $donor
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function getPage($link, Donor $donor)
-    {
-        return $this->client->getAsync($link,[
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
-            ]
-        ])
-            ->then(function (Response $response) use ($link, $donor) {
-                info('success');
-                $html = $response->getBody()->getContents();
-                $html = str_replace($donor->replace_search, $donor->replace_to, $html);
-                info(memory_get_usage(true)/1024/1024 . 'MB');
-                return new Crawler($html, $link);
-            });
-    }
 
-    /**
-     * parse archive page
-     *
-     * @param $link
-     * @param Donor $donor
-     * @param int $how_many
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function getArchiveData($link, Donor $donor)
-    {
-
-        return $this->getPage($link, $donor)
-            ->then(function (Crawler $crawler) use ($link, $donor) {
-                return $this->getDataOnPage($crawler, $donor);
-            });
-    }
-    public function onError($func){
-        $this->onErrorFn = $func;
-    }
-    /**
-     * parse single page
-     *
-     * @param $link
-     * @param Donor $donor
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function parseCompany($link, Donor $donor)
-    {
-        return $this->getPage($link, $donor)
-            ->then(function (Crawler $crawler) use ($link, $donor) {
-                return $this->getDataOnSinglePage($crawler, $donor);
-            });
-    }
-
-    /**
-     * @param Crawler $crawler
-     * @param Donor $donor
-     * @return array
-     */
-    public function getPaginateLinks(Crawler $crawler, Donor $donor){
-        return $this->getUniqueLinks($crawler->query($donor->archive_pagination), $donor);
-    }
     public function getDataOnPage(Crawler $crawler, Donor $donor)
     {
         $items      = $crawler

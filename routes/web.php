@@ -1,5 +1,6 @@
 <?php
-declare(ticks = 1);
+declare(ticks=1);
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -81,21 +82,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Artisan::call('view:cache');
         return redirect()->back();
     });
-    Route::get('memory-test',function(){
-        $last_time = microtime(true);
-        $speed = 0;
-        $arr = json_decode('{
-    "progress": 0,
-    "progress_max": 100,
-    "in_queue": 5000,
-    "parsed": 8000
-}');
-        dump(microtime(true) - $last_time);
-        dump($arr);
-        $revs = \App\Models\Review::all();
-        $revs->load('parsed_company');
-       return 'ok';
-    });
+    Route::get('memory-test', 'AdminController@memoryTest');
 });
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
