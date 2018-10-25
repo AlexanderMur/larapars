@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\DonorDataTable;
+use App\DataTables\ParsedCompaniesDataTable;
 use App\Http\Requests\DonorRequest;
 use App\Models\Donor;
 
@@ -10,13 +12,17 @@ class DonorController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param ParsedCompaniesDataTable $dataTable
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(DonorDataTable $dataTable)
     {
-        $donors = Donor::all();
-        return view('admin.donors.index',[
-            'donors' => $donors,
+        if (request()->ajax()) {
+            return $dataTable->ajax();
+        }
+
+        return view('admin.donors.index', [
+            'html' => $dataTable->html(),
         ]);
     }
 
@@ -39,7 +45,7 @@ class DonorController extends Controller
     public function store(DonorRequest $request)
     {
         $donor = Donor::create($request->all());
-        return redirect()->route('donors.edit',[
+        return redirect()->route('donors.edit', [
             'donor' => $donor,
         ]);
     }
@@ -52,7 +58,7 @@ class DonorController extends Controller
      */
     public function show(Donor $donor)
     {
-        return view('admin.donors.form',[
+        return view('admin.donors.form', [
             'donor' => $donor,
         ]);
     }
@@ -65,7 +71,7 @@ class DonorController extends Controller
      */
     public function edit(Donor $donor)
     {
-        return view('admin.donors.form',[
+        return view('admin.donors.form', [
             'donor' => $donor,
         ]);
     }

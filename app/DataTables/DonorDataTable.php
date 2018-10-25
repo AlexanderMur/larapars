@@ -1,0 +1,51 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: jople
+ * Date: 22.10.2018
+ * Time: 15:37
+ */
+
+namespace App\DataTables;
+
+
+use App\Models\Donor;
+use Illuminate\Support\HtmlString;
+
+class DonorDataTable extends DataTable
+{
+    public function query()
+    {
+        return Donor
+            ::select([
+                'donors.*',
+            ])
+            ->withCount([
+                'reviews',
+            ])
+            ->groupBy('id');
+    }
+
+    public function ajax()
+    {
+        return $this->dataTables
+            ->eloquent(
+                $this->query()
+            )
+            ->editColumn('link', function (Donor $donor) {
+                return new HtmlString("<a href='" . route('donors.edit',$donor) . "' target='_blank'>" . $donor->link . "</a>");
+            })
+            ->toJson();
+    }
+
+    public function html()
+    {
+        return $this->builder
+            ->columns([
+                'id'                 => ['orderable' => false, 'title' => ''],
+                'link'              => ['title' => __('company.link')],
+                'title'              => ['title' => __('company.title')],
+                'reviews_count'              => ['title' => __('company.reviews_count')],
+            ]);
+    }
+}

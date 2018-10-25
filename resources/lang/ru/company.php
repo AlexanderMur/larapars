@@ -7,6 +7,7 @@ return [
     'donor_id'              => 'Донор ID',
     'phone'                 => 'Телефон',
     'site'                  => 'Сайт',
+    'link'                  => 'Сайт',
     'address'               => 'Адрес',
     'city'                  => 'Город',
     'donors_count'          => 'Кол-во доноров',

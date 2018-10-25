@@ -14,6 +14,7 @@ class DonorRequest extends Request
 
     public function rules()
     {
+        $this->request->set('mass_parsing',$this->request->has('mass_parsing'));
         return [
             'title' => 'required',
             'link' => 'required',

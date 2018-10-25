@@ -50,6 +50,7 @@ class Donor extends Model
     protected $fillable = [
         'link',
         'title',
+        'mass_parsing',
         'loop_address',
         'loop_item',
         'loop_link',
@@ -70,13 +71,16 @@ class Donor extends Model
         'single_city',
         'archive_pagination',
     ];
+
     function companies(){
-        return $this->hasMany(Company::class);
+        return $this->hasManyThrough(Company::class,ParsedCompany::class);
     }
     function reviews(){
-        return $this->hasMany(Review::class);
+        return $this->hasManyThrough(Review::class,ParsedCompany::class);
     }
-
+    function parsed_companies(){
+        return $this->hasMany(ParsedCompany::class);
+    }
     function scopeMassParsing(Builder $query){
         $query->where('mass_parsing',true);
     }

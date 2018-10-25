@@ -10,8 +10,10 @@
     <div id="page-wrapper">
         <h1 class="page-header">{{'Доноры'}}</h1>
 
-        @foreach ($donors as $donor)
-            <h2><a href="{{route('donors.show',$donor->id)}}">{{$donor->link}}</a></h2>
-        @endforeach
+        {{$html->table()}}
     </div>
 @stop
+
+@push('scripts')
+    {{$html->scripts()}}
+@endpush

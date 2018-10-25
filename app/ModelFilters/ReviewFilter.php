@@ -20,7 +20,7 @@ class ReviewFilter extends ModelFilter
 {
     public function favouriteCompany(){
 
-        return $this->whereHas('parsedCompany.company',function($query){
+        return $this->whereHas('parsed_company.company',function($query){
             $query->where('favourite',true);
         });
     }

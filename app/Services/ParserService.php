@@ -93,18 +93,20 @@ class ParserService
                 'headers' => [
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
-                'timeout' => 2,
+                'timeout' => 20,
                 'proxy'   => [
                     'http'  => $proxy,
                     'https' => $proxy,
                 ],
             ])
             ->then(function (Response $response) use ($link, $donor) {
+                info('success');
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
                 info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                 return new Crawler($html, $link);
             }, function (RequestException $exception) use ($donor, $link) {
+                $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: '.$exception->getCode(), $link);
                 switch ($exception->getCode()) {
                     case 404:
                         $this->parser_task->log('404', 'not_found', $link);
@@ -140,7 +142,7 @@ class ParserService
     {
         $this->mb_start($url);
 
-        $pending = $this->parser_task->log('info', 'парсинг ссылок из архива...', $url);
+//        $pending = $this->parser_task->log('info', 'парсинг ссылок из архива...', $url);
         try {
             $crawler     = $this->getPage($url, $donor)->wait();
             $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
@@ -151,7 +153,7 @@ class ParserService
             ];
         }
 
-        $pending->updateStatus('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')');
+//        $pending->updateStatus('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')');
 
 
         foreach ($archiveData['pagination'] as $page) {
@@ -298,8 +300,10 @@ class ParserService
 
         $this->new_reviews_count                       += $new_reviews->count();
         $this->donors[$donor->id]['new_reviews_count'] += $new_reviews->count();
-        $this->parser_task->log('new_reviews',
-            'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
+        if(count($new_reviews)){
+            $this->parser_task->log('new_reviews',
+                'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
+        }
 
         //insert many reviews
         $parsed_company->saveReviews($new_reviews);
