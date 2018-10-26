@@ -83,6 +83,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         return redirect()->back();
     });
     Route::get('memory-test', 'AdminController@memoryTest');
+    Route::get('guzzle-test', 'AdminController@test2');
 });
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
