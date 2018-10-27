@@ -32,7 +32,7 @@ class ParserClient
         $this->client = new Client();
     }
 
-    public function addGet($link, $options)
+    public function addGet($link, $options = [])
     {
         info('addGet ' . $link);
         $promise       = new Promise();
@@ -118,6 +118,6 @@ class ParserClient
 
     public function concurrency()
     {
-        return 10;
+        return 20;
     }
 }
