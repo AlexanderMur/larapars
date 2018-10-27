@@ -12,10 +12,12 @@ namespace App\Services;
 use App\CompanyHistory;
 use App\Components\Crawler;
 use App\Components\ParserClass;
+use App\Components\ParserClient;
 use App\Models\Donor;
 use App\Models\ParsedCompany;
 use App\Models\ParserTask;
 use App\Models\Review;
+use Complex\Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
@@ -45,12 +47,17 @@ class ParserService
     public $client;
     protected $id;
     public $proxies;
+    /**
+     * @var ParserClient
+     */
+    public $parserClient;
 
     public function __construct()
     {
-        $this->parserClass = new ParserClass();
-        $this->client      = new Client();
-        $this->counts      = [
+        $this->parserClass  = new ParserClass();
+        $this->client       = new Client();
+        $this->parserClient = new ParserClient();
+        $this->counts       = [
             'new_parsed_companies_count' => 0,
             'updated_companies_count'    => 0,
             'new_reviews_count'          => 0,
@@ -64,16 +71,21 @@ class ParserService
      */
     public function __destruct()
     {
-        if ($this->is_started) {
-
-            $this->parser_task->log('bold', '
+        try {
+            if ($this->is_started) {
+                $this->parserClient->run();
+                info('ENDPARSING');
+                $this->parser_task->log('bold', '
             Работа парсера завершена. Найдено новых компаний: (' . $this->new_parsed_companies_count . ')
             Обновлено компаний: (' . $this->updated_companies_count . ')
             Новых отзывов: (' . $this->new_reviews_count . ')
             Удалено отзывов: (' . $this->deleted_reviews_count . ')
             Возвращено отзывов: (' . $this->restored_reviews_count . ')
             ', null);
-            $this->stop();
+                $this->stop();
+            }
+        } catch (Exception $exception) {
+            info($exception->getMessage());
         }
     }
 
@@ -88,37 +100,34 @@ class ParserService
         $this->mb_register_donor($donor);
 
         $this->parser_task->log('get', '', $link);
-        return $this->client
-            ->getAsync($link, [
+        return $this->parserClient
+            ->addGet($link, [
                 'headers' => [
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
-                'timeout' => 20,
+                'connect_timeout' => 10,
                 'proxy'   => [
-                    'http'  => $proxy,
-                    'https' => $proxy,
+                    'http'  => '127.0.0.1:8080',
+                    'https' => '127.0.0.1:8080',
                 ],
+                'verify'  => false,
             ])
             ->then(function (Response $response) use ($link, $donor) {
-                info('success');
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
                 info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                 return new Crawler($html, $link);
             }, function (RequestException $exception) use ($donor, $link) {
-                $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: '.$exception->getCode(), $link);
+                info('AAAAAAAAAA OSHIBKAA');
+                $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
                     case 404:
                         $this->parser_task->log('404', 'not_found', $link);
+                        throw $exception;
                         break;
                     case 0:
-                        $tries = $this->donors[$donor->id]['tries']++;
-                        if (isset($this->proxies[$tries])) {
-                            info($link.' trying another proxy...');
-                            return $this->getPage($link, $donor, $this->proxies[$tries]);
-                        } else {
-                            info($link . ' out of proxy...');
-                        }
+                        info($link . ' trying another proxy...');
+                        return $this->getPage($link, $donor);
                         break;
                 }
                 throw $exception;
@@ -133,8 +142,6 @@ class ParserService
             ->then(function (Crawler $crawler) use ($donor) {
                 $data = $this->parserClass->getDataOnSinglePage($crawler, $donor);
                 $this->handleParsedCompany($data, $donor);
-            }, function (RequestException $exception) use ($donor, $url) {
-                return [];
             });
     }
 
@@ -142,33 +149,68 @@ class ParserService
     {
         $this->mb_start($url);
 
-//        $pending = $this->parser_task->log('info', 'парсинг ссылок из архива...', $url);
-        try {
-            $crawler     = $this->getPage($url, $donor)->wait();
-            $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
-        } catch (RequestException $exception) {
-            $archiveData = [
-                'pagination' => [],
-                'items'      => [],
-            ];
+        $this->getPage($url, $donor)
+            ->then(function (Crawler $crawler) use ($donor, $url) {
+                $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
+                foreach ($archiveData['pagination'] as $page) {
+                    if (!in_array($page, $this->visitedPages) && $this->is_parsing()) {
+                        $this->visitedPages[] = $page;
+                        $this->parseArchivePageByUrl($page, $donor);
+                    }
+                }
+                foreach ($archiveData['items'] as $page) {
+                    if ($this->is_parsing()) {
+                        $this->parseCompanyByUrl($page['donor_page'], $donor);
+                    };
+                }
+            });
+    }
+
+
+    /**
+     * @param Donor[] $donors
+     */
+    public function parseDonors($donors = null)
+    {
+        if ($donors === null) {
+            $donors = Donor::all();
         }
-
-//        $pending->updateStatus('ok', 'получили ссылки на компании из архива (' . count($archiveData['items']) . ')');
-
-
-        foreach ($archiveData['pagination'] as $page) {
-            if (!in_array($page, $this->visitedPages) && $this->is_parsing()) {
-                $this->visitedPages[] = $page;
-                $this->parseArchivePageByUrl($page, $donor);
-            }
-        }
-        foreach ($archiveData['items'] as $page) {
+        $this->mb_start($donors);
+        foreach ($donors as $donor) {
             if ($this->is_parsing()) {
-                $this->parseCompanyByUrl($page['donor_page'], $donor)->wait();
-            };
+                $this->parseArchivePageByUrl($donor->link, $donor);
+                $this->parser_task->progress()->increment('progress');
+            }
         }
     }
 
+    public function parseCompaniesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
+        $this->mb_start($urls);
+        foreach ($urls as $url) {
+            if ($this->is_parsing()) {
+                $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
+                $this->parser_task->progress()->increment('progress');
+            }
+        }
+    }
+
+    public function parseArchivePagesByUrls($urls, $need_mapping = true)
+    {
+        if ($need_mapping) {
+            $urls = $this->mapUrlsWithDonor($urls);
+        }
+        $this->mb_start($urls);
+        foreach ($urls as $url) {
+            if ($this->is_parsing()) {
+                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+                $this->parser_task->progress()->increment('progress');
+            }
+        }
+    }
 
     public function mb_start($urls = [])
     {
@@ -213,54 +255,6 @@ class ParserService
         return storage_path('parser');
     }
 
-    /**
-     * @param Donor[] $donors
-     */
-    public function parseDonors($donors = null)
-    {
-        if ($donors === null) {
-            $donors = Donor::all();
-        }
-        $this->mb_start($donors);
-        foreach ($donors as $donor) {
-            if ($this->is_parsing()) {
-                $this->parseArchivePageByUrl($donor->link, $donor);
-                $this->parser_task->progress()->increment('progress');
-            }
-        }
-    }
-
-    public function parseCompaniesByUrls($urls, $need_mapping = true)
-    {
-        if ($need_mapping) {
-            $urls = $this->mapUrlsWithDonor($urls);
-        }
-
-        $this->mb_start($urls);
-
-        foreach ($urls as $url) {
-
-            if ($this->is_parsing()) {
-                $this->parseCompanyByUrl($url['donor_page'], $url['donor'])->wait();
-                $this->parser_task->progress()->increment('progress');
-            }
-        }
-    }
-
-    public function parseArchivePagesByUrls($urls, $need_mapping = true)
-    {
-        if ($need_mapping) {
-            $urls = $this->mapUrlsWithDonor($urls);
-        }
-        $this->mb_start($urls);
-        foreach ($urls as $url) {
-
-            if ($this->is_parsing()) {
-                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
-                $this->parser_task->progress()->increment('progress');
-            }
-        }
-    }
 
     /**
      * @param ParsedCompany $parsed_company
@@ -300,7 +294,7 @@ class ParserService
 
         $this->new_reviews_count                       += $new_reviews->count();
         $this->donors[$donor->id]['new_reviews_count'] += $new_reviews->count();
-        if(count($new_reviews)){
+        if (count($new_reviews)) {
             $this->parser_task->log('new_reviews',
                 'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
         }

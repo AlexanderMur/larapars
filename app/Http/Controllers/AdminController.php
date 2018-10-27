@@ -139,12 +139,49 @@ class AdminController extends Controller
     public function test2()
     {
 
-
-        $this->addGet('http://example.com')
+        $this->addGet('http://jsonplaceholder.typicode.com/todos/')
             ->then(function () {
                 info('resolve!!!!!!!!!11');
+                echo 'AAA';
+                return 'ok!!!!';
+            })
+            ->then(function () {
+                $this->addGet('http://jsonplaceholder.typicode.com/todos/1');
+                echo 'AAA';
+                return 'ok!!!!';
+            })
+            ->then(function () {
+                info('resolve!!!!!!!!!13');
+                echo 'AAA';
+                return 'ok!!!!';
+            })
+            ->then(function () {
+                $this->addGet('http://jsonplaceholder.typicode.com/todos/3');
+                echo 'AAA';
+                return 'ok!!!!';
+            })
+            ->then(function () {
+                info('resolve!!!!!!!!!14');
+                echo 'AAA';
+                return 'ok!!!!';
+            })
+            ->then(function () {
+                for ($i = 0; $i < 10; $i++) {
+                    $this->addGet('http://jsonplaceholder.typicode.com/todos/1'.$i)
+                    ->then(function() use ($i) {
+                        for ($i_2 = 0; $i_2 < 10; $i_2++) {
+                            $this->addGet('http://jsonplaceholder.typicode.com/todos/'.$i.$i_2)
+                                ->then(function(){
+
+                                        info('nested');
+                                });
+                        }
+                    });
+                }
+                echo 'AAA';
                 return 'ok!!!!';
             });
+
         return 'ok';
     }
 
@@ -162,7 +199,7 @@ class AdminController extends Controller
     {
         $requests = function () {
             while (count($this->links) > 0) {
-                $link = array_pop($this->links);
+                $link = array_shift($this->links);
                 yield function () use ($link) {
                     return $this->client
                         ->getAsync($link['link'], [
@@ -171,6 +208,8 @@ class AdminController extends Controller
                             ],
                         ])
                         ->then(function ($value) use ($link) {
+
+                            info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                             $link['promise']->resolve($value);
                             queue()->run();
                         }, function (\Exception $exception) use ($link) {
@@ -192,6 +231,6 @@ class AdminController extends Controller
 
     private function concurrency()
     {
-        return 6;
+        return 2;
     }
 }

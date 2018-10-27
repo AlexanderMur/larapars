@@ -82,8 +82,25 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Artisan::call('view:cache');
         return redirect()->back();
     });
+
+
+    //Tests
     Route::get('memory-test', 'AdminController@memoryTest');
     Route::get('guzzle-test', 'AdminController@test2');
+    Route::get('test1',function(){
+        function test($val = null){
+            static $test_var;
+
+            if($val){
+                $test_var = 10;
+            }
+
+            return $test_var;
+        }
+
+
+        return 'ok';
+    });
 });
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
