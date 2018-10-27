@@ -13,6 +13,7 @@ use Complex\Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Promise\Promise;
+use Throwable;
 use function GuzzleHttp\Promise\queue;
 
 class ParserClient
@@ -22,8 +23,9 @@ class ParserClient
      */
     public $client;
     public $links = [];
-    private $num;
+    protected $pending = [];
     private $runned;
+    protected $last_promise;
 
     public function __construct()
     {
@@ -32,7 +34,7 @@ class ParserClient
 
     public function addGet($link, $options)
     {
-        info('addGet');
+        info('addGet ' . $link);
         $promise       = new Promise();
         $this->links[] = [
             'link'    => $link,
@@ -47,16 +49,33 @@ class ParserClient
         if (count($this->links)) {
             $this->runned = true;
             $requests = function () {
-                while (info(count($this->links)) || count($this->links) > 0) {
+                while (true) {
                     $link = array_shift($this->links);
+                    if (!$link && count($this->pending) > 0) {
+                        yield function () {
+                            info('pool fix '.array_keys($this->pending)[0]);
+                            return reset($this->pending);
+                        };
+                        continue;
+                    }
+
+                    if(!$link){
+                        break;
+                    }
+
+                    $this->pending[$link['link']] = $link['promise'];
                     yield function () use ($link) {
+                        if(!$link){
+                            $aaa = 12;
+                        }
                         return $this->client
                             ->getAsync($link['link'], $link['options'])
                             ->then(function ($value) use ($link) {
+                                unset($this->pending[$link['link']]);
                                 $link['promise']->resolve($value);
                                 queue()->run();
                             }, function (\Exception $exception) use ($link) {
-                                info($exception->getMessage());
+                                unset($this->pending[$link['link']]);
                                 $link['promise']->reject($exception);
                                 queue()->run();
                             });
@@ -67,15 +86,22 @@ class ParserClient
 
             (new Pool($this->client, $requests(), [
                 'concurrency' => function () {
-                    return max(1, min(count($this->links), $this->concurrency()));
+                    $concurrency = min(count($this->links), $this->concurrency());
+                    return max(1, $concurrency);
                 },
-                'rejected'    => function (Exception $exception) {
-                    info($exception->getMessage());
-                    throw  $exception;
+                'rejected'    => function ($exception) {
+                    if($exception instanceof Throwable){
+                        info($exception->getMessage());
+                    } else {
+                        info($exception);
+
+                        throw new Exception($exception);
+                    }
+                    throw $exception;
                 },
             ]))
                 ->promise()
-                ->then(null, function (\Throwable $throwable) {
+                ->then(null, function ($throwable) {
 
                     info($throwable->getMessage());
                 })
@@ -85,13 +111,13 @@ class ParserClient
 
     public function __destruct()
     {
-        if(!$this->runned){
+        if (!$this->runned) {
             $this->run();
         }
     }
 
     public function concurrency()
     {
-        return 20;
+        return 10;
     }
 }

@@ -97,3 +97,7 @@ function get_phones_from_text($text)
     }
     return implode(', ', $numbersArr);
 }
+
+function memory(){
+    return memory_get_peak_usage(true) / 1024 / 1024;
+}

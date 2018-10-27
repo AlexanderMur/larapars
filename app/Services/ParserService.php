@@ -73,7 +73,7 @@ class ParserService
     {
         try {
             if ($this->is_started) {
-                $this->parserClient->run();
+//                $this->parserClient->run();
                 info('ENDPARSING');
                 $this->parser_task->log('bold', '
             Работа парсера завершена. Найдено новых компаний: (' . $this->new_parsed_companies_count . ')
@@ -98,24 +98,25 @@ class ParserService
     public function getPage($link, Donor $donor, $proxy = null)
     {
         $this->mb_register_donor($donor);
-
+        info('getpage');
         $this->parser_task->log('get', '', $link);
         return $this->parserClient
             ->addGet($link, [
-                'headers' => [
+                'headers'         => [
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
                 'connect_timeout' => 10,
-                'proxy'   => [
+                'proxy'           => [
                     'http'  => '127.0.0.1:8080',
                     'https' => '127.0.0.1:8080',
                 ],
-                'verify'  => false,
+                'verify'          => false,
             ])
             ->then(function (Response $response) use ($link, $donor) {
+
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
-                info(memory_get_usage(true) / 1024 / 1024 . 'MB');
+//                info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                 return new Crawler($html, $link);
             }, function (RequestException $exception) use ($donor, $link) {
                 info('AAAAAAAAAA OSHIBKAA');
@@ -147,21 +148,26 @@ class ParserService
 
     public function parseArchivePageByUrl($url, Donor $donor)
     {
+        if (!in_array($url, $this->visitedPages)) {
+            $this->visitedPages[] = $url;
+        }
         $this->mb_start($url);
 
-        $this->getPage($url, $donor)
+        return $this->getPage($url, $donor)
             ->then(function (Crawler $crawler) use ($donor, $url) {
+                info('then');
                 $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
                 foreach ($archiveData['pagination'] as $page) {
-                    if (!in_array($page, $this->visitedPages) && $this->is_parsing()) {
+                    if (!in_array($page, $this->visitedPages)) {
                         $this->visitedPages[] = $page;
-                        $this->parseArchivePageByUrl($page, $donor);
+                        $this->parseArchivePageByUrl($page, $donor)
+                        ->then(function() use ($url) {
+                            info('FROM'.$url);
+                        });
                     }
                 }
                 foreach ($archiveData['items'] as $page) {
-                    if ($this->is_parsing()) {
-                        $this->parseCompanyByUrl($page['donor_page'], $donor);
-                    };
+                    $this->parseCompanyByUrl($page['donor_page'], $donor);
                 }
             });
     }
@@ -177,10 +183,8 @@ class ParserService
         }
         $this->mb_start($donors);
         foreach ($donors as $donor) {
-            if ($this->is_parsing()) {
-                $this->parseArchivePageByUrl($donor->link, $donor);
-                $this->parser_task->progress()->increment('progress');
-            }
+            $this->parseArchivePageByUrl($donor->link, $donor);
+            $this->parser_task->progress()->increment('progress');
         }
     }
 
@@ -191,10 +195,8 @@ class ParserService
         }
         $this->mb_start($urls);
         foreach ($urls as $url) {
-            if ($this->is_parsing()) {
-                $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
-                $this->parser_task->progress()->increment('progress');
-            }
+            $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
+            $this->parser_task->progress()->increment('progress');
         }
     }
 
@@ -205,11 +207,10 @@ class ParserService
         }
         $this->mb_start($urls);
         foreach ($urls as $url) {
-            if ($this->is_parsing()) {
-                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
-                $this->parser_task->progress()->increment('progress');
-            }
+            $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+            $this->parser_task->progress()->increment('progress');
         }
+        $this->parserClient->run();
     }
 
     public function mb_start($urls = [])

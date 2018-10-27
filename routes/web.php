@@ -13,7 +13,6 @@ declare(ticks=1);
 */
 
 
-info('awake');
 Route::get('/', function () {
     return view('welcome');
 });
