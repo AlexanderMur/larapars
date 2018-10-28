@@ -41,7 +41,7 @@ class ParserController extends Controller
         if (\request()->isMethod('POST')) {
             request()->flash();
             $urls = preg_split('/\r\n/', request('page'));
-            $this->parserService->parseCompaniesByUrls($urls);
+            $this->parserService->parse($urls,'companies');
         }
         $donors = Donor::all();
         return view('admin.parser.manual', [
@@ -61,10 +61,10 @@ class ParserController extends Controller
             } else {
                 $links = [Donor::find($request->donor_id)->link];
             }
-            $this->parserService->parseArchivePagesByUrls($links);
+            $this->parserService->parse($links,'archivePages');
         }
         if($request->pages){
-            $this->parserService->parseCompaniesByUrls($request->pages);
+            $this->parserService->parse($request->pages,'companies');
         }
 
         return 'ok';
@@ -80,7 +80,7 @@ class ParserController extends Controller
                     'statistics' => $this->parserService->getStatistics(),
                     'task' => $task,
                 ]),
-            'is_parsing' => $this->parserService->is_parsing(),
+            'is_parsing' => $this->parserService->should_stop(),
             'progress' => $task->progress->progress ?? 0,
             'progress_max' => $task->progress->progress_max ?? 0,
         ]);

@@ -38,6 +38,6 @@ class ParsePages implements ShouldQueue
     {
         $this->parserService = $parserService;
 
-        $this->parserService->parseArchivePagesByUrls($this->links);
+        $this->parserService->parse($this->links,'archivePages');
     }
 }

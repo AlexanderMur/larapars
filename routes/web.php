@@ -13,6 +13,8 @@ declare(ticks=1);
 */
 
 
+use App\ParserLog;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -85,7 +87,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     //Tests
     Route::get('memory-test', 'AdminController@memoryTest');
-    Route::get('guzzle-test', 'AdminController@test2');
+    Route::get('guzzle-test', 'AdminController@guzzleTest');
     Route::get('test1',function(){
         function test($val = null){
             static $test_var;
@@ -100,6 +102,24 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
         return 'ok';
     });
+    Route::get('test2',function(){
+        $start = microtime(true);
+        for ($i = 0; $i < 1000; $i++) {
+            ParserLog::create([
+                'message' => 'aaaaa',
+            ]);
+        }
+        dump(microtime(true)-$start);
+        return 'ok';
+    });
+});
+
+Route::get('delay/{delay}',function($delay){
+    sleep($delay);
+    echo $delay;
+    dump($delay);
+    sleep(3);
+    return 'ok';
 });
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
