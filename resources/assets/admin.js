@@ -212,9 +212,9 @@ $(function ($) {
         }
 
         $('.parser__logs__inner').html(json.table)
-        $('.statistics').html(json.statistics)
-        $('.parser__start').parents('form').toggleClass('parser--is-parsing', json.is_parsing)
 
+        $('.statistics').html(json.statistics)
+        $('.parser__start').parents('form').attr('data-state', json.state)
         if (json.progress_max) {
             $('.parser__progress')
                 .css({'width': (json.progress / json.progress_max) * 100 + '%'})
@@ -223,48 +223,59 @@ $(function ($) {
             // $('.parser__progress')
             //     .css({'width': 0 + '%'})
         }
+        return json
     }
 
-    let canUpdateLogs = false
 
     async function startUpdateLogs() {
-        if ($('.parser--is-parsing').length) {
-            await updateLogs()
-        }
-        setTimeout(startUpdateLogs, 1000)
-    }
 
-    if ($('.statistics').length) {
-        updateLogs()
+        if ($('.statistics').length) {
+            let json = await updateLogs()
+            setTimeout(startUpdateLogs, 1000)
+        }
     }
     startUpdateLogs()
+
     $('.parser__start').click(function () {
-        $(this).parents('form').addClass('parser--is-parsing')
+        $(this).parents('form').attr('data-state', 'parsing')
         $('.parser__logs__collapse').collapse('show')
-        canUpdateLogs = true
         $.post(route('pars.test'), $(this).parents('form').serialize())
             .catch((e) => {
                 console.log(e)
                 alert(JSON.stringify(e))
             })
             .then(() => {
-                $(this).parents('form').removeClass('parser--is-parsing')
-                canUpdateLogs = false
+                $(this).parents('form').attr('data-state', '')
                 updateLogs()
             })
         return false
     })
+    $('.parser__resume').click(function () {
+        $(this).parents('form').attr('data-state', 'parsing')
+        $('.parser__logs__collapse').collapse('show')
+        $.post(route('pars.test'), 'resume=1')
+            .catch((e) => {
+                console.log(e)
+                alert(JSON.stringify(e))
+            })
+            .then(() => {
+                $(this).parents('form').attr('data-state', '')
+                updateLogs().then(() => {
+                })
+            })
+        return false
+    })
     $('.parser__stop').click(function () {
-        $(this).button('loading')
+        $(this).button('loading').text('остановка...')
         $.post(route('pars.test'), 'stop=1')
             .catch((e) => {
                 console.log(e)
                 alert(JSON.stringify(e))
             })
             .then(() => {
-                canUpdateLogs = false
-                updateLogs()
-                $(this).button('reset')
+                updateLogs().then(() => {
+                    $(this).button('reset')
+                })
             })
         return false
     })

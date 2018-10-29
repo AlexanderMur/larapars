@@ -52,6 +52,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     //Parsers routes
     Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');
+    Route::get('parser', 'ParserController@parser')->name('parser');
 
     Route::get('logs12/{log}/details', 'LogController@details')->name('logs.details');
     Route::get('logs', 'LogController@index')->name('logs.index');
@@ -76,9 +77,6 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::get('/clear-cache', function () {
         Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('view:clear');
-        Artisan::call('cache:cache');
         Artisan::call('config:cache');
         Artisan::call('view:cache');
         return redirect()->back();

@@ -19,6 +19,8 @@
                 </select>
                 <button class="btn btn-primary parser__start">Парсить</button>
                 <button class="btn btn-primary parser__stop">Остановить</button>
+                <button class="btn btn-primary parser__resume">Возобновить</button>
+                <button class="btn btn-primary parser__stopping" disabled="true">Остановка...</button>
             </form>
             <br>
             <div class="progress">
@@ -43,8 +45,10 @@
                 </h4>
             </div>
             <div class="panel-collapse collapse parser__logs__collapse" role="tabpanel" id="parser__logs__collapse">
-                <div class="panel-body parser__logs__inner">
-                    $match[0]
+                <div class="panel-body ">
+                    <div class="parser__logs__inner">
+
+                    </div>
                 </div>
             </div>
         </div>

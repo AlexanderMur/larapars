@@ -41,7 +41,7 @@ class ParserController extends Controller
         if (\request()->isMethod('POST')) {
             request()->flash();
             $urls = preg_split('/\r\n/', request('page'));
-            $this->parserService->parse($urls,'companies');
+            $this->parserService->parse($urls, 'companies');
         }
         $donors = Donor::all();
         return view('admin.parser.manual', [
@@ -51,20 +51,24 @@ class ParserController extends Controller
 
     public function parse(StartParserRequest $request)
     {
-        if($request->stop){
+        if ($request->stop) {
             $this->parserService->stop();
             return 'ok';
         }
-        if($request->donor_id){
+        if ($request->resume) {
+            $this->parserService->resume();
+            return 'ok';
+        }
+        if ($request->donor_id) {
             if ($request->donor_id === 'all') {
                 $links = Donor::massParsing()->get()->pluck('link');
             } else {
                 $links = [Donor::find($request->donor_id)->link];
             }
-            $this->parserService->parse($links,'archivePages');
+            $this->parserService->parse($links, 'archivePages');
         }
-        if($request->pages){
-            $this->parserService->parse($request->pages,'companies');
+        if ($request->pages) {
+            $this->parserService->parse($request->pages, 'companies');
         }
 
         return 'ok';
@@ -74,15 +78,14 @@ class ParserController extends Controller
     {
         $task = ParserTask::latest('id')->withStats()->first();
         $logs = ParserLog::orderBy('id', 'desc')->paginate();
+
+        $statistics = $this->parserService->getStatistics();
         return response()->json([
-            'table'      => '' . view('admin.partials.logs', ['logs' => $logs,]),
-            'statistics' => '' . view('admin.partials.parser.statistics', [
-                    'statistics' => $this->parserService->getStatistics(),
-                    'task' => $task,
-                ]),
-            'is_parsing' => $this->parserService->should_stop(),
-            'progress' => $task->progress->progress ?? 0,
-            'progress_max' => $task->progress->progress_max ?? 0,
-        ]);
+                'table'      => '' . view('admin.partials.logs', ['logs' => $logs,]),
+                'statistics' => '' . view('admin.partials.parser.statistics', [
+                        'statistics' => $statistics,
+                        'task'       => $task,
+                    ]),
+            ] + $statistics);
     }
 }

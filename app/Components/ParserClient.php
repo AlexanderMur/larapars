@@ -42,7 +42,6 @@ class ParserClient
 
     public function addGet($link, $options = [])
     {
-        info('addget');
         $promise       = new Promise();
         $this->links[] = [
             'link'    => $link,
@@ -63,11 +62,9 @@ class ParserClient
                 while (true) {
                     $start = microtime(true);
                     queue()->run();
-                    info('queeue SPEEDD '.(microtime(true) - $start));
 
                     shuffle($this->links);
                     $link = array_shift($this->links);
-                    info('inks count:' . count($this->links));
                     if (!$link && count($this->pending) > 0) {
                         yield function () {
                             info('pool fix '.array_keys($this->pending)[0]);
@@ -87,14 +84,12 @@ class ParserClient
                         return $this->client
                             ->getAsync($link['link'], $link['options'])
                             ->then(function (Response $response) use ($link) {
-                                info($response->getStatusCode());
                                 unset($this->pending[$link['link']]);
                                 $link['promise']->resolve($response);
                             }, function (\Exception $exception) use ($link) {
                                 unset($this->pending[$link['link']]);
                                 info($exception->getMessage());
                                 $link['promise']->reject($exception);
-                                info('then level :'.count(debug_backtrace()));
                             });
                     };
                 }

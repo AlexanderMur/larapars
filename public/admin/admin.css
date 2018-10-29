@@ -15447,11 +15447,35 @@ tr:hover .actions {
   display: none;
 }
 
-.parser--is-parsing .parser__stop {
+.parser__resume {
+  display: none;
+}
+
+.parser__stopping {
+  display: none;
+}
+
+form[data-state="parsing"] .parser__stop {
   display: inline-block;
 }
 
-.parser--is-parsing .parser__start {
+form[data-state="parsing"] .parser__start {
+  display: none;
+}
+
+form[data-state="paused"] .parser__resume {
+  display: inline-block;
+}
+
+form[data-state="paused"] .parser__start {
+  display: none;
+}
+
+form[data-state="stopping"] .parser__stopping {
+  display: inline-block;
+}
+
+form[data-state="stopping"] .parser__start {
   display: none;
 }
 

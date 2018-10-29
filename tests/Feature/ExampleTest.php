@@ -54,6 +54,21 @@ class ExampleTest extends TestCase
         echo 'after';
 
     }
+    public function testClient404()
+    {
+
+
+        $parserClient = new ParserClient();
+
+        $parserClient
+            ->addGet('http://example.com/404');
+
+        $parserClient->run();
+
+        $this->assertTrue(true);
+        echo 'after';
+
+    }
     public function testGuzzleClient(){
         $client = new Client();
         $promises = [];
@@ -78,6 +93,13 @@ class ExampleTest extends TestCase
                     $this->assertTrue(true);
                 });
         }
+
+        unwrap($promises);
+    }
+    public function testGuzzleClient404(){
+        $client = new Client();
+        $promises = [];
+        $promises[] = $client->getAsync('http://example.com/404');
 
         unwrap($promises);
     }
@@ -184,6 +206,18 @@ class ExampleTest extends TestCase
         }
 
 
+        $this->assertTrue(true);
+    }
+
+    public function testInfoSpeed(){
+
+        $start = microtime(true);
+        info('AAAAAAAAAAAA');
+        info('AAAAAAAAAAAA');
+        info('AAAAAAAAAAAA');
+        info('AAAAAAAAAAAA');
+        info('AAAAAAAAAAAA');
+        echo microtime(true) - $start;
         $this->assertTrue(true);
     }
 }

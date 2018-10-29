@@ -69,7 +69,7 @@ class ParserService
         $this->parserClass  = new ParserClass();
         $this->client       = new Client();
         $this->parserClient = new ParserClient();
-        $this->parserClient->onEachRequest(function(){
+        $this->parserClient->onEachRequest(function () {
             return !$this->should_stop();
         });
     }
@@ -88,14 +88,18 @@ class ParserService
             Новых отзывов: (' . $this->new_reviews_count . ')
             Удалено отзывов: (' . $this->deleted_reviews_count . ')
             Возвращено отзывов: (' . $this->restored_reviews_count . ')
-            ', null);
-                if ($this->state === 'stopping') {
+            ', null,['donor_stats' => $this->donors]);
+                if ($this->should_stop()) {
                     $this->state = 'paused';
+                } else {
+                    $this->state = 'done';
                 }
-                $this->state = 'done';
+                if (file_exists($this->stop_file_path())) {
+                    unlink($this->stop_file_path());
+                }
                 $this->saveProgress();
             }
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             info($exception->getMessage());
         }
     }
@@ -123,6 +127,9 @@ class ParserService
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
                 'verify'  => false,
+//                'proxy' => [
+//                    'http' => '127.0.0.1:8080'
+//                ]
             ])
             ->then(function (Response $response) use ($link, $donor) {
                 $html = $response->getBody()->getContents();
@@ -130,9 +137,7 @@ class ParserService
 //                info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                 $this->count_pages++;
                 $speed = $this->count_pages / (microtime(true) - $this->start);
-                info('page SPEED!!! ' . $speed);
-
-                info('done ' . $link);
+                info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
             }, function (RequestException $exception) use ($donor, $link) {
                 info('ERRORR!!!!!');
@@ -153,7 +158,7 @@ class ParserService
 
     public function parseCompanyByUrl($url, Donor $donor)
     {
-        $this->check_status($url);
+        $this->check_status();
 
         $this->companyPagesInQueue[$url] = $donor->id;
 
@@ -173,7 +178,7 @@ class ParserService
     public function parseArchivePageByUrl($url, Donor $donor, callable $eachRequest = null)
     {
 
-        $this->check_status($url);
+        $this->check_status();
         $this->add_visited_page($url, $donor->id);
         $this->archivePagesInQueue[$url] = $donor->id;
         return $this->getPage($url, $donor)
@@ -233,21 +238,20 @@ class ParserService
 
     public function parse($urls, $type)
     {
-        $this->progress = 0;
         $this->progress_max = count($urls);
-        $urls = $this->mapUrlsWithDonor($urls);
-        $this->check_status($urls);
+        $urls               = $this->mapUrlsWithDonor($urls);
+        $this->check_status();
 
         foreach ($urls as $url) {
             if ($type == 'companies') {
                 $this->parseCompanyByUrl($url['donor_page'], $url['donor'])
-                ->then(function(){
-                    $this->progress++;
-                    $this->saveProgress();
-                });
+                    ->then(function () {
+                        $this->progress++;
+                        $this->saveProgress();
+                    });
             }
             if ($type == 'archivePages') {
-                $this->parseArchivePageByUrl($url['donor_page'], $url['donor'],function() use ($url) {
+                $this->parseArchivePageByUrl($url['donor_page'], $url['donor'], function ($url2) use ($url) {
                     if ($this->isDonorLoaded($url['donor']->id)) {
                         $this->progress++;
                         $this->saveProgress();
@@ -258,17 +262,19 @@ class ParserService
         $this->parserClient->run();
     }
 
-    public function check_status($urls = [])
+    public function check_status()
     {
         if (!$this->is_started) {
             info('start');
             $this->start       = microtime(true);
             $this->proxies     = setting()->getProxies();
             $this->parser_task = ParserTask::create();
-            $this->parser_task->createProgress(count($urls));
             $this->parser_task->log('bold', 'Запуск парсера', null);
             $this->state = 'parsing';
             $this->saveProgress();
+            if (file_exists($this->stop_file_path())) {
+                unlink($this->stop_file_path());
+            }
             config()->set('debugbar.collectors.db', false);
             config()->set('debugbar.collectors.log', false);
             config()->set('debugbar.collectors.logs', false);
@@ -306,11 +312,25 @@ class ParserService
         file_put_contents($this->stop_file_path(), null);
     }
 
+    /**
+     * @return object
+     */
     public function getProgress()
     {
-        return \GuzzleHttp\json_decode(
-            file_get_contents($this->progress_file_path())
-        );
+        $default = (object)[
+            'archivePagesInQueue' => [],
+            'companyPagesInQueue' => [],
+            'visitedPages'        => [],
+            'state'               => 'done',
+            'progress'            => null,
+            'progress_max'        => null,
+        ];
+        if(file_exists($this->progress_file_path())){
+            return \GuzzleHttp\json_decode(
+                file_get_contents($this->progress_file_path())
+            );
+        }
+        return $default;
     }
 
     public function saveProgress()
@@ -326,6 +346,25 @@ class ParserService
             'progress'            => $this->progress,
             'progress_max'        => $this->progress_max,
         ]));
+    }
+
+    public function resume()
+    {
+
+        $old_state          = $this->getProgress();
+        $this->visitedPages = (array) $old_state->visitedPages;
+        $urls               = $this->mapUrlsWithDonor(array_keys((array)$old_state->companyPagesInQueue));
+
+        foreach ($urls as $url) {
+            $this->parseCompanyByUrl($url['donor_page'], $url['donor'])
+                ->then(function () {
+                    $this->saveProgress();
+                });
+        }
+
+        $this->parse(array_keys((array)$old_state->archivePagesInQueue),'archivePages');
+
+
     }
 
     /**
@@ -429,32 +468,39 @@ class ParserService
 
     public function mapUrlsWithDonor($urls)
     {
-        $donorsQuery = Donor::select();
-        $mappedUrls  = [];
-        foreach ($urls as $key => $url) {
-            $host         = parse_url($url)['host'];
-            $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
-            $donorsQuery->orWhere('link', 'like', "%$host%");
+        if($urls){
+            $donorsQuery = Donor::select();
+            $mappedUrls  = [];
+            foreach ($urls as $key => $url) {
+                $host         = parse_url($url)['host'];
+                $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
+                $donorsQuery->orWhere('link', 'like', "%$host%");
+            }
+            $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
+                return parse_url($donor->link)['host'];
+            });
+            foreach ($mappedUrls as $key => $url) {
+                $mappedUrls[$key]['donor'] = $donors[$url['host']];
+            }
+            return $mappedUrls;
+        } else {
+            return [];
         }
-        $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
-            return parse_url($donor->link)['host'];
-        });
-        foreach ($mappedUrls as $key => $url) {
-            $mappedUrls[$key]['donor'] = $donors[$url['host']];
-        }
-        return $mappedUrls;
     }
 
     public function getStatistics()
     {
-
+        $progress = (array)$this->getProgress();
+        if ($this->should_stop()) {
+            $progress['state'] = 'stopping';
+        }
         return
             [
                 'parsed_companies_count' => ParsedCompany::where('company_id', null)->count(),
                 'reviews_count'          => Review::where('good', null)->count(),
                 'rated_reviews_count'    => Review::where('good', '!=', null)->count(),
             ]
-            + (array)$this->getProgress();
+            + $progress;
     }
 
     public function mb_register_donor(Donor $donor)

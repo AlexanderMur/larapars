@@ -119,6 +119,10 @@
       <skipped_file file="$PROJECT_DIR$/vendor/guzzlehttp/guzzle/src/Pool.php" />
       <skipped_file file="$PROJECT_DIR$/vendor/guzzlehttp/promises/src/functions.php" />
       <skipped_file file="$PROJECT_DIR$/vendor/guzzlehttp/promises/src/TaskQueue.php" />
+      <skipped_file file="$PROJECT_DIR$/vendor/laravel/framework/src/Illuminate/Foundation/AliasLoader.php" />
+      <skipped_file file="$PROJECT_DIR$/vendor/composer/ClassLoader.php" />
+      <skipped_file file="$PROJECT_DIR$/vendor/guzzlehttp/promises/src/PromisorInterface.php" />
+      <skipped_file file="$PROJECT_DIR$/vendor/guzzlehttp/promises/src/EachPromise.php" />
     </skipped_files>
   </component>
   <component name="PhpUnit">
