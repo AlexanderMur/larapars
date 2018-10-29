@@ -61,12 +61,17 @@ class ParserService
     public $archivePagesInQueue = [];
     public $companyPagesInQueue = [];
     public $state;
+    public $progress;
+    public $progress_max;
 
     public function __construct()
     {
         $this->parserClass  = new ParserClass();
         $this->client       = new Client();
         $this->parserClient = new ParserClient();
+        $this->parserClient->onEachRequest(function(){
+            return !$this->should_stop();
+        });
     }
 
     /**
@@ -87,7 +92,7 @@ class ParserService
                 if ($this->state === 'stopping') {
                     $this->state = 'paused';
                 }
-
+                $this->state = 'done';
                 $this->saveProgress();
             }
         } catch (Exception $exception) {
@@ -151,66 +156,67 @@ class ParserService
         $this->check_status($url);
 
         $this->companyPagesInQueue[$url] = $donor->id;
-        $this->saveProgress();
 
 
         return $this->getPage($url, $donor)
             ->then(function (Crawler $crawler) use ($url, $donor) {
 
-                $data = $this->parserClass->getDataOnSinglePage($crawler, $donor);
-                $this->handleParsedCompany($data, $donor);
+                $data           = $this->parserClass->getDataOnSinglePage($crawler, $donor);
+                $parsed_company = $this->handleParsedCompany($data, $donor);
 
                 unset($this->companyPagesInQueue[$url]);
-                $this->saveProgress();
-                return $data;
+                return $parsed_company;
             });
     }
 
 
-    public function parseArchivePageByUrl($url, Donor $donor, callable $onDone = null)
+    public function parseArchivePageByUrl($url, Donor $donor, callable $eachRequest = null)
     {
 
         $this->check_status($url);
-
-        if (!in_array($url, $this->visitedPages)) {
-            $this->visitedPages[] = $url;
-        }
-        $this->archivePagesInQueue[] = $url;
-        $this->saveProgress();
-
+        $this->add_visited_page($url, $donor->id);
+        $this->archivePagesInQueue[$url] = $donor->id;
         return $this->getPage($url, $donor)
-            ->then(function (Crawler $crawler) use ($onDone, $donor, $url) {
-
+            ->then(function (Crawler $crawler) use ($eachRequest, $donor, $url) {
 
                 if (!$this->should_stop()) {
                     $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
-                    $has_more_pages = false;
                     foreach ($archiveData['pagination'] as $page) {
-                        if (!in_array($page, $this->visitedPages)) {
-                            $has_more_pages = true;
-                            $this->visitedPages[] = $page;
-                            $this->parseArchivePageByUrl($page, $donor, $onDone);
-                        }
-                    }
-                    if(!$has_more_pages){
-                        if(is_callable($onDone)){
-                            $onDone();
+                        if ($this->add_visited_page($page, $donor->id)) {
+                            $this->parseArchivePageByUrl($page, $donor, $eachRequest);
                         }
                     }
                     foreach ($archiveData['items'] as $page) {
-                        $this->parseCompanyByUrl($page['donor_page'], $donor);
+                        $this->parseCompanyByUrl($page['donor_page'], $donor)
+                            ->then($eachRequest);
                     }
                     unset($this->archivePagesInQueue[$url]);
+                    if (!in_array($donor->id, $this->archivePagesInQueue)) {
+                        unset($this->visitedPages[$donor->id]);
+                    }
                 }
 
-                $this->saveProgress();
+                $eachRequest();
 
+                return $url;
             });
     }
 
-    public function isVisitedPage($url,Donor $donor){
-
+    public function isDonorLoaded($donor_id)
+    {
+        return !in_array($donor_id, $this->archivePagesInQueue) && !in_array($donor_id, $this->companyPagesInQueue);
     }
+
+    public function add_visited_page($url, $donor_id)
+    {
+        $this->visitedPages[$donor_id] = $this->visitedPages[$donor_id] ?? [];
+        if (!in_array($url, $this->visitedPages[$donor_id])) {
+            $this->visitedPages[$donor_id][] = $url;
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @param Donor[] $donors
      */
@@ -227,15 +233,26 @@ class ParserService
 
     public function parse($urls, $type)
     {
+        $this->progress = 0;
+        $this->progress_max = count($urls);
         $urls = $this->mapUrlsWithDonor($urls);
         $this->check_status($urls);
 
         foreach ($urls as $url) {
             if ($type == 'companies') {
-                $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
+                $this->parseCompanyByUrl($url['donor_page'], $url['donor'])
+                ->then(function(){
+                    $this->progress++;
+                    $this->saveProgress();
+                });
             }
             if ($type == 'archivePages') {
-                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+                $this->parseArchivePageByUrl($url['donor_page'], $url['donor'],function() use ($url) {
+                    if ($this->isDonorLoaded($url['donor']->id)) {
+                        $this->progress++;
+                        $this->saveProgress();
+                    }
+                });
             }
         }
         $this->parserClient->run();
@@ -306,6 +323,8 @@ class ParserService
             'companyPagesInQueue' => $this->companyPagesInQueue,
             'visitedPages'        => $this->visitedPages,
             'state'               => $this->state,
+            'progress'            => $this->progress,
+            'progress_max'        => $this->progress_max,
         ]));
     }
 

@@ -24,6 +24,10 @@ class ParserClient
     public $links = [];
     protected $pending = [];
     private $runned;
+    /**
+     * @var callable $eachRequestfn
+     */
+    protected $eachRequestfn;
     protected $last_promise;
     /**
      * @var ParserClass $parser
@@ -47,14 +51,20 @@ class ParserClient
         ];
         return $promise;
     }
-
+    public function onEachRequest(callable $fn){
+        $this->eachRequestfn = $fn;
+        return $this;
+    }
     public function run()
     {
         if (count($this->links)) {
             $this->runned = true;
             $requests = function () {
                 while (true) {
+                    $start = microtime(true);
                     queue()->run();
+                    info('queeue SPEEDD '.(microtime(true) - $start));
+
                     shuffle($this->links);
                     $link = array_shift($this->links);
                     info('inks count:' . count($this->links));
@@ -69,7 +79,9 @@ class ParserClient
                     if(!$link){
                         break;
                     }
-
+                    if(is_callable($this->eachRequestfn) && !call_user_func($this->eachRequestfn,$link)){
+                        break;
+                    }
                     $this->pending[$link['link']] = $link['promise'];
                     yield function () use ($link) {
                         return $this->client
