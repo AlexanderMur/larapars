@@ -30,6 +30,22 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="kakkupil (parser)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/node_modules" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="kakkupil (parser) home">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/node_modules" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="larapars">
         <serverdata>
           <mappings>
@@ -63,6 +79,22 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pg-tst.tk (ssh)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/node_modules" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pg-tst.tk (ssh) home">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/node_modules" web="/" />
           </mappings>
         </serverdata>
       </paths>

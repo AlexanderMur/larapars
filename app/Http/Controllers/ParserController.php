@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Components\ParserClass;
 use App\Http\Requests\StartParserRequest;
+use App\Jobs\ParsePages;
 use App\Models\Donor;
 use App\Models\ParserTask;
 use App\ParserLog;
@@ -65,10 +66,10 @@ class ParserController extends Controller
             } else {
                 $links = [Donor::find($request->donor_id)->link];
             }
-            $this->parserService->parse($links, 'archivePages');
+            dispatch(new ParsePages($links, 'archivePages'));
         }
         if ($request->pages) {
-            $this->parserService->parse($request->pages, 'companies');
+            dispatch(new ParsePages($request->pages, 'companies'));
         }
 
         return 'ok';

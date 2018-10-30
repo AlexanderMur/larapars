@@ -28,7 +28,7 @@
                         {{$log->message}}
                     @endif
 
-                    <a href="{{$log->url}}">{{str_limit($log->url,55)}}</a>
+                    <a href="{{$log->url}}" target="_blank">{{str_limit($log->url,55)}}</a>
 
                     @if ($log->type == 'ok')
                         <span class="label label-info">OK</span>

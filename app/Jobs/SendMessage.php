@@ -33,10 +33,9 @@ class SendMessage implements ShouldQueue
      */
     public function handle()
     {
-        sleep(2);
-        info('again 2 secs...');
-        sleep(2);
-        info('Hi!!!');
+        info('should sleep 1 hour..');
+        sleep(3500);
+        info('true!');
 
     }
     public function __destruct()

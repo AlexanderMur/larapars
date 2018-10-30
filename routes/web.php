@@ -113,7 +113,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 });
 
 Route::get('delay/{delay}',function($delay){
-    sleep($delay);
+    ini_set('max_execution_time',1);
+    sleep(+$delay);
     echo $delay;
     dump($delay);
     sleep(3);
@@ -122,6 +123,13 @@ Route::get('delay/{delay}',function($delay){
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
     return response()->json($code);
+});
+Route::get('/queue', function () {
+    Queue::push(function($job)
+    {
+        info('AAAAAAAA');
+    });
+    return 'ok';
 });
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
