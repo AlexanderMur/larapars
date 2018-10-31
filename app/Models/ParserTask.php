@@ -65,7 +65,9 @@ class ParserTask extends Model
             },
         ]);
     }
-
+    public function getFresh(){
+        return static::whereKey($this->id)->withStats()->first();
+    }
     /**
      * @param $type
      * @param $message

@@ -29,13 +29,6 @@ class ParserService
     public $parserClass;
     public $is_started;
 
-    public $new_parsed_companies_count = 0;
-    public $updated_companies_count = 0;
-    public $new_company_count = 0;
-    public $updated_company_count = 0;
-    public $new_reviews_count = 0;
-    public $deleted_reviews_count = 0;
-    public $restored_reviews_count = 0;
 
     public $donors = [];
     public $visitedPages = [];
@@ -74,33 +67,29 @@ class ParserService
         });
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function __destruct()
+    public function log_end()
     {
-        try {
-            if ($this->is_started) {
-                info('ENDPARSING');
-                $this->parser_task->log('bold', '
-            Работа парсера завершена. Найдено новых компаний: (' . $this->new_parsed_companies_count . ')
-            Обновлено компаний: (' . $this->updated_companies_count . ')
-            Новых отзывов: (' . $this->new_reviews_count . ')
-            Удалено отзывов: (' . $this->deleted_reviews_count . ')
-            Возвращено отзывов: (' . $this->restored_reviews_count . ')
-            ', null,['donor_stats' => $this->donors]);
-                if ($this->should_stop()) {
-                    $this->state = 'paused';
-                } else {
-                    $this->state = 'done';
-                }
-                if (file_exists($this->stop_file_path())) {
-                    unlink($this->stop_file_path());
-                }
-                $this->saveProgress();
+        if ($this->is_started) {
+            info('ENDPARSING');
+
+            $this->parser_task = $this->parser_task->getFresh();
+
+            $this->parser_task->log('bold', '
+            Работа парсера завершена. Найдено новых компаний: (' . $this->parser_task->new_companies_count . ')
+            Обновлено компаний: (' . $this->parser_task->updated_companies_count . ')
+            Новых отзывов: (' . $this->parser_task->new_reviews_count . ')
+            Удалено отзывов: (' . $this->parser_task->deleted_reviews_count . ')
+            Возвращено отзывов: (' . $this->parser_task->restored_reviews_count . ')
+            ', null, ['donor_stats' => $this->donors]);
+            if ($this->should_stop()) {
+                $this->state = 'paused';
+            } else {
+                $this->state = 'done';
             }
-        } catch (\Throwable $exception) {
-            info($exception->getMessage());
+            if (file_exists($this->stop_file_path())) {
+                unlink($this->stop_file_path());
+            }
+            $this->saveProgress();
         }
     }
 
@@ -120,7 +109,6 @@ class ParserService
         $this->mb_register_donor($donor);
         info('getpage');
         $this->parser_task->log('get', '', $link);
-        $this->saveProgress();
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
         return $this->parserClient
             ->addGet($link, [
@@ -128,10 +116,10 @@ class ParserService
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
                 'verify'  => false,
-                'proxy' => [
-                    'http' => $random_proxy,
+                'proxy'   => [
+                    'http'  => $random_proxy,
                     'https' => $random_proxy,
-                ]
+                ],
             ])
             ->then(function (Response $response) use ($link, $donor) {
                 $html = $response->getBody()->getContents();
@@ -263,6 +251,7 @@ class ParserService
             }
         }
         $this->parserClient->run();
+        $this->log_end();
     }
 
     public function check_status()
@@ -328,7 +317,7 @@ class ParserService
             'progress'            => null,
             'progress_max'        => null,
         ];
-        if(file_exists($this->progress_file_path())){
+        if (file_exists($this->progress_file_path())) {
             return \GuzzleHttp\json_decode(
                 file_get_contents($this->progress_file_path())
             );
@@ -355,7 +344,7 @@ class ParserService
     {
 
         $old_state          = $this->getProgress();
-        $this->visitedPages = (array) $old_state->visitedPages;
+        $this->visitedPages = (array)$old_state->visitedPages;
         $urls               = $this->mapUrlsWithDonor(array_keys((array)$old_state->companyPagesInQueue));
 
         foreach ($urls as $url) {
@@ -365,7 +354,7 @@ class ParserService
                 });
         }
 
-        $this->parse(array_keys((array)$old_state->archivePagesInQueue),'archivePages');
+        $this->parse(array_keys((array)$old_state->archivePagesInQueue), 'archivePages');
 
 
     }
@@ -387,13 +376,11 @@ class ParserService
             $in_array = in_array($review->donor_comment_id, $new_review_ids);
             if (!$in_array && $review->deleted_at === null) {
                 $review->delete();
-                $this->deleted_reviews_count++;
                 $this->donors[$donor->id]['deleted_reviews_count']++;
                 $this->parser_task->log('review_deleted', 'Отзыв удален', $parsed_company);
             }
             if ($in_array && $review->deleted_at !== null) {
                 $review->restore();
-                $this->restored_reviews_count++;
                 $this->donors[$donor->id]['restored_reviews_count']++;
                 $this->parser_task->log('review_restored', 'Отзыв возвращен', $parsed_company);
             }
@@ -454,13 +441,11 @@ class ParserService
                         "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
                         $parsed_company
                     );
-                    $this->updated_companies_count++;
                     $this->donors[$donor->id]['updated_companies_count']++;
                 }
             }
         } else {
             $this->parser_task->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);
-            $this->new_parsed_companies_count++;
             $this->donors[$donor->id]['new_parsed_companies_count']++;
         }
 
@@ -471,7 +456,7 @@ class ParserService
 
     public function mapUrlsWithDonor($urls)
     {
-        if($urls){
+        if ($urls) {
             $donorsQuery = Donor::select();
             $mappedUrls  = [];
             foreach ($urls as $key => $url) {

@@ -54,6 +54,7 @@ class ExampleTest extends TestCase
         echo 'after';
 
     }
+
     public function testClient404()
     {
 
@@ -69,40 +70,45 @@ class ExampleTest extends TestCase
         echo 'after';
 
     }
-    public function testGuzzleClient(){
-        $client = new Client();
+
+    public function testGuzzleClient()
+    {
+        $client   = new Client();
         $promises = [];
         for ($i = 0; $i < 3; $i++) {
             $promises[] = $client->getAsync('http://example.com')
-                ->then(function() use ($client) {
+                ->then(function () use ($client) {
                     return $client->getAsync('http://example.com');
                 })
-                ->then(function(){
+                ->then(function () {
                     return 'ok';
                 }
-                )->then(function($val) use ($i, $client) {
+                )->then(function ($val) use ($i, $client) {
                     echo $val;
                     echo $i;
                     $client->getAsync('http://foo.bar')
-                        ->then(function(){
+                        ->then(function () {
                             $this->assertTrue(true);
                         });
                     return $client->getAsync('http://example.com');
                 })
-                ->then(function(){
+                ->then(function () {
                     $this->assertTrue(true);
                 });
         }
 
         unwrap($promises);
     }
-    public function testGuzzleClient404(){
-        $client = new Client();
-        $promises = [];
+
+    public function testGuzzleClient404()
+    {
+        $client     = new Client();
+        $promises   = [];
         $promises[] = $client->getAsync('http://example.com/404');
 
         unwrap($promises);
     }
+
     public function testClientRecurs()
     {
 
@@ -142,7 +148,7 @@ class ExampleTest extends TestCase
 
         $donor = Donor::find(15);
 
-        $parserService->parse([$donor->link],'archivePages');
+        $parserService->parse([$donor->link], 'archivePages');
 
         $this->assertTrue(true);
     }
@@ -209,7 +215,8 @@ class ExampleTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testInfoSpeed(){
+    public function testInfoSpeed()
+    {
 
         $start = microtime(true);
         info('AAAAAAAAAAAA');
