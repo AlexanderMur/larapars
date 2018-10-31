@@ -46,6 +46,15 @@
             </div>
             <div class="panel-collapse collapse parser__logs__collapse" role="tabpanel" id="parser__logs__collapse">
                 <div class="panel-body ">
+                    <p>
+                        Ссылок на компании в очереди <span class="logs__c-pages-count"></span>
+                    </p>
+                    <p>
+                        Ссылок на архив в очереди <span class="logs__a-pages-count"></span>
+                    </p>
+                    <p>
+                        Ссылок ожидает овета <span class="logs__s-pages-count"></span>
+                    </p>
                     <div class="parser__logs__inner">
 
                     </div>

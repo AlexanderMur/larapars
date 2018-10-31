@@ -130,7 +130,7 @@ class ParserService
                 info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
             }, function (RequestException $exception) use ($donor, $link) {
-                info('ERRORR!!!!!');
+                info('ERRORR!!!!!'.$exception->getCode(). ' ' .$link);
                 $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
                     case 404:
@@ -245,8 +245,8 @@ class ParserService
                 $this->parseArchivePageByUrl($url['donor_page'], $url['donor'], function ($url2) use ($url) {
                     if ($this->isDonorLoaded($url['donor']->id)) {
                         $this->progress++;
-                        $this->saveProgress();
                     }
+                    $this->saveProgress();
                 });
             }
         }
@@ -316,6 +316,7 @@ class ParserService
             'state'               => 'done',
             'progress'            => null,
             'progress_max'        => null,
+            'send_links' => 0,
         ];
         if (file_exists($this->progress_file_path())) {
             return \GuzzleHttp\json_decode(
@@ -333,6 +334,7 @@ class ParserService
         file_put_contents($this->progress_file_path(), \GuzzleHttp\json_encode([
             'archivePagesInQueue' => $this->archivePagesInQueue,
             'companyPagesInQueue' => $this->companyPagesInQueue,
+            'send_links' => $this->parserClient->getPendingCount(),
             'visitedPages'        => $this->visitedPages,
             'state'               => $this->state,
             'progress'            => $this->progress,

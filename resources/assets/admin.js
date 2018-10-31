@@ -213,6 +213,13 @@ $(function ($) {
 
         $('.parser__logs__inner').html(json.table)
 
+
+
+
+        $('.logs__c-pages-count').text(Object.keys(json.companyPagesInQueue).length)
+        $('.logs__a-pages-count').text(Object.keys(json.archivePagesInQueue).length)
+        $('.logs__s-pages-count').text(json.send_links)
+
         $('.statistics').html(json.statistics)
         $('.parser__start').parents('form').attr('data-state', json.state)
         if (json.progress_max) {

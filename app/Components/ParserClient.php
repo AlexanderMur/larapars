@@ -50,6 +50,9 @@ class ParserClient
         ];
         return $promise;
     }
+    public function getPendingCount(){
+        return count($this->pending);
+    }
     public function onEachRequest(callable $fn){
         $this->eachRequestfn = $fn;
         return $this;

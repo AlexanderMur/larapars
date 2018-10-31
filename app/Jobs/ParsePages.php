@@ -44,7 +44,11 @@ class ParsePages implements ShouldQueue
     {
 
 
-        $parserService->parse($this->links,$this->type);
+        try{
+            $parserService->parse($this->links,$this->type);
+        } catch (\Throwable $throwable){
+            info($throwable->getMessage().'AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        }
 
     }
 
