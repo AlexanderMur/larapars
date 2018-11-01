@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="larapars-test">
+  <component name="PublishConfigData" serverName="larapars-test" uploadOnCheckin="32d494f4-59b2-4409-b382-0ff78fb2d5a7">
     <serverData>
       <paths name="domaveka">
         <serverdata>
@@ -134,5 +134,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myUploadOnCheckinName" value="larapars-test" />
   </component>
 </project>

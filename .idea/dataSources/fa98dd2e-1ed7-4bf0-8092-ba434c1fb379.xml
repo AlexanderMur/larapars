@@ -934,353 +934,351 @@
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="236" parent="9" name="jobs">
+    <table id="236" parent="9" name="http_logs">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="237" parent="9" name="migrations">
+    <table id="237" parent="9" name="jobs">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="238" parent="9" name="parsed_companies">
+    <table id="238" parent="9" name="migrations">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="239" parent="9" name="parser_logs">
+    <table id="239" parent="9" name="parsed_companies">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="240" parent="9" name="parser_tasks">
+    <table id="240" parent="9" name="parser_logs">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="241" parent="9" name="parsers">
+    <table id="241" parent="9" name="parser_tasks">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="242" parent="9" name="password_resets">
+    <table id="242" parent="9" name="parsers">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="243" parent="9" name="progress_bars">
+    <table id="243" parent="9" name="password_resets">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="244" parent="9" name="reviews">
+    <table id="244" parent="9" name="progress_bars">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="245" parent="9" name="settings">
+    <table id="245" parent="9" name="reviews">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <table id="246" parent="9" name="users">
+    <table id="246" parent="9" name="settings">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_unicode_ci</Collation>
     </table>
-    <column id="247" parent="232" name="id">
+    <table id="247" parent="9" name="users">
+      <Engine>InnoDB</Engine>
+      <Collation>utf8mb4_unicode_ci</Collation>
+    </table>
+    <column id="248" parent="232" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="248" parent="232" name="phone">
+    <column id="249" parent="232" name="phone">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="249" parent="232" name="site">
+    <column id="250" parent="232" name="site">
       <Position>3</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="250" parent="232" name="title">
+    <column id="251" parent="232" name="title">
       <Position>4</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="251" parent="232" name="city">
+    <column id="252" parent="232" name="city">
       <Position>5</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="252" parent="232" name="address">
+    <column id="253" parent="232" name="address">
       <Position>6</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="253" parent="232" name="favourite">
+    <column id="254" parent="232" name="favourite">
       <Position>7</Position>
       <DataType>tinyint(1)|0</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="254" parent="232" name="created_at">
+    <column id="255" parent="232" name="created_at">
       <Position>8</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="255" parent="232" name="updated_at">
+    <column id="256" parent="232" name="updated_at">
       <Position>9</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="256" parent="232" name="PRIMARY">
+    <key id="257" parent="232" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="257" parent="233" name="id">
+    <column id="258" parent="233" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="258" parent="233" name="field">
+    <column id="259" parent="233" name="field">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="259" parent="233" name="old_value">
+    <column id="260" parent="233" name="old_value">
       <Position>3</Position>
       <DataType>text|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="260" parent="233" name="new_value">
+    <column id="261" parent="233" name="new_value">
       <Position>4</Position>
       <DataType>text|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="261" parent="233" name="parsed_company_id">
+    <column id="262" parent="233" name="parsed_company_id">
       <Position>5</Position>
       <DataType>text|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="262" parent="233" name="created_at">
+    <column id="263" parent="233" name="created_at">
       <Position>6</Position>
       <DataType>timestamp|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="263" parent="233" name="PRIMARY">
+    <key id="264" parent="233" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="264" parent="234" name="id">
+    <column id="265" parent="234" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="265" parent="234" name="link">
+    <column id="266" parent="234" name="link">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="266" parent="234" name="title">
+    <column id="267" parent="234" name="title">
       <Position>3</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="267" parent="234" name="mass_parsing">
+    <column id="268" parent="234" name="mass_parsing">
       <Position>4</Position>
       <DataType>tinyint(1)|0</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;1&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="268" parent="234" name="loop_item">
+    <column id="269" parent="234" name="loop_item">
       <Position>5</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="269" parent="234" name="loop_title">
+    <column id="270" parent="234" name="loop_title">
       <Position>6</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="270" parent="234" name="loop_address">
+    <column id="271" parent="234" name="loop_address">
       <Position>7</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="271" parent="234" name="loop_link">
+    <column id="272" parent="234" name="loop_link">
       <Position>8</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="272" parent="234" name="single_site">
+    <column id="273" parent="234" name="single_site">
       <Position>9</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="273" parent="234" name="single_address">
+    <column id="274" parent="234" name="single_address">
       <Position>10</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="274" parent="234" name="single_tel">
+    <column id="275" parent="234" name="single_tel">
       <Position>11</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="275" parent="234" name="single_title">
+    <column id="276" parent="234" name="single_title">
       <Position>12</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="276" parent="234" name="single_city">
+    <column id="277" parent="234" name="single_city">
       <Position>13</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="277" parent="234" name="replace_search">
+    <column id="278" parent="234" name="replace_search">
       <Position>14</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="278" parent="234" name="replace_to">
+    <column id="279" parent="234" name="replace_to">
       <Position>15</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="279" parent="234" name="reviews_all">
+    <column id="280" parent="234" name="reviews_all">
       <Position>16</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="280" parent="234" name="reviews_title">
+    <column id="281" parent="234" name="reviews_title">
       <Position>17</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="281" parent="234" name="reviews_text">
+    <column id="282" parent="234" name="reviews_text">
       <Position>18</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="282" parent="234" name="reviews_rating">
+    <column id="283" parent="234" name="reviews_rating">
       <Position>19</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="283" parent="234" name="reviews_name">
+    <column id="284" parent="234" name="reviews_name">
       <Position>20</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="284" parent="234" name="reviews_id">
+    <column id="285" parent="234" name="reviews_id">
       <Position>21</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="285" parent="234" name="reviews_pagination">
+    <column id="286" parent="234" name="reviews_pagination">
       <Position>22</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="286" parent="234" name="reviews_ignore_text">
+    <column id="287" parent="234" name="reviews_ignore_text">
       <Position>23</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="287" parent="234" name="archive_pagination">
+    <column id="288" parent="234" name="archive_pagination">
       <Position>24</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="288" parent="234" name="created_at">
+    <column id="289" parent="234" name="created_at">
       <Position>25</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="289" parent="234" name="updated_at">
+    <column id="290" parent="234" name="updated_at">
       <Position>26</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="290" parent="234" name="PRIMARY">
+    <key id="291" parent="234" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="291" parent="235" name="id">
+    <column id="292" parent="235" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="292" parent="235" name="created_at">
+    <column id="293" parent="235" name="created_at">
       <Position>2</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="293" parent="235" name="updated_at">
+    <column id="294" parent="235" name="updated_at">
       <Position>3</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="294" parent="235" name="PRIMARY">
+    <key id="295" parent="235" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="295" parent="236" name="id">
+    <column id="296" parent="236" name="id">
       <Position>1</Position>
-      <DataType>bigint(20) unsigned|0</DataType>
+      <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="296" parent="236" name="queue">
+    <column id="297" parent="236" name="url">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="297" parent="236" name="payload">
+    <column id="298" parent="236" name="status">
       <Position>3</Position>
-      <DataType>longtext|0</DataType>
-      <NotNull>1</NotNull>
+      <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="298" parent="236" name="attempts">
+    <column id="299" parent="236" name="parser_task_id">
       <Position>4</Position>
-      <DataType>tinyint(3) unsigned|0</DataType>
+      <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="299" parent="236" name="reserved_at">
+    <column id="300" parent="236" name="channel">
       <Position>5</Position>
-      <DataType>int(10) unsigned|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="300" parent="236" name="available_at">
-      <Position>6</Position>
-      <DataType>int(10) unsigned|0</DataType>
-      <NotNull>1</NotNull>
+      <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
     <column id="301" parent="236" name="created_at">
-      <Position>7</Position>
-      <DataType>int(10) unsigned|0</DataType>
-      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="302" parent="236" name="jobs_queue_index">
-      <ColNames>queue</ColNames>
-    </index>
+    <column id="302" parent="236" name="updated_at">
+      <Position>7</Position>
+      <DataType>timestamp|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
     <key id="303" parent="236" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
@@ -1288,427 +1286,477 @@
     </key>
     <column id="304" parent="237" name="id">
       <Position>1</Position>
-      <DataType>int(10) unsigned|0</DataType>
+      <DataType>bigint(20) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="305" parent="237" name="migration">
+    <column id="305" parent="237" name="queue">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="306" parent="237" name="batch">
+    <column id="306" parent="237" name="payload">
       <Position>3</Position>
-      <DataType>int(11)|0</DataType>
+      <DataType>longtext|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="307" parent="237" name="PRIMARY">
+    <column id="307" parent="237" name="attempts">
+      <Position>4</Position>
+      <DataType>tinyint(3) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="308" parent="237" name="reserved_at">
+      <Position>5</Position>
+      <DataType>int(10) unsigned|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="309" parent="237" name="available_at">
+      <Position>6</Position>
+      <DataType>int(10) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="310" parent="237" name="created_at">
+      <Position>7</Position>
+      <DataType>int(10) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="311" parent="237" name="jobs_queue_index">
+      <ColNames>queue</ColNames>
+    </index>
+    <key id="312" parent="237" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="308" parent="238" name="id">
+    <column id="313" parent="238" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="309" parent="238" name="phone">
+    <column id="314" parent="238" name="migration">
+      <Position>2</Position>
+      <DataType>varchar(191)|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="315" parent="238" name="batch">
+      <Position>3</Position>
+      <DataType>int(11)|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="316" parent="238" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="317" parent="239" name="id">
+      <Position>1</Position>
+      <DataType>int(10) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="318" parent="239" name="phone">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="310" parent="238" name="site">
+    <column id="319" parent="239" name="site">
       <Position>3</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="311" parent="238" name="title">
+    <column id="320" parent="239" name="title">
       <Position>4</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="312" parent="238" name="address">
+    <column id="321" parent="239" name="address">
       <Position>5</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="313" parent="238" name="city">
+    <column id="322" parent="239" name="city">
       <Position>6</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="314" parent="238" name="company_id">
+    <column id="323" parent="239" name="company_id">
       <Position>7</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="315" parent="238" name="donor_page">
+    <column id="324" parent="239" name="donor_page">
       <Position>8</Position>
-      <DataType>text|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="316" parent="238" name="donor_id">
-      <Position>9</Position>
-      <DataType>int(11)|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="317" parent="238" name="created_at">
-      <Position>10</Position>
-      <DataType>timestamp|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="318" parent="238" name="updated_at">
-      <Position>11</Position>
-      <DataType>timestamp|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <key id="319" parent="238" name="PRIMARY">
-      <NameSurrogate>1</NameSurrogate>
-      <ColNames>id</ColNames>
-      <Primary>1</Primary>
-    </key>
-    <column id="320" parent="239" name="id">
-      <Position>1</Position>
-      <DataType>int(10) unsigned|0</DataType>
-      <NotNull>1</NotNull>
-      <SequenceIdentity>1</SequenceIdentity>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="321" parent="239" name="url">
-      <Position>2</Position>
-      <DataType>text|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="322" parent="239" name="message">
-      <Position>3</Position>
-      <DataType>text|0</DataType>
-      <NotNull>1</NotNull>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="323" parent="239" name="status">
-      <Position>4</Position>
-      <DataType>varchar(191)|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="324" parent="239" name="details">
-      <Position>5</Position>
       <DataType>text|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
     <column id="325" parent="239" name="donor_id">
-      <Position>6</Position>
-      <DataType>int(11)|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="326" parent="239" name="parsed_company_id">
-      <Position>7</Position>
-      <DataType>int(11)|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="327" parent="239" name="type">
-      <Position>8</Position>
-      <DataType>varchar(191)|0</DataType>
-      <ColumnKind>normal</ColumnKind>
-    </column>
-    <column id="328" parent="239" name="parser_task_id">
       <Position>9</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="329" parent="239" name="created_at">
+    <column id="326" parent="239" name="created_at">
       <Position>10</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="330" parent="239" name="PRIMARY">
+    <column id="327" parent="239" name="updated_at">
+      <Position>11</Position>
+      <DataType>timestamp|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="328" parent="239" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="331" parent="240" name="id">
+    <column id="329" parent="240" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="332" parent="240" name="created_at">
+    <column id="330" parent="240" name="url">
+      <Position>2</Position>
+      <DataType>text|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="331" parent="240" name="message">
+      <Position>3</Position>
+      <DataType>text|0</DataType>
+      <NotNull>1</NotNull>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="332" parent="240" name="status">
+      <Position>4</Position>
+      <DataType>varchar(191)|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="333" parent="240" name="details">
+      <Position>5</Position>
+      <DataType>text|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="334" parent="240" name="donor_id">
+      <Position>6</Position>
+      <DataType>int(11)|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="335" parent="240" name="parsed_company_id">
+      <Position>7</Position>
+      <DataType>int(11)|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="336" parent="240" name="type">
+      <Position>8</Position>
+      <DataType>varchar(191)|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="337" parent="240" name="parser_task_id">
+      <Position>9</Position>
+      <DataType>int(11)|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="338" parent="240" name="created_at">
+      <Position>10</Position>
+      <DataType>timestamp|0</DataType>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <key id="339" parent="240" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="340" parent="241" name="id">
+      <Position>1</Position>
+      <DataType>int(10) unsigned|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="341" parent="241" name="created_at">
       <Position>2</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="333" parent="240" name="updated_at">
+    <column id="342" parent="241" name="updated_at">
       <Position>3</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="334" parent="240" name="PRIMARY">
+    <key id="343" parent="241" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="335" parent="241" name="id">
+    <column id="344" parent="242" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="336" parent="241" name="donor_id">
+    <column id="345" parent="242" name="donor_id">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="337" parent="241" name="created_at">
+    <column id="346" parent="242" name="created_at">
       <Position>3</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="338" parent="241" name="updated_at">
+    <column id="347" parent="242" name="updated_at">
       <Position>4</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="339" parent="241" name="PRIMARY">
+    <key id="348" parent="242" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="340" parent="242" name="email">
+    <column id="349" parent="243" name="email">
       <Position>1</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="341" parent="242" name="token">
+    <column id="350" parent="243" name="token">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="342" parent="242" name="created_at">
+    <column id="351" parent="243" name="created_at">
       <Position>3</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="343" parent="242" name="password_resets_email_index">
+    <index id="352" parent="243" name="password_resets_email_index">
       <ColNames>email</ColNames>
     </index>
-    <column id="344" parent="243" name="id">
+    <column id="353" parent="244" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="345" parent="243" name="parser_task_id">
+    <column id="354" parent="244" name="parser_task_id">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="346" parent="243" name="progress">
+    <column id="355" parent="244" name="progress">
       <Position>3</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;0&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="347" parent="243" name="progress_max">
+    <column id="356" parent="244" name="progress_max">
       <Position>4</Position>
       <DataType>int(11)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="348" parent="243" name="PRIMARY">
+    <key id="357" parent="244" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="349" parent="244" name="id">
+    <column id="358" parent="245" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="350" parent="244" name="parsed_company_id">
+    <column id="359" parent="245" name="parsed_company_id">
       <Position>2</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="351" parent="244" name="title">
+    <column id="360" parent="245" name="title">
       <Position>3</Position>
       <DataType>text|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="352" parent="244" name="name">
+    <column id="361" parent="245" name="name">
       <Position>4</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="353" parent="244" name="text">
+    <column id="362" parent="245" name="text">
       <Position>5</Position>
       <DataType>text|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="354" parent="244" name="good">
+    <column id="363" parent="245" name="good">
       <Position>6</Position>
       <DataType>tinyint(1)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="355" parent="244" name="group_id">
+    <column id="364" parent="245" name="group_id">
       <Position>7</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="356" parent="244" name="donor_link">
+    <column id="365" parent="245" name="donor_link">
       <Position>8</Position>
       <DataType>text|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="357" parent="244" name="donor_id">
+    <column id="366" parent="245" name="donor_id">
       <Position>9</Position>
       <DataType>int(11)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="358" parent="244" name="donor_comment_id">
+    <column id="367" parent="245" name="donor_comment_id">
       <Position>10</Position>
       <DataType>varchar(191)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="359" parent="244" name="donor_created_at">
+    <column id="368" parent="245" name="donor_created_at">
       <Position>11</Position>
       <DataType>date|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="360" parent="244" name="trashed_at">
+    <column id="369" parent="245" name="trashed_at">
       <Position>12</Position>
       <DataType>date|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="361" parent="244" name="rated_at">
+    <column id="370" parent="245" name="rated_at">
       <Position>13</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="362" parent="244" name="created_at">
+    <column id="371" parent="245" name="created_at">
       <Position>14</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="363" parent="244" name="updated_at">
+    <column id="372" parent="245" name="updated_at">
       <Position>15</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="364" parent="244" name="deleted_at">
+    <column id="373" parent="245" name="deleted_at">
       <Position>16</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <key id="365" parent="244" name="PRIMARY">
+    <key id="374" parent="245" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="366" parent="245" name="id">
+    <column id="375" parent="246" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="367" parent="245" name="field">
+    <column id="376" parent="246" name="field">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="368" parent="245" name="value">
+    <column id="377" parent="246" name="value">
       <Position>3</Position>
       <DataType>text|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="369" parent="245" name="created_at">
+    <column id="378" parent="246" name="created_at">
       <Position>4</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="370" parent="245" name="updated_at">
+    <column id="379" parent="246" name="updated_at">
       <Position>5</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="371" parent="245" name="settings_field_index">
+    <index id="380" parent="246" name="settings_field_index">
       <ColNames>field</ColNames>
     </index>
-    <key id="372" parent="245" name="PRIMARY">
+    <key id="381" parent="246" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="373" parent="246" name="id">
+    <column id="382" parent="247" name="id">
       <Position>1</Position>
       <DataType>int(10) unsigned|0</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="374" parent="246" name="name">
+    <column id="383" parent="247" name="name">
       <Position>2</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="375" parent="246" name="email">
+    <column id="384" parent="247" name="email">
       <Position>3</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="376" parent="246" name="email_verified_at">
+    <column id="385" parent="247" name="email_verified_at">
       <Position>4</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="377" parent="246" name="password">
+    <column id="386" parent="247" name="password">
       <Position>5</Position>
       <DataType>varchar(191)|0</DataType>
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="378" parent="246" name="remember_token">
+    <column id="387" parent="247" name="remember_token">
       <Position>6</Position>
       <DataType>varchar(100)|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="379" parent="246" name="created_at">
+    <column id="388" parent="247" name="created_at">
       <Position>7</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="380" parent="246" name="updated_at">
+    <column id="389" parent="247" name="updated_at">
       <Position>8</Position>
       <DataType>timestamp|0</DataType>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="381" parent="246" name="users_email_unique">
+    <index id="390" parent="247" name="users_email_unique">
       <ColNames>email</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="382" parent="246" name="PRIMARY">
+    <key id="391" parent="247" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="383" parent="246" name="users_email_unique">
+    <key id="392" parent="247" name="users_email_unique">
       <ColNames>email</ColNames>
       <UnderlyingIndexName>users_email_unique</UnderlyingIndexName>
     </key>

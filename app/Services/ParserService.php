@@ -56,12 +56,14 @@ class ParserService
     public $state;
     public $progress;
     public $progress_max;
+    public $pid;
 
     public function __construct()
     {
         $this->parserClass  = new ParserClass();
         $this->client       = new Client();
         $this->parserClient = new ParserClient();
+        $this->pid = getmypid();
         $this->parserClient->onEachRequest(function () {
             return !$this->should_stop();
         });
@@ -80,7 +82,7 @@ class ParserService
             Новых отзывов: (' . $this->parser_task->new_reviews_count . ')
             Удалено отзывов: (' . $this->parser_task->deleted_reviews_count . ')
             Возвращено отзывов: (' . $this->parser_task->restored_reviews_count . ')
-            ', null, ['donor_stats' => $this->donors]);
+            ', null);
             if ($this->should_stop()) {
                 $this->state = 'paused';
             } else {
@@ -104,11 +106,9 @@ class ParserService
      * @param null $proxy
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getPage($link, Donor $donor, $proxy = null)
+    public function getPage($link, Donor $donor, $type = '')
     {
-        $this->mb_register_donor($donor);
-        info('getpage');
-        $this->parser_task->log('get', '', $link);
+        $http = $this->parser_task->createGet($link, $type);
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
         return $this->parserClient
             ->addGet($link, [
@@ -121,7 +121,11 @@ class ParserService
                     'https' => $random_proxy,
                 ],
             ])
-            ->then(function (Response $response) use ($link, $donor) {
+            ->then(function (Response $response) use ($http, $link, $donor) {
+
+                $http->updateStatus($response->getStatusCode());
+
+
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
 //                info(memory_get_usage(true) / 1024 / 1024 . 'MB');
@@ -129,7 +133,7 @@ class ParserService
                 $speed = $this->count_pages / (microtime(true) - $this->start);
                 info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
-            }, function (RequestException $exception) use ($donor, $link) {
+            }, function (RequestException $exception) use ($type, $donor, $link) {
                 info('ERRORR!!!!!'.$exception->getCode(). ' ' .$link);
                 $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
@@ -139,7 +143,7 @@ class ParserService
                         break;
                     case 0:
                         info($link . ' trying another proxy...');
-                        return $this->getPage($link, $donor);
+                        return $this->getPage($link, $donor,$type);
                         break;
                 }
                 throw $exception;
@@ -153,7 +157,7 @@ class ParserService
         $this->companyPagesInQueue[$url] = $donor->id;
 
 
-        return $this->getPage($url, $donor)
+        return $this->getPage($url, $donor,'company')
             ->then(function (Crawler $crawler) use ($url, $donor) {
 
                 $data           = $this->parserClass->getDataOnSinglePage($crawler, $donor);
@@ -171,7 +175,7 @@ class ParserService
         $this->check_status();
         $this->add_visited_page($url, $donor->id);
         $this->archivePagesInQueue[$url] = $donor->id;
-        return $this->getPage($url, $donor)
+        return $this->getPage($url, $donor,'archive')
             ->then(function (Crawler $crawler) use ($eachRequest, $donor, $url) {
 
                 if (!$this->should_stop()) {
@@ -317,6 +321,7 @@ class ParserService
             'progress'            => null,
             'progress_max'        => null,
             'send_links' => 0,
+            'pid' => null,
         ];
         if (file_exists($this->progress_file_path())) {
             return \GuzzleHttp\json_decode(
@@ -339,6 +344,7 @@ class ParserService
             'state'               => $this->state,
             'progress'            => $this->progress,
             'progress_max'        => $this->progress_max,
+            'pid' => $this->pid,
         ]));
     }
 
@@ -368,7 +374,6 @@ class ParserService
      */
     function handleParsedReviews($parsed_company, $new_company, Donor $donor)
     {
-        $this->mb_register_donor($donor);
         $reviews = Review::withTrashed()->where('donor_link', $new_company['donor_page'])->get();
 
         $new_review_ids = Arr::pluck($new_company['reviews'], 'donor_comment_id');
@@ -378,12 +383,10 @@ class ParserService
             $in_array = in_array($review->donor_comment_id, $new_review_ids);
             if (!$in_array && $review->deleted_at === null) {
                 $review->delete();
-                $this->donors[$donor->id]['deleted_reviews_count']++;
                 $this->parser_task->log('review_deleted', 'Отзыв удален', $parsed_company);
             }
             if ($in_array && $review->deleted_at !== null) {
                 $review->restore();
-                $this->donors[$donor->id]['restored_reviews_count']++;
                 $this->parser_task->log('review_restored', 'Отзыв возвращен', $parsed_company);
             }
         }
@@ -395,8 +398,6 @@ class ParserService
             }
         }
 
-        $this->new_reviews_count                       += $new_reviews->count();
-        $this->donors[$donor->id]['new_reviews_count'] += $new_reviews->count();
         if (count($new_reviews)) {
             $this->parser_task->log('new_reviews',
                 'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
@@ -420,7 +421,6 @@ class ParserService
         if (!isset($new_company['title']) && $new_company['title'] === null) {
             throw new Exception('company must have title');
         }
-        $this->mb_register_donor($donor);
         if (strlen($new_company['address']) > 190) {
             $new_company['address'] = '';
         }
@@ -443,12 +443,10 @@ class ParserService
                         "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
                         $parsed_company
                     );
-                    $this->donors[$donor->id]['updated_companies_count']++;
                 }
             }
         } else {
             $this->parser_task->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);
-            $this->donors[$donor->id]['new_parsed_companies_count']++;
         }
 
         $this->handleParsedReviews($parsed_company, $new_company, $donor);
@@ -493,20 +491,6 @@ class ParserService
             + $progress;
     }
 
-    public function mb_register_donor(Donor $donor)
-    {
-        if (!isset($this->donors[$donor->id])) {
-            $this->donors[$donor->id] = [
-                'link'                       => $donor->link,
-                'new_parsed_companies_count' => 0,
-                'updated_companies_count'    => 0,
-                'new_reviews_count'          => 0,
-                'deleted_reviews_count'      => 0,
-                'restored_reviews_count'     => 0,
-                'tries'                      => 0,
-            ];
-        }
-    }
 
 
 }

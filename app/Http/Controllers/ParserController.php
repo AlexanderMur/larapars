@@ -6,6 +6,7 @@ use App\Components\ParserClass;
 use App\Http\Requests\StartParserRequest;
 use App\Jobs\ParsePages;
 use App\Models\Donor;
+use App\Models\HttpLog;
 use App\Models\ParserTask;
 use App\ParserLog;
 use App\Services\ParserService;
@@ -78,11 +79,13 @@ class ParserController extends Controller
     public function logs()
     {
         $task = ParserTask::latest('id')->withStats()->first();
-        $logs = ParserLog::orderBy('id', 'desc')->paginate();
+        $logs = ParserLog::latest('id')->paginate();
+        $http_logs = HttpLog::latest('id')->paginate();
 
         $statistics = $this->parserService->getStatistics();
         return response()->json([
-                'table'      => '' . view('admin.partials.logs', ['logs' => $logs,]),
+                'messages'      => '' . view('admin.parser.__messages', ['logs' => $logs]),
+                'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$http_logs]),
                 'statistics' => '' . view('admin.partials.parser.statistics', [
                         'statistics' => $statistics,
                         'task'       => $task,

@@ -53,9 +53,28 @@
                         Ссылок на архив в очереди <span class="logs__a-pages-count"></span>
                     </p>
                     <p>
-                        Ссылок ожидает овета <span class="logs__s-pages-count"></span>
+                        Ссылок ожидает ответа <span class="logs__s-pages-count"></span>
+                    </p>
+                    <p>
+                        pid процесса <span class="logs__pid"></span>
                     </p>
                     <div class="parser__logs__inner">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#messages"  data-toggle="tab">Сообщения</a>
+                            </li>
+                            <li>
+                                <a href="#http"  data-toggle="tab">HTTP история</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade active in" id="messages">
+
+                            </div>
+                            <div class="tab-pane fade" id="http">
+
+                            </div>
+                        </div>
 
                     </div>
                 </div>

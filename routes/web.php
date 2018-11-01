@@ -13,6 +13,7 @@ declare(ticks=1);
 */
 
 
+use App\Models\ParserTask;
 use App\ParserLog;
 
 Route::get('/', function () {
@@ -54,7 +55,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');
     Route::get('parser', 'ParserController@parser')->name('parser');
 
-    Route::get('logs12/{log}/details', 'LogController@details')->name('logs.details');
+    Route::get('logs12/{task}/details', 'LogController@details')->name('logs.details');
     Route::get('logs', 'LogController@index')->name('logs.index');
 
     Route::resource('parsers', 'ParserController');
@@ -86,11 +87,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     //Tests
     Route::get('memory-test', 'AdminController@memoryTest');
     Route::get('guzzle-test', 'AdminController@guzzleTest');
-    Route::get('test1',function(){
-        function test($val = null){
+    Route::get('test1', function () {
+        function test($val = null)
+        {
             static $test_var;
 
-            if($val){
+            if ($val) {
                 $test_var = 10;
             }
 
@@ -100,20 +102,30 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
         return 'ok';
     });
-    Route::get('test2',function(){
+    Route::get('test2', function () {
         $start = microtime(true);
         for ($i = 0; $i < 1000; $i++) {
             ParserLog::create([
                 'message' => 'aaaaa',
             ]);
         }
-        dump(microtime(true)-$start);
+        dump(microtime(true) - $start);
+        return 'ok';
+    });
+
+    Route::get('relation_test', function () {
+
+        $task = ParserTask::with(['parsed_companies2.donor'=>function($query){
+            $query->withTaskStats(2);
+        }])->find(2);
+
+        $task->donors2;
         return 'ok';
     });
 });
 
-Route::get('delay/{delay}',function($delay){
-    ini_set('max_execution_time',1);
+Route::get('delay/{delay}', function ($delay) {
+    ini_set('max_execution_time', 1);
     sleep(+$delay);
     echo $delay;
     dump($delay);
@@ -125,8 +137,7 @@ Route::get('/schedule', function () {
     return response()->json($code);
 });
 Route::get('/queue', function () {
-    Queue::push(function($job)
-    {
+    Queue::push(function ($job) {
         info('AAAAAAAA');
     });
     return 'ok';

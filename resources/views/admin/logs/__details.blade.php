@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \App\ParserLog $log
+ * @var \App\Models\ParserTask $task
  */
 ?>
 
@@ -18,14 +18,14 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (json_decode($log->details)->donor_stats as $stat)
+        @foreach ($task->donors2 as $donor)
             <tr>
-                <td><a href="{{$stat->link}}" target="_blank">{{$stat->link}}</a></td>
-                <td>{{$stat->new_parsed_companies_count}}</td>
-                <td>{{$stat->updated_companies_count}}</td>
-                <td>{{$stat->new_reviews_count}}</td>
-                <td>{{$stat->deleted_reviews_count}}</td>
-                <td>{{$stat->restored_reviews_count}}</td>
+                <td><a href="{{$donor->link}}" target="_blank">{{$donor->link}}</a></td>
+                <td>{{$donor->new_companies_count}}</td>
+                <td>{{$donor->updated_companies_count}}</td>
+                <td>{{$donor->new_reviews_count ?? 0}}</td>
+                <td>{{$donor->deleted_reviews_count}}</td>
+                <td>{{$donor->restored_reviews_count}}</td>
             </tr>
         @endforeach
     </tbody>

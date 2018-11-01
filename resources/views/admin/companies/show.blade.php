@@ -52,9 +52,22 @@
                         id="parser__logs__collapse"
                     >
                         <div class="panel-body parser__logs__inner" data-company_id="{{$company->id}}">
-                            @include('admin.partials.logs',[
-                                'logs' => $company->getRelatedLogs(),
-                            ])
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a href="#messages"  data-toggle="tab">Сообщения</a>
+                                </li>
+                                <li>
+                                    <a href="#http"  data-toggle="tab">HTTP история</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade active in" id="messages">
+
+                                </div>
+                                <div class="tab-pane fade" id="http">
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

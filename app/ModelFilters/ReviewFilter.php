@@ -14,14 +14,13 @@ use EloquentFilter\ModelFilter;
 /**
  * Class ReviewFilter
  * @package App\ModelFilters
- * @mixin \Illuminate\Database\Eloquent\Builder|\App\Models\Review
+ * @property-read \Illuminate\Database\Eloquent\Builder|\App\Models\Review $query
  */
 class ReviewFilter extends ModelFilter
 {
+
     public function favouriteCompany(){
 
-        return $this->whereHas('parsed_company.company',function($query){
-            $query->where('favourite',true);
-        });
+        return $this->query->favouriteCompany();
     }
 }

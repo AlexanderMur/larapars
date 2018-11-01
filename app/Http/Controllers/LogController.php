@@ -10,7 +10,7 @@ namespace App\Http\Controllers;
 
 
 use App\DataTables\LogDataTable;
-use App\ParserLog;
+use App\Models\ParserTask;
 use Yajra\DataTables\Html\Builder;
 
 class LogController
@@ -38,14 +38,17 @@ class LogController
     }
 
     /**
-     * @param ParserLog $log
+     * @param ParserTask $task
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function details(ParserLog $log)
+    public function details(ParserTask $task)
     {
+        $task = $task->load(['parsed_companies2.donor'=>function($query) use (&$task) {
+            $query->withTaskStats($task->id);
+        }]);
         return response()->json(view('admin.logs.__details', [
-            'log' => $log,
+            'task' => $task,
         ])->render());
 
     }

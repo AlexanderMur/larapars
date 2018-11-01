@@ -38,7 +38,6 @@ function reviewsEndpoint(endpoint, id, data) {
 }
 
 
-// language=CSS
 function getEditPopup(href) {
     return $.get(href)
         .then(function (data) {
@@ -49,7 +48,6 @@ function getEditPopup(href) {
         })
 }
 
-// language=CSS
 function ajaxLoad(href, title = '') {
     return $.get(href)
         .then(function (data) {
@@ -74,7 +72,7 @@ function reloadDataTable() {
 }
 
 $(function ($) {
-    $('.nav-tabs a').click(function (e) {
+    $(document).on('click','.nav-tabs a',function (e) {
         e.preventDefault()
         $(this).tab('show')
     })
@@ -211,7 +209,8 @@ $(function ($) {
             json = await $.get(route('parsers.logs'))
         }
 
-        $('.parser__logs__inner').html(json.table)
+        $('#messages').html(json.messages)
+        $('#http').html(json.http)
 
 
 
@@ -219,6 +218,7 @@ $(function ($) {
         $('.logs__c-pages-count').text(Object.keys(json.companyPagesInQueue).length)
         $('.logs__a-pages-count').text(Object.keys(json.archivePagesInQueue).length)
         $('.logs__s-pages-count').text(json.send_links)
+        $('.logs__pid').text(json.pid)
 
         $('.statistics').html(json.statistics)
         $('.parser__start').parents('form').attr('data-state', json.state)

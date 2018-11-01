@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withTrashed()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Review withoutTrashed()
  * @see ReviewFilter
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Review favouriteCompany()
  */
 class Review extends Model
 {
@@ -121,5 +122,11 @@ class Review extends Model
         $this->delete();
         $this->trashed_at = Carbon::now();
         $this->save();
+    }
+    public function scopeFavouriteCompany($query){
+
+        return $query->whereHas('parsed_company.company',function($query){
+            $query->where('favourite',true);
+        });
     }
 }

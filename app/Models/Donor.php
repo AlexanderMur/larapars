@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,13 +40,34 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $archive_pagination
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor massParsing()
  * @property int $mass_parsing
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor withTaskStats($task_id)
  */
 class Donor extends Model
 {
 
 
 
-
+    public function scopeWithTaskStats($query,$task_id){
+        return $query->withCount([
+            'logs as new_reviews_count' => function(Builder $query) use ($task_id) {
+                $query->select(\DB::raw('sum(`details`)'))->where('type','new_reviews')->where('parser_task_id',$task_id);
+            },
+            'logs as deleted_reviews_count' => function(Builder $query) use ($task_id) {
+                $query->where('type','review_deleted')->where('parser_task_id',$task_id);
+            },
+            'logs as restored_reviews_count' => function(Builder $query) use ($task_id) {
+                $query->where('type','review_restored')->where('parser_task_id',$task_id);
+            },
+            'logs as new_companies_count' => function(Builder $query) use ($task_id) {
+                $query->where('type','company_created')->where('parser_task_id',$task_id);
+            },
+            'logs as updated_companies_count' => function(Builder $query) use ($task_id) {
+                $query->where('type','company_updated')->where('parser_task_id',$task_id);
+            },
+        ]);
+    }
 
     protected $fillable = [
         'link',
@@ -80,6 +102,9 @@ class Donor extends Model
     }
     function parsed_companies(){
         return $this->hasMany(ParsedCompany::class);
+    }
+    function logs(){
+        return $this->hasManyThrough(ParserLog::class,ParsedCompany::class);
     }
     function scopeMassParsing(Builder $query){
         $query->where('mass_parsing',true);

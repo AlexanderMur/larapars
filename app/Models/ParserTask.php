@@ -24,6 +24,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer $updated_companies_count
  * @property-read \App\Models\ProgressBar $progress
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask whereParsedCompanies($arr)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HttpLog[] $http_logs
+ * @property-read mixed $donors2
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies2
  */
 class ParserTask extends Model
 {
@@ -65,6 +68,26 @@ class ParserTask extends Model
             },
         ]);
     }
+    public function getDonors(){
+        return static::with([
+            'logs'                      => function ($query) {
+                $query
+                    ->select('parser_logs.*')
+                    ->join('parsed_companies', 'parsed_companies.id', 'parser_logs.parsed_company_id')
+                    ->join('donors', 'donors.id', 'parsed_companies.donor_id')
+                    ->groupBy('donors.id');
+            },
+            'logs.parsed_company.donor' => function ($query) {
+                $query->withTaskStats($this->id);
+            },
+        ])->whereKey($this->id)->first()->donors;
+    }
+    public function parsed_companies2(){
+        return $this->belongsToMany(ParsedCompany::class,'parser_logs');
+    }
+    public function getDonors2Attribute(){
+        return $this->parsed_companies2->map->donor->unique->id;
+    }
     public function getFresh(){
         return static::whereKey($this->id)->withStats()->first();
     }
@@ -90,22 +113,36 @@ class ParserTask extends Model
             'parsed_company_id' => $parsedCompany->id ?? null,
         ]);
     }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function donors(){
-        return $this->belongsToMany(Donor::class)->using(DonorTask::class);
+    public function http_logs(){
+        return $this->hasMany(HttpLog::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @param $url
+     * @param string $channel
+     * @return HttpLog
      */
-    public function parsed_companies()
+    public function createGet($url,$channel = ''){
+        return $this->http_logs()->create([
+            'url' => $url,
+            'channel' => $channel,
+        ]);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function getParsedCompaniesAttribute()
     {
-        return $this->belongsToMany(ParsedCompany::class)->using(ParsedCompanyTask::class);
+        return $this->logs->map->parsed_company;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection|Donor[]
+     */
+    public function getDonorsAttribute(){
+        return $this->logs->map->donor->filter()->unique->id;
+    }
     public function progress(){
         return $this->hasOne(ProgressBar::class);
     }

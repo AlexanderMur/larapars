@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataTables\CompanyDataTable;
 use App\Exports\CompanyExport;
 use App\Models\Company;
+use App\Models\HttpLog;
 use App\Models\ParsedCompany;
 use App\Models\ParserTask;
 use Illuminate\Http\Request;
@@ -181,10 +182,12 @@ class CompanyController extends Controller
     public function logs(Company $company)
     {
         $task = ParserTask::latest('id')->withStats()->first();
+        $http_logs = HttpLog::latest('id')->paginate();
         return response()->json([
             'table'        => view('admin.partials.logs',
                 [
                     'logs' => $company->getRelatedLogs(),
+                    'http_logs'=>$http_logs
                 ]
             )->render(),
             'progress'     => $task->progress->progress ?? 0,
