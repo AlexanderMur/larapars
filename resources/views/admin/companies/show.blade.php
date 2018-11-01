@@ -26,6 +26,8 @@
                         @endforeach
                         <button class="btn btn-primary parser__start">Парсить</button>
                         <button class="btn btn-primary parser__stop">Остановить</button>
+                        <button class="btn btn-primary parser__resume">Возобновить</button>
+                        <button class="btn btn-primary parser__stopping" disabled="true">Остановка...</button>
                     </form>
                     <div class="progress">
                         <div class="parser__progress progress-bar progress-bar-success" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="200" style="width: 0;">

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd5bdb9e4cbece93e889c25193a728c3",
+    "content-hash": "fb91c912b6e92d50932d0591cce2040a",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -2982,6 +2982,47 @@
                 "phra"
             ],
             "time": "2015-10-13T18:44:15+00:00"
+        },
+        {
+            "name": "staudenmeir/eloquent-has-many-deep",
+            "version": "v1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/staudenmeir/eloquent-has-many-deep.git",
+                "reference": "42c894bc763cb629441ae8fbfa9c59d476f5b426"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/staudenmeir/eloquent-has-many-deep/zipball/42c894bc763cb629441ae8fbfa9c59d476f5b426",
+                "reference": "42c894bc763cb629441ae8fbfa9c59d476f5b426",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^5.5.29",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "illuminate/pagination": "^5.5.29",
+                "phpunit/phpunit": "~6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Staudenmeir\\EloquentHasManyDeep\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonas Staudenmeir",
+                    "email": "mail@jonas-staudenmeir.de"
+                }
+            ],
+            "description": "Laravel Eloquent HasManyThrough relationship with unlimited levels",
+            "time": "2018-09-24T23:10:08+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

@@ -204,7 +204,7 @@ $(function ($) {
         let company_id = $('.parser__logs__inner').data('company_id')
         let json = {}
         if (company_id) {
-            json = await $.get(route('companies.logs', company_id))
+            json = await $.get(route('parsers.logs'),{company_id})
         } else {
             json = await $.get(route('parsers.logs'))
         }
@@ -236,7 +236,7 @@ $(function ($) {
 
     async function startUpdateLogs() {
 
-        if ($('.statistics').length) {
+        if ($('.parser__logs__inner').length) {
             let json = await updateLogs()
             setTimeout(startUpdateLogs, 1000)
         }

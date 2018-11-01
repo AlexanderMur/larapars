@@ -5,6 +5,7 @@ namespace App\Models;
 use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
  * App\Models\ParserTask
@@ -30,8 +31,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ParserTask extends Model
 {
+
+    use HasRelationships;
     public function logs(){
         return $this->hasMany(ParserLog::class);
+    }
+    public function http_logs(){
+        return $this->hasMany(HttpLog::class);
     }
     public function scopeWhereParsedCompanies(Builder $query,$arr){
         return $query->whereIn('url',$arr);
@@ -48,7 +54,6 @@ class ParserTask extends Model
             'progress_max' => $count,
         ]);
     }
-
     public function scopeWithStats(Builder $query){
         return $query->withCount([
             'logs as new_reviews_count' => function(Builder $query){
@@ -68,25 +73,14 @@ class ParserTask extends Model
             },
         ]);
     }
-    public function getDonors(){
-        return static::with([
-            'logs'                      => function ($query) {
-                $query
-                    ->select('parser_logs.*')
-                    ->join('parsed_companies', 'parsed_companies.id', 'parser_logs.parsed_company_id')
-                    ->join('donors', 'donors.id', 'parsed_companies.donor_id')
-                    ->groupBy('donors.id');
-            },
-            'logs.parsed_company.donor' => function ($query) {
-                $query->withTaskStats($this->id);
-            },
-        ])->whereKey($this->id)->first()->donors;
-    }
     public function parsed_companies2(){
         return $this->belongsToMany(ParsedCompany::class,'parser_logs');
     }
     public function getDonors2Attribute(){
         return $this->parsed_companies2->map->donor->unique->id;
+    }
+    public function getCompaniesAttribute(){
+        return $this->parsed_companies2->map->company->unique->id;
     }
     public function getFresh(){
         return static::whereKey($this->id)->withStats()->first();
@@ -112,9 +106,6 @@ class ParserTask extends Model
             'details' => $details === null ? null : json_encode($details),
             'parsed_company_id' => $parsedCompany->id ?? null,
         ]);
-    }
-    public function http_logs(){
-        return $this->hasMany(HttpLog::class);
     }
 
     /**

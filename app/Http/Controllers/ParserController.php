@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Components\ParserClass;
 use App\Http\Requests\StartParserRequest;
 use App\Jobs\ParsePages;
+use App\Models\Company;
 use App\Models\Donor;
 use App\Models\HttpLog;
 use App\Models\ParserTask;
@@ -78,18 +79,30 @@ class ParserController extends Controller
 
     public function logs()
     {
-        $task = ParserTask::latest('id')->withStats()->first();
-        $logs = ParserLog::latest('id')->paginate();
-        $http_logs = HttpLog::latest('id')->paginate();
 
         $statistics = $this->parserService->getStatistics();
-        return response()->json([
-                'messages'      => '' . view('admin.parser.__messages', ['logs' => $logs]),
-                'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$http_logs]),
-                'statistics' => '' . view('admin.partials.parser.statistics', [
-                        'statistics' => $statistics,
-                        'task'       => $task,
-                    ]),
-            ] + $statistics);
+        if(!request('company_id')){
+            $task = ParserTask::latest('id')->withStats()->first();
+            $logs = ParserLog::latest('id')->paginate();
+            $http_logs = HttpLog::latest('id')->paginate();
+            return response()->json([
+                    'messages'      => '' . view('admin.parser.__messages', ['logs' => $logs]),
+                    'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$http_logs]),
+                    'statistics' => '' . view('admin.partials.parser.statistics', [
+                            'statistics' => $statistics,
+                            'task'       => $task,
+                        ]),
+                ] + $statistics);
+        } else {
+            $company =  Company::find(request('company_id'));
+            $logs = $company->getRelatedLogs();
+            $http_logs = $company->getRelatedHttpLogs();
+            return response()->json([
+                    'messages'      => '' . view('admin.parser.__messages', ['logs' => $logs]),
+                    'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$http_logs]),
+                ] + $statistics);
+        }
+
+
     }
 }

@@ -32,6 +32,13 @@ class DataTable
         $this->builder->parameters([
             "lengthMenu" => [[20, 50, 100, 200, 500], [20, 50, 100, 200, 500],],
             'language'   => __('datatables'),
+
+            'columnDefs' => [
+                [
+                    "orderSequence" => [ "desc","asc",],
+                    'targets'=>["_all"],
+                ]
+            ],
         ]);
     }
 }

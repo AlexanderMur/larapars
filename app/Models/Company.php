@@ -6,6 +6,7 @@ use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
  * App\Models\Company
@@ -40,6 +41,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Company extends Model
 {
+    use HasRelationships;
+
     protected $fillable = [
         'title',
         'address',
@@ -80,16 +83,32 @@ class Company extends Model
             ::whereHas('logs', function (Builder $query) use ($donor_pages) {
                 $query->whereIn('url', $donor_pages)->limit(5);
             })
+            ->orWhereHas('http_logs', function (Builder $query) use ($donor_pages) {
+                $query->whereIn('url', $donor_pages)->limit(5);
+            })
             ->with(['logs' => function (HasMany $query) use ($donor_pages) {
+                $query->whereIn('url', $donor_pages)
+                    ->orWhere('url', null)->limit(15)->latest('id');
+            }])
+            ->with(['http_logs' => function (HasMany $query) use ($donor_pages) {
                 $query->whereIn('url', $donor_pages)
                     ->orWhere('url', null)->limit(15)->latest('id');
             }])
             ->get();
     }
+    public function tasks(){
+        return $this->hasManyDeep(ParserTask::class,[ParsedCompany::class,'parser_logs']);
+    }
     public function getRelatedLogs()
     {
 
         return $this->getTasks()->flatMap->logs;
+    }
+
+    public function getRelatedHttpLogs()
+    {
+
+        return $this->getTasks()->flatMap->http_logs;
     }
 
     public function scopeWithStats(Builder $query)

@@ -9,20 +9,12 @@
 namespace Tests\Feature;
 
 
+use App\Models\Company;
 use App\Models\ParserTask;
 use Tests\TestCase;
 
 class ModelsTest extends TestCase
 {
-    public function testGetParsedCompaniesFromTask()
-    {
-        $task = ParserTask::find(1);
-
-        $donors = $task->getDonors();
-
-        dump($donors);
-        $this->assertTrue(true);
-    }
 
     public function testCustomSelect()
     {
@@ -30,6 +22,13 @@ class ModelsTest extends TestCase
         $task = ParserTask::find(1);
 
         $task->donors2;
+
+    }
+    public function testHasManyDeep(){
+        $company = Company::first();
+
+        $company->tasks()->first()->logs->toArray();
+        $this->assertTrue(true);
 
     }
 }
