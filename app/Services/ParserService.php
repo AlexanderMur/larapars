@@ -116,10 +116,14 @@ class ParserService
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
                 'verify'  => false,
-                'proxy'   => [
-                    'http'  => $random_proxy,
-                    'https' => $random_proxy,
+                'proxy'=>[
+                    'http'=>$random_proxy,
+                    'https'=>$random_proxy,
                 ],
+                'curl' => [
+                    CURLOPT_USERPWD => 'eekexm:AE7TdLHBEU',
+                    CURLOPT_HTTPAUTH => CURLAUTH_ANY,
+                ]
             ])
             ->then(function (Response $response) use ($http, $link, $donor) {
 
@@ -133,7 +137,10 @@ class ParserService
                 $speed = $this->count_pages / (microtime(true) - $this->start);
                 info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
-            }, function (RequestException $exception) use ($type, $donor, $link) {
+            }, function (RequestException $exception) use ($http, $type, $donor, $link) {
+
+                $http->updateStatus($exception->getCode());
+
                 info('ERRORR!!!!!'.$exception->getCode(). ' ' .$link);
                 $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
@@ -228,7 +235,6 @@ class ParserService
             $this->parseArchivePageByUrl($donor->link, $donor);
         }
         $this->parserClient->run();
-        ini_get('max_execution_time');
     }
 
     public function parse($urls, $type)
