@@ -25,6 +25,10 @@ class ParserClient
     protected $pending = [];
     private $runned;
     /**
+     * @var callable $concurrencyfn
+     */
+    protected $concurrencyfn;
+    /**
      * @var callable $eachRequestfn
      */
     protected $eachRequestfn;
@@ -55,6 +59,10 @@ class ParserClient
     }
     public function onEachRequest(callable $fn){
         $this->eachRequestfn = $fn;
+        return $this;
+    }
+    public function onConcurrency(callable $fn){
+        $this->concurrencyfn = $fn;
         return $this;
     }
     public function run()
@@ -106,6 +114,7 @@ class ParserClient
                 'concurrency' => function () {
 
                     $concurrency = min(count($this->links), $this->concurrency());
+                    info('p'.$this->getPendingCount());
                     return max(1, $concurrency);
                 },
             ]))
@@ -126,8 +135,9 @@ class ParserClient
 
     }
 
-    public function concurrency()
+    protected function concurrency()
     {
-        return 100;
+
+        return is_callable($this->concurrencyfn) ? call_user_func($this->concurrencyfn) : 25;
     }
 }

@@ -17,6 +17,7 @@ use Carbon\Carbon;
  * @package App\Services
  * @property string proxies
  * @property string time
+ * @property string concurrency
  */
 class SettingService
 {

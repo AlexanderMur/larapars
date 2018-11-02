@@ -49,7 +49,8 @@ class ParserService
      * @var ParserClient
      */
     public $parserClient;
-
+    protected $lastConcurrencyUpdate;
+    public $concurrency = 25;
     public $archivePagesInQueue = [];
     public $companyPagesInQueue = [];
     public $state;
@@ -62,10 +63,18 @@ class ParserService
         $this->parserClass  = new ParserClass();
         $this->client       = new Client();
         $this->parserClient = new ParserClient();
-        $this->pid = getmypid();
-        $this->parserClient->onEachRequest(function () {
-            return !$this->should_stop();
-        });
+        $this->pid          = getmypid();
+        $this->parserClient
+            ->onEachRequest(function () {
+                return !$this->should_stop();
+            })
+            ->onConcurrency(function(){
+                if(microtime(true) - $this->lastConcurrencyUpdate > 2){
+                    $this->lastConcurrencyUpdate = microtime(true);
+                    return $this->concurrency = setting()->concurrency;
+                };
+                return $this->concurrency;
+            });
     }
 
     public function log_end()
@@ -102,12 +111,13 @@ class ParserService
     /**
      * @param $link
      * @param Donor $donor
-     * @param null $proxy
+     * @param string $type
+     * @param int $tries
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getPage($link, Donor $donor, $type = '')
+    public function getPage($link, Donor $donor, $type = '', $tries = 0)
     {
-        $http = $this->parser_task->createGet($link, $type);
+        $http         = $this->parser_task->createGet($link, $type);
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
         info($random_proxy);
         return $this->parserClient
@@ -116,27 +126,21 @@ class ParserService
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
                 ],
                 'verify'  => false,
-                'proxy'=>[
-                    'http'=>$random_proxy,
-                    'https'=>$random_proxy,
-                ]
+                'proxy'   => [
+                    'http'  => $random_proxy,
+                    'https' => $random_proxy,
+                ],
             ])
             ->then(function (Response $response) use ($http, $link, $donor) {
-                info('then');
-                $http->updateStatus($response->getStatusCode(),$response->getReasonPhrase());
-
-
+                $http->updateStatus($response->getStatusCode(), $response->getReasonPhrase());
                 $html = $response->getBody()->getContents();
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
-//                info(memory_get_usage(true) / 1024 / 1024 . 'MB');
                 $this->count_pages++;
-                $speed = $this->count_pages / (microtime(true) - $this->start);
-                info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
             }, function (\Exception $exception) use ($http, $type, $donor, $link) {
                 info('ERRORR!!!!!');
 
-                $http->updateStatus($exception->getCode(),str_limit($exception->getMessage(),191-3));
+                $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 191 - 3));
 
                 $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
@@ -146,11 +150,11 @@ class ParserService
                         break;
                     case 0:
                         info($link . ' trying another proxy...');
-                        return $this->getPage($link, $donor,$type);
+                        return $this->getPage($link, $donor, $type);
                         break;
                 }
                 throw $exception;
-            })->then(null,function($e){
+            })->then(null, function ($e) {
                 info('parser_error!!!: ' . $e->getMessage());
                 throw $e;
             });
@@ -163,7 +167,7 @@ class ParserService
         $this->companyPagesInQueue[$url] = $donor->id;
 
 
-        return $this->getPage($url, $donor,'company')
+        return $this->getPage($url, $donor, 'company')
             ->then(function (Crawler $crawler) use ($url, $donor) {
 
                 $data           = $this->parserClass->getDataOnSinglePage($crawler, $donor);
@@ -171,7 +175,7 @@ class ParserService
 
                 unset($this->companyPagesInQueue[$url]);
                 return $parsed_company;
-            },function($e) use ($url) {
+            }, function ($e) use ($url) {
 
                 unset($this->companyPagesInQueue[$url]);
 
@@ -186,7 +190,7 @@ class ParserService
         $this->check_status();
         $this->add_visited_page($url, $donor->id);
         $this->archivePagesInQueue[$url] = $donor->id;
-        return $this->getPage($url, $donor,'archive')
+        return $this->getPage($url, $donor, 'archive')
             ->then(function (Crawler $crawler) use ($eachRequest, $donor, $url) {
 
                 if (!$this->should_stop()) {
@@ -209,7 +213,7 @@ class ParserService
                 $eachRequest();
 
                 return $url;
-            },function($e) use ($donor, $url) {
+            }, function ($e) use ($donor, $url) {
 
                 unset($this->archivePagesInQueue[$url]);
                 if (!in_array($donor->id, $this->archivePagesInQueue)) {
@@ -337,8 +341,8 @@ class ParserService
             'state'               => 'done',
             'progress'            => null,
             'progress_max'        => null,
-            'send_links' => 0,
-            'pid' => null,
+            'send_links'          => 0,
+            'pid'                 => null,
         ];
         if (file_exists($this->progress_file_path())) {
             return json_decode(
@@ -356,12 +360,12 @@ class ParserService
         file_put_contents($this->progress_file_path(), json_encode([
             'archivePagesInQueue' => $this->archivePagesInQueue,
             'companyPagesInQueue' => $this->companyPagesInQueue,
-            'send_links' => $this->parserClient->getPendingCount(),
+            'send_links'          => $this->parserClient->getPendingCount(),
             'visitedPages'        => $this->visitedPages,
             'state'               => $this->state,
             'progress'            => $this->progress,
             'progress_max'        => $this->progress_max,
-            'pid' => $this->pid,
+            'pid'                 => $this->pid,
         ]));
     }
 
@@ -507,7 +511,6 @@ class ParserService
             ]
             + $progress;
     }
-
 
 
 }

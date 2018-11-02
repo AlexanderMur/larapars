@@ -13,6 +13,7 @@ namespace App\Http\Requests;
  * @package App\Http\Requests
  * @property integer time
  * @property string[] proxies
+ * @property string[] concurrency
  */
 class UpdateParserRequest extends Request
 {

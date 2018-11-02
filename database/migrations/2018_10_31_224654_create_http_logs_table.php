@@ -15,7 +15,7 @@ class CreateHttpLogsTable extends Migration
     {
         Schema::create('http_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('url');
+            $table->text('url');
             $table->integer('status')->nullable();
             $table->string('message')->nullable();
             $table->integer('parser_task_id');

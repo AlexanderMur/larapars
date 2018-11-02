@@ -40,6 +40,16 @@
                                     rows="10"
                                 >{{setting()->proxies}}</textarea>
                             </div>
+                            <div class="form-group">
+                                <label for="concurrency">Количество потоков</label>
+                                <input
+                                    class="form-control"
+                                    id="concurrency"
+                                    name="concurrency"
+                                    type="number"
+                                    value="{{setting()->concurrency}}"
+                                >
+                            </div>
                             <button class="btn btn-primary">
                                 Submit
                             </button>
