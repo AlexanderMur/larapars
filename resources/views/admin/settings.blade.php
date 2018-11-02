@@ -50,6 +50,16 @@
                                     value="{{setting()->concurrency}}"
                                 >
                             </div>
+                            <div class="form-group">
+                                <label for="tries">Количество попыток</label>
+                                <input
+                                    class="form-control"
+                                    id="tries"
+                                    name="tries"
+                                    type="number"
+                                    value="{{setting()->tries}}"
+                                >
+                            </div>
                             <button class="btn btn-primary">
                                 Submit
                             </button>

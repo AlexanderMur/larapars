@@ -28,6 +28,7 @@ class SettingController extends Controller
         setting()->setSetting('time',$request->time);
         setting()->setSetting('proxies',$request->proxies);
         setting()->setSetting('concurrency',$request->concurrency);
+        setting()->setSetting('tries',$request->tries);
         \Toastr::success('Настройки обновлены');
         return redirect()->back();
     }

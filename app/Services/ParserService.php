@@ -35,7 +35,6 @@ class ParserService
 
     public $pagesInQueue = [];
 
-    public $count_pages = 0;
     public $start = 0;
     /**
      * @var ParserTask $parser_task
@@ -57,6 +56,7 @@ class ParserService
     public $progress;
     public $progress_max;
     public $pid;
+    protected $tries;
 
     public function __construct()
     {
@@ -113,13 +113,13 @@ class ParserService
      * @param Donor $donor
      * @param string $type
      * @param int $tries
+     * @param null $delay
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getPage($link, Donor $donor, $type = '', $tries = 0)
+    public function getPage($link, Donor $donor, $type = '', $tries = 0,$delay = null)
     {
         $http         = $this->parser_task->createGet($link, $type);
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
-        info($random_proxy);
         return $this->parserClient
             ->addGet($link, [
                 'headers' => [
@@ -131,13 +131,18 @@ class ParserService
                     'https' => $random_proxy,
                 ],
             ])
-            ->then(function (Response $response) use ($http, $link, $donor) {
+            ->then(function (Response $response) use ($type, $tries, $http, $link, $donor) {
                 $http->updateStatus($response->getStatusCode(), $response->getReasonPhrase());
                 $html = $response->getBody()->getContents();
+                if(str_contains($html,'DDoS protection is checking your browser')){
+                    $tries++;
+                    if($tries < $this->tries){
+                        return $this->getPage($link, $donor, $type,$tries);
+                    }
+                }
                 $html = str_replace($donor->replace_search, $donor->replace_to, $html);
-                $this->count_pages++;
                 return new Crawler($html, $link);
-            }, function (\Exception $exception) use ($http, $type, $donor, $link) {
+            }, function (\Exception $exception) use ($tries, $http, $type, $donor, $link) {
                 info('ERRORR!!!!!');
 
                 $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 191 - 3));
@@ -146,11 +151,12 @@ class ParserService
                 switch ($exception->getCode()) {
                     case 404:
                         $this->parser_task->log('404', 'not_found', $link);
-                        throw $exception;
                         break;
                     case 0:
-                        info($link . ' trying another proxy...');
-                        return $this->getPage($link, $donor, $type);
+                        $tries++;
+                        if($tries < $this->tries){
+                            return $this->getPage($link, $donor, $type,$tries);
+                        }
                         break;
                 }
                 throw $exception;
@@ -282,10 +288,14 @@ class ParserService
     public function check_status()
     {
         if (!$this->is_started) {
+
             info('start');
+
             $this->start       = microtime(true);
             $this->proxies     = setting()->getProxies();
             $this->parser_task = ParserTask::create();
+            $this->tries = setting()->tries ?? 2;
+
             $this->parser_task->log('bold', 'Запуск парсера', null);
             $this->state = 'parsing';
             $this->saveProgress();

@@ -18,6 +18,7 @@ use Carbon\Carbon;
  * @property string proxies
  * @property string time
  * @property string concurrency
+ * @property string tries
  */
 class SettingService
 {
