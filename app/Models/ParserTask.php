@@ -28,6 +28,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HttpLog[] $http_logs
  * @property-read mixed $donors2
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies2
+ * @property-read mixed $companies
  */
 class ParserTask extends Model
 {

@@ -25,8 +25,9 @@ class HttpLog extends Model
         'status',
         'task_id',
         'channel',
+        'message',
     ];
-    public function updateStatus($status){
-        $this->update(['status' => $status]);
+    public function updateStatus($status,$message){
+        $this->update(['status' => $status,'message'=>$message]);
     }
 }

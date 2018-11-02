@@ -5,6 +5,9 @@
                 Url
             </th>
             <th>
+                Сообщение
+            </th>
+            <th>
                 Статус
             </th>
         </tr>
@@ -14,6 +17,9 @@
             <tr>
                 <td style="width:50%">
                     <a href="{{$http_log->url}}" target="_blank">{{$http_log->url}}</a>
+                </td>
+                <td style="width:50%">
+                    <a href="{{$http_log->message}}" target="_blank">{{$http_log->message}}</a>
                 </td>
                 <td>
                     {{$http_log->status}}

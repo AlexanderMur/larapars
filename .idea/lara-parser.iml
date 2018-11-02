@@ -184,6 +184,7 @@
           <root url="file://$MODULE_DIR$/vendor/sebastian/version" />
           <root url="file://$MODULE_DIR$/vendor/seld/jsonlint" />
           <root url="file://$MODULE_DIR$/vendor/seld/phar-utils" />
+          <root url="file://$MODULE_DIR$/vendor/staudenmeir/eloquent-has-many-deep" />
           <root url="file://$MODULE_DIR$/vendor/swiftmailer/swiftmailer" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/symfony/css-selector" />
@@ -287,6 +288,7 @@
           <root url="file://$MODULE_DIR$/vendor/sebastian/version" />
           <root url="file://$MODULE_DIR$/vendor/seld/jsonlint" />
           <root url="file://$MODULE_DIR$/vendor/seld/phar-utils" />
+          <root url="file://$MODULE_DIR$/vendor/staudenmeir/eloquent-has-many-deep" />
           <root url="file://$MODULE_DIR$/vendor/swiftmailer/swiftmailer" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/symfony/css-selector" />

@@ -6,6 +6,7 @@ use App\Components\ParserClient;
 use App\Models\Donor;
 use App\Services\ParserService;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Tests\TestCase;
 use function GuzzleHttp\Promise\unwrap;
 
@@ -152,7 +153,27 @@ class ExampleTest extends TestCase
 
         $this->assertTrue(true);
     }
+    public function testProxy(){
 
+
+        $client = new ParserClient();
+        $proxy = collect(setting()->getProxies())->random();
+
+        $text = '';
+        $res = $client->addGet('https://2ip.ru/',[
+            'proxy' => [
+                'http' => $proxy,
+                'https' => $proxy,
+            ],
+        ])->then(function(Response $response) use(&$text){
+            $text = $response->getBody()->getContents();
+            $text = trim($text);
+        });
+        $client->run();
+        echo $text . ' || ' . $proxy;
+
+        $this->assertContains($text,$proxy);
+    }
     public function testGetStatistics()
     {
 

@@ -19,7 +19,6 @@ use App\Models\ParserTask;
 use App\Models\Review;
 use Complex\Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Arr;
 
@@ -110,6 +109,7 @@ class ParserService
     {
         $http = $this->parser_task->createGet($link, $type);
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
+        info($random_proxy);
         return $this->parserClient
             ->addGet($link, [
                 'headers' => [
@@ -119,15 +119,11 @@ class ParserService
                 'proxy'=>[
                     'http'=>$random_proxy,
                     'https'=>$random_proxy,
-                ],
-                'curl' => [
-                    CURLOPT_USERPWD => 'eekexm:AE7TdLHBEU',
-                    CURLOPT_HTTPAUTH => CURLAUTH_ANY,
                 ]
             ])
             ->then(function (Response $response) use ($http, $link, $donor) {
-
-                $http->updateStatus($response->getStatusCode());
+                info('then');
+                $http->updateStatus($response->getStatusCode(),$response->getReasonPhrase());
 
 
                 $html = $response->getBody()->getContents();
@@ -137,11 +133,11 @@ class ParserService
                 $speed = $this->count_pages / (microtime(true) - $this->start);
                 info('page SPEED!!! ' . $speed . ' ' . $link);
                 return new Crawler($html, $link);
-            }, function (RequestException $exception) use ($http, $type, $donor, $link) {
+            }, function (\Exception $exception) use ($http, $type, $donor, $link) {
+                info('ERRORR!!!!!');
 
-                $http->updateStatus($exception->getCode());
+                $http->updateStatus($exception->getCode(),str_limit($exception->getMessage(),191-3));
 
-                info('ERRORR!!!!!'.$exception->getCode(). ' ' .$link);
                 $this->parser_task->log($exception->getCode(), 'Ошибка с соедением: ' . $exception->getCode(), $link);
                 switch ($exception->getCode()) {
                     case 404:
@@ -154,6 +150,9 @@ class ParserService
                         break;
                 }
                 throw $exception;
+            })->then(null,function($e){
+                info('parser_error!!!: ' . $e->getMessage());
+                throw $e;
             });
     }
 
