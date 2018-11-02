@@ -171,6 +171,11 @@ class ParserService
 
                 unset($this->companyPagesInQueue[$url]);
                 return $parsed_company;
+            },function($e) use ($url) {
+
+                unset($this->companyPagesInQueue[$url]);
+
+                throw $e;
             });
     }
 
@@ -195,15 +200,22 @@ class ParserService
                         $this->parseCompanyByUrl($page['donor_page'], $donor)
                             ->then($eachRequest);
                     }
-                    unset($this->archivePagesInQueue[$url]);
-                    if (!in_array($donor->id, $this->archivePagesInQueue)) {
-                        unset($this->visitedPages[$donor->id]);
-                    }
                 }
 
+                unset($this->archivePagesInQueue[$url]);
+                if (!in_array($donor->id, $this->archivePagesInQueue)) {
+                    unset($this->visitedPages[$donor->id]);
+                }
                 $eachRequest();
 
                 return $url;
+            },function($e) use ($donor, $url) {
+
+                unset($this->archivePagesInQueue[$url]);
+                if (!in_array($donor->id, $this->archivePagesInQueue)) {
+                    unset($this->visitedPages[$donor->id]);
+                }
+                throw $e;
             });
     }
 
@@ -329,7 +341,7 @@ class ParserService
             'pid' => null,
         ];
         if (file_exists($this->progress_file_path())) {
-            return \GuzzleHttp\json_decode(
+            return json_decode(
                 file_get_contents($this->progress_file_path())
             );
         }
@@ -341,7 +353,7 @@ class ParserService
         if (!is_dir($this->folder_path())) {
             mkdir($this->folder_path());
         }
-        file_put_contents($this->progress_file_path(), \GuzzleHttp\json_encode([
+        file_put_contents($this->progress_file_path(), json_encode([
             'archivePagesInQueue' => $this->archivePagesInQueue,
             'companyPagesInQueue' => $this->companyPagesInQueue,
             'send_links' => $this->parserClient->getPendingCount(),
