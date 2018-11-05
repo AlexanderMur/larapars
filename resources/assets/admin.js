@@ -208,24 +208,26 @@ $(function ($) {
         } else {
             json = await $.get(route('parsers.logs'))
         }
-
+        if(json.id){
+            $('.parser__start').parents('form').find('input[name="job_id"]').val(json.id)
+        }
         $('#messages').html(json.messages)
         $('#http').html(json.http)
 
 
 
 
-        $('.logs__c-pages-count').text(Object.keys(json.companyPagesInQueue).length)
-        $('.logs__a-pages-count').text(Object.keys(json.archivePagesInQueue).length)
-        $('.logs__s-pages-count').text(json.send_links)
-        $('.logs__pid').text(json.pid)
+        $('.logs__c-pages-count').text(json.not_sent_links)
+        $('.logs__a-pages-count').text(json.http_logs_count)
+
+        $('.logs__s-pages-count').text(json.concurrent_links)
 
         $('.statistics').html(json.statistics)
         $('.parser__start').parents('form').attr('data-state', json.state)
         if (json.progress_max) {
             $('.parser__progress')
-                .css({'width': (json.progress / json.progress_max) * 100 + '%'})
-                .text(json.progress + ' из ' + json.progress_max)
+                .css({'width': (json.progress_now / json.progress_max) * 100 + '%'})
+                .text(json.progress_now + ' из ' + json.progress_max)
         } else {
             // $('.parser__progress')
             //     .css({'width': 0 + '%'})
@@ -244,45 +246,47 @@ $(function ($) {
     startUpdateLogs()
 
     $('.parser__start').click(function () {
-        $(this).parents('form').attr('data-state', 'parsing')
         $('.parser__logs__collapse').collapse('show')
         $.post(route('pars.test'), $(this).parents('form').serialize())
+            .then((json) => {
+                $(this).parents('form').attr('data-state', '')
+                $(this).parents('form').find('input[name="job_id"]').val(json.id)
+                updateLogs()
+            })
             .catch((e) => {
                 console.log(e)
                 alert(JSON.stringify(e))
-            })
-            .then(() => {
-                $(this).parents('form').attr('data-state', '')
-                updateLogs()
             })
         return false
     })
     $('.parser__resume').click(function () {
-        $(this).parents('form').attr('data-state', 'parsing')
         $('.parser__logs__collapse').collapse('show')
-        $.post(route('pars.test'), 'resume=1')
+        let job_id = $(this).parents('form').find('input[name="job_id"]').val();
+        $.get(route('tasks.resume',job_id))
+            .then((json) => {
+                $(this).parents('form').attr('data-state', '')
+                $(this).parents('form').find('input[name="job_id"]').val(json.id)
+                updateLogs().then(() => {
+                })
+            })
             .catch((e) => {
                 console.log(e)
                 alert(JSON.stringify(e))
-            })
-            .then(() => {
-                $(this).parents('form').attr('data-state', '')
-                updateLogs().then(() => {
-                })
             })
         return false
     })
     $('.parser__stop').click(function () {
         $(this).button('loading').text('остановка...')
-        $.post(route('pars.test'), 'stop=1')
-            .catch((e) => {
-                console.log(e)
-                alert(JSON.stringify(e))
-            })
+        let job_id = $(this).parents('form').find('input[name="job_id"]').val();
+        $.get(route('tasks.pause',job_id))
             .then(() => {
                 updateLogs().then(() => {
                     $(this).button('reset')
                 })
+            })
+            .catch((e) => {
+                console.log(e)
+                alert(JSON.stringify(e))
             })
         return false
     })

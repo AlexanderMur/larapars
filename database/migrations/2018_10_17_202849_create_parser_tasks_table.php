@@ -15,6 +15,10 @@ class CreateParserTasksTable extends Migration
     {
         Schema::create('parser_tasks', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('state')->nullable();
+            $table->string('progress_now')->nullable();
+            $table->string('type')->nullable();
+//            $table->string('progress_max')->nullable();
             $table->timestamps();
         });
     }

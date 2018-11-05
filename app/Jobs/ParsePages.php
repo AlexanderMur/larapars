@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ParserTask;
 use App\Services\ParserService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,18 +21,25 @@ class ParsePages implements ShouldQueue
      * @var array
      */
     protected $links;
-    protected $type;
+    protected $timeout = 2;
+    /**
+     * @var ParserTask $task
+     */
+    protected $task;
+    protected $task_id;
+
 
     /**
      * Create a new job instance.
      *
      * @param array $links
      * @param $type
+     * @param $task_id
      */
-    public function __construct($links = [],$type)
+    public function __construct($task_id, $links = [])
     {
-        $this->links = $links;
-        $this->type = $type;
+        $this->links   = $links;
+        $this->task_id = $task_id;
     }
 
     /**
@@ -43,14 +51,33 @@ class ParsePages implements ShouldQueue
     public function handle(ParserService $parserService)
     {
 
-
-        try{
-            $parserService->parse($this->links,$this->type);
-        } catch (\Throwable $throwable){
-            info($throwable->getMessage().'AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        $this->task = ParserTask::find($this->task_id);
+        $urls       = $parserService->mapUrlsWithDonor($this->links);
+        $parserService->create_task($this->task);
+        $this->task->setParsing();
+        $this->task->setProgressNow();
+        if ($this->task->type == 'companies') {
+            foreach ($urls as $url) {
+                $parserService->parseCompanyByUrl($url['donor_page'], $url['donor'])
+                    ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
+            }
         }
+        if ($this->task->type == 'archivePages') {
+            foreach ($urls as $url) {
+                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'])
+                    ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
+            }
+        }
+
+
+        $parserService->run();
+        $parserService->log_end();
 
     }
 
+    public function failed()
+    {
 
+        $this->task->setDone();
+    }
 }

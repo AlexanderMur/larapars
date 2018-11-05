@@ -5,6 +5,7 @@ namespace App;
 use App\Models\ParsedCompany;
 use App\Models\ParserTask;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
  * App\ParserLog
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Model;
 class ParserLog extends Model
 {
 
+    use HasRelationships;
     const UPDATED_AT = null;
     protected $fillable = [
         'url',
@@ -46,7 +48,7 @@ class ParserLog extends Model
     public function parsed_company(){
         return $this->belongsTo(ParsedCompany::class);
     }
-    public function getDonorAttribute(){
+    public function donor(){
         return $this->parsed_company->donor ?? null;
     }
     public function task(){

@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($task->donors2 as $donor)
+        @foreach ($task->donors as $donor)
             <tr>
                 <td><a href="{{$donor->link}}" target="_blank">{{$donor->link}}</a></td>
                 <td>{{$donor->new_companies_count}}</td>

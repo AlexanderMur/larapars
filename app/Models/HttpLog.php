@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @mixin \Eloquent
+ * @property string|null $message
+ * @property string|null $sent_at
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\HttpLog sent()
+ * @property-read \App\Models\Donor $donor
+ * @property int $donor_id
  */
 class HttpLog extends Model
 {
@@ -24,10 +29,15 @@ class HttpLog extends Model
         'url',
         'status',
         'task_id',
+        'donor_id',
         'channel',
         'message',
+        'sent_at',
     ];
     public function updateStatus($status,$message){
         $this->update(['status' => $status,'message'=>$message]);
+    }
+    public function donor(){
+        return $this->belongsTo(Donor::class);
     }
 }

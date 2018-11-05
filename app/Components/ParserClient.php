@@ -50,6 +50,7 @@ class ParserClient
         $this->links[] = [
             'link'    => $link,
             'promise' => $promise,
+            'before_send' => $options['before_send'] ?? null,
             'options' => $options,
         ];
         return $promise;
@@ -92,6 +93,7 @@ class ParserClient
                     }
                     $this->pending[$link['link']] = $link['promise'];
                     yield function () use ($link) {
+                        $link['before_send'] && $link['before_send']();
                         return $this->client
                             ->getAsync($link['link'], $link['options'])
                             ->then(function (Response $response) use ($link) {

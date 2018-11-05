@@ -15,11 +15,13 @@ function nl2p($string)
 
     return $paragraphs;
 }
-function external_link($link){
+
+function external_link($link)
+{
 
 
-    if(!starts_with('http://',$link) && !starts_with('https://',$link)){
-        return 'http://'.$link;
+    if (!starts_with('http://', $link) && !starts_with('https://', $link)) {
+        return 'http://' . $link;
     }
     return $link;
 }
@@ -29,16 +31,18 @@ function external_link($link){
  * @param null $default
  * @return SettingService
  */
-function setting($key = null,$default = null){
-    if($key == null){
-        return app(SettingService::class);
+function setting($key = null, $default = null)
+{
+    if ($key) {
+        return app(SettingService::class)->getSetting($key, $default);
     }
-    return app(SettingService::class)->getSetting($key,$default);
+    return app(SettingService::class);
 }
 
-function filter_text($html){
+function filter_text($html)
+{
     $html = nl2p($html);
-    $html = preg_replace_callback('/<blockquote>/',function ($match){
+    $html = preg_replace_callback('/<blockquote>/', function ($match) {
         $id = uniqid();
         return (
         "<div class=\"panel-group\" role=\"tablist\">
@@ -61,8 +65,8 @@ function filter_text($html){
                         <div class=\"panel-body\">
                             $match[0]"
         );
-    },$html);
-    $html = preg_replace_callback('/<\/blockquote>/',function ($match){
+    }, $html);
+    $html = preg_replace_callback('/<\/blockquote>/', function ($match) {
         return (
         "
                             $match[0]
@@ -71,23 +75,27 @@ function filter_text($html){
                 </div>
             </div>"
         );
-    },$html);
+    }, $html);
 
     return $html;
 }
 
 
-function get_links_from_text($text){
+function get_links_from_text($text)
+{
     preg_match_all('#((https?:\/\/)?(?:www\.|(?!www))[a-zA-Z0-9а-я][а-яa-zA-Z0-9-]+[а-яa-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})#u', $text, $out);
 
-    if(isset($out[0])){
+    if (isset($out[0])) {
         return $out[0];
     }
     return [];
 }
-function find_numbers($text){
+
+function find_numbers($text)
+{
     return PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
 }
+
 function get_phones_from_text($text)
 {
     $numbers    = PhoneNumberUtil::getInstance()->findNumbers($text, 'RU');
@@ -98,7 +106,8 @@ function get_phones_from_text($text)
     return implode(', ', $numbersArr);
 }
 
-function memory(){
+function memory()
+{
     return memory_get_peak_usage(true) / 1024 / 1024;
 }
 

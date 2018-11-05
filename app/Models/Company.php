@@ -97,7 +97,7 @@ class Company extends Model
             ->get();
     }
     public function tasks(){
-        return $this->hasManyDeep(ParserTask::class,[ParsedCompany::class,'parser_logs']);
+        return $this->hasManyDeep(ParserTask::class,[ParsedCompany::class,'parser_logs'])->latest('id');
     }
     public function getRelatedLogs()
     {

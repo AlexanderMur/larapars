@@ -17,6 +17,7 @@
                         <option value="{{$donor->id}}">{{$donor->link}}</option>
                     @endforeach
                 </select>
+                <input type="hidden" name="job_id" value="">
                 <button class="btn btn-primary parser__start">Парсить</button>
                 <button class="btn btn-primary parser__stop">Остановить</button>
                 <button class="btn btn-primary parser__resume">Возобновить</button>
@@ -47,16 +48,13 @@
             <div class="panel-collapse collapse parser__logs__collapse" role="tabpanel" id="parser__logs__collapse">
                 <div class="panel-body ">
                     <p>
-                        Ссылок на компании в очереди <span class="logs__c-pages-count"></span>
-                    </p>
-                    <p>
-                        Ссылок на архив в очереди <span class="logs__a-pages-count"></span>
+                        Ссылок в очереди <span class="logs__c-pages-count"></span>
                     </p>
                     <p>
                         Ссылок ожидает ответа <span class="logs__s-pages-count"></span>
                     </p>
                     <p>
-                        pid процесса <span class="logs__pid"></span>
+                        Всего запросов <span class="logs__a-pages-count"></span>
                     </p>
                     <div class="parser__logs__inner">
                         <ul class="nav nav-tabs">

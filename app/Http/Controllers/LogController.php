@@ -38,13 +38,14 @@ class LogController
     }
 
     /**
-     * @param ParserTask $task
+     * @param $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function details(ParserTask $task)
+    public function details($id)
     {
-        $task = $task->load(['parsed_companies2.donor'=>function($query) use (&$task) {
+        $task = ParserTask::withStats()->find($id);
+        $task = $task->load(['donors'=>function($query) use (&$task) {
             $query->withTaskStats($task->id);
         }]);
         return response()->json(view('admin.logs.__details', [

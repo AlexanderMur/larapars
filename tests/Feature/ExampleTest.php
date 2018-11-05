@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Components\ParserClient;
-use App\Models\Donor;
+use App\Models\ParserTask;
 use App\Services\ParserService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -144,12 +144,20 @@ class ExampleTest extends TestCase
     public function testParsing()
     {
 
-        $parserService = app(ParserService::class);
+        $task = ParserTask::dispatch(['http://bp-auto.ru/news/'],'archivePages',false);
 
-        $donor = Donor::find(15);
+        $task = $task->getFresh();
+        echo $task->new_companies_count;
 
-        $parserService->parse([$donor->link], 'archivePages');
+        $this->assertTrue(true);
+    }
 
+    public function testParsingCompany()
+    {
+
+        $task = ParserTask::dispatch(['https://otziv-avto.ru/avtolider-varshavka-otzyvy/'],'company',false);
+        $task = $task->getFresh();
+        echo $task->new_companies_count;
         $this->assertTrue(true);
     }
     public function testProxy(){

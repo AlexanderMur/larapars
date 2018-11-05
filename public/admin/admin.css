@@ -15455,27 +15455,27 @@ tr:hover .actions {
   display: none;
 }
 
-form[data-state="parsing"] .parser__stop {
+form[data-state="Parsing"] .parser__stop {
   display: inline-block;
 }
 
-form[data-state="parsing"] .parser__start {
+form[data-state="Parsing"] .parser__start {
   display: none;
 }
 
-form[data-state="paused"] .parser__resume {
+form[data-state="Paused"] .parser__resume {
   display: inline-block;
 }
 
-form[data-state="paused"] .parser__start {
+form[data-state="Paused"] .parser__start {
   display: none;
 }
 
-form[data-state="stopping"] .parser__stopping {
+form[data-state="Pausing"] .parser__stopping {
   display: inline-block;
 }
 
-form[data-state="stopping"] .parser__start {
+form[data-state="Pausing"] .parser__start {
   display: none;
 }
 

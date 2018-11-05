@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Jobs\ParsePages;
+use App\Jobs\ResumeParsePages;
 use App\ParserLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -23,20 +25,31 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property integer $restored_reviews_count
  * @property integer $new_companies_count
  * @property integer $updated_companies_count
+ * @property integer $progress_max
+ * @property integer $progress_now
+ * @property integer $concurrent_links
+ * @property integer $not_sent_links
+ * @property integer $http_logs_count
  * @property-read \App\Models\ProgressBar $progress
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask whereParsedCompanies($arr)
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\HttpLog[] $http_logs
- * @property-read mixed $donors2
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies2
  * @property-read mixed $companies
+ * @property int $job_id
+ * @property string $state
  */
 class ParserTask extends Model
 {
 
     use HasRelationships;
+    public $last_state_update;
+    protected $fillable = ['state','progress_now','progress_max','type'];
     public function logs(){
         return $this->hasMany(ParserLog::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function http_logs(){
         return $this->hasMany(HttpLog::class);
     }
@@ -72,16 +85,33 @@ class ParserTask extends Model
             'logs as updated_companies_count' => function(Builder $query){
                 $query->where('type','company_updated');
             },
+            'http_logs as progress_max' => function(Builder $query){
+                $query->select(\DB::raw('COUNT(DISTINCT http_logs.donor_id)'));
+            },
+            'http_logs as concurrent_links' => function(Builder $query){
+                $query->where('sent_at','!=',null)->where('status',null);
+            },
+            'http_logs as not_sent_links' => function(Builder $query){
+                $query->where('sent_at','=',null);
+            },
+            'http_logs',
         ]);
     }
     public function parsed_companies2(){
         return $this->belongsToMany(ParsedCompany::class,'parser_logs');
     }
-    public function getDonors2Attribute(){
-        return $this->parsed_companies2->map->donor->unique->id;
-    }
+
+
+
     public function getCompaniesAttribute(){
-        return $this->parsed_companies2->map->company->unique->id;
+        /**
+         * @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies
+         */
+        $companies = $this->parsed_companies2->map->company->filter();
+        if($companies->count()){
+            return $companies->unique->id;
+        }
+        return $companies;
     }
     public function getFresh(){
         return static::whereKey($this->id)->withStats()->first();
@@ -112,15 +142,15 @@ class ParserTask extends Model
     /**
      * @param $url
      * @param string $channel
-     * @return HttpLog
+     * @return HttpLog|Model
      */
-    public function createGet($url,$channel = ''){
+    public function createGet($url,$channel = '',$donor_id){
         return $this->http_logs()->create([
             'url' => $url,
             'channel' => $channel,
+            'donor_id' => $donor_id,
         ]);
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
@@ -128,14 +158,67 @@ class ParserTask extends Model
     {
         return $this->logs->map->parsed_company;
     }
-
-    /**
-     * @return \Illuminate\Support\Collection|Donor[]
-     */
-    public function getDonorsAttribute(){
-        return $this->logs->map->donor->filter()->unique->id;
+    public function donors(){
+        return $this->belongsToMany(Donor::class,'http_logs')
+            ->groupBy('donors.id');
     }
-    public function progress(){
-        return $this->hasOne(ProgressBar::class);
+    public function setDone()
+    {
+        $this->update(['state'=>'Done','progress_now'=>$this->progress_max]);
+    }
+    public function setPaused()
+    {
+        $this->update(['state'=>'Paused']);
+    }
+    public function setPausing()
+    {
+        if(!$this->state !== 'Done'){
+            $this->update(['state'=>'Pausing']);
+
+        }
+    }
+
+    public function setParsing()
+    {
+        $this->update(['state'=>'Parsing']);
+    }
+    public function setProgressNow($progress_now = 0)
+    {
+        $this->update(['progress_now'=>$progress_now]);
+    }
+    public function refreshState(){
+        $this->state = static::find($this->id)->state;
+        return $this;
+    }
+    public function getState(){
+        $cur_time = microtime(true);
+        if($cur_time - $this->last_state_update > 2){
+            $this->last_state_update = $cur_time;
+            $this->refreshState();
+        }
+        return $this->state;
+    }
+
+    public function resume()
+    {
+        $task = $this->replicate();
+        $task->save();
+        dispatch(new ResumeParsePages($task->id, $this->id));
+        return $task;
+    }
+
+    public function tickProgress()
+    {
+        $this->progress_now++;
+        $this->save();
+    }
+    public static function dispatch($links,$type,$queue = true){
+        $task = self::create(['type'=>$type]);
+        if($queue){
+            dispatch(new ParsePages($task->id,$links));
+        } else {
+            dispatch_now(new ParsePages($task->id,$links));
+        }
+        return $task;
     }
 }

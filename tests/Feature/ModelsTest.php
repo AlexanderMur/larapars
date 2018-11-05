@@ -21,7 +21,7 @@ class ModelsTest extends TestCase
 
         $task = ParserTask::find(1);
 
-        $task->donors2;
+        $task->donors;
 
     }
     public function testHasManyDeep(){

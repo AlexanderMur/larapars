@@ -76,6 +76,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::post('settings/updateParser', 'SettingController@updateParser')->name('admin.settings.updateParser');
 
 
+    //Tasks route
+    Route::get('tasks/{task}/pause', 'TaskController@pause')->name('tasks.pause');
+    Route::get('tasks/{task}/resume', 'TaskController@resume')->name('tasks.resume');
+    Route::post('tasks/create', 'TaskController@create')->name('tasks.create');
+
     Route::get('/clear-cache', function () {
         Artisan::call('cache:clear');
         Artisan::call('config:cache');
@@ -116,10 +121,16 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('relation_test', function () {
 
         $task = ParserTask::with(['parsed_companies2.donor'=>function($query){
-            $query->withTaskStats(2);
-        }])->find(2);
+            $query->withTaskStats(1);
+        }])->find(1);
 
-        $task->donors2;
+        $task->progress_max;
+        return 'ok';
+    });
+    Route::get('relation_test2', function () {
+
+        $task = ParserTask::withStats()->find(7);
+        dump($task->toArray());
         return 'ok';
     });
 });
