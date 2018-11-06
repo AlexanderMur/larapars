@@ -3,7 +3,7 @@
 
 namespace PHPSTORM_META {
 
-   /**
+    /**
     * PhpStorm Meta file, to provide autocomplete information for PhpStorm
     * Generated on 2018-09-17 10:12:40.
     *

@@ -50,6 +50,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     //Donors routes
     Route::resource('donors', 'DonorController');
+    Route::post('donors/bulk', 'DonorController@bulk')->name('donors.bulk');
 
     //Parsers routes
     Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');

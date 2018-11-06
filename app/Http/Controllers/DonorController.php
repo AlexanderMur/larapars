@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\DataTables\DonorDataTable;
 use App\DataTables\ParsedCompaniesDataTable;
+use App\Http\Requests\BulkRequest;
 use App\Http\Requests\DonorRequest;
 use App\Models\Donor;
+use App\Models\ParserTask;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DonorController extends Controller
 {
@@ -25,7 +28,16 @@ class DonorController extends Controller
             'html' => $dataTable->html(),
         ]);
     }
-
+    public function bulk(BulkRequest $request){
+        if($request->action == 'parse'){
+            $donors = Donor::with(['parsed_companies'=>function(HasMany $query){
+                $query->whereHas('company');
+            }])->findMany($request->ids);
+            $donor_pages = $donors->flatMap->parsed_companies->map->donor_page;
+            ParserTask::dispatch($donor_pages,'companies');
+        }
+        return redirect()->back();
+    }
     /**
      * Show the form for creating a new resource.
      *

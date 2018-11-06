@@ -52,6 +52,7 @@ class ParserController extends Controller
             'donors' => $donors,
         ]);
     }
+
     public function parse(StartParserRequest $request)
     {
         if ($request->donor_id) {
@@ -61,11 +62,11 @@ class ParserController extends Controller
                 $links = [Donor::find($request->donor_id)->link];
             }
             $task = ParserTask::dispatch($links, 'archivePages');
-            return response()->json(['id'=>$task->id]);
+            return response()->json(['id' => $task->id]);
         }
         if ($request->pages) {
             $task = ParserTask::dispatch($request->pages, 'companies');
-            return response()->json(['id'=>$task->id]);
+            return response()->json(['id' => $task->id]);
         }
 
         return 'ok';
@@ -74,29 +75,29 @@ class ParserController extends Controller
     public function logs()
     {
 
-        $task = ParserTask::latest('id')->withStats()->first();
+        $task     = ParserTask::latest('id')->withStats()->first();
         $task_arr = $task !== null ? $task->toArray() : [];
 
 
         $statistics = $this->parserService->getStatistics();
-        if(!request('company_id')){
-            $logs = ParserLog::latest('id')->paginate();
-            $http_logs = HttpLog::latest('id')->paginate();
+        if (!request('company_id')) {
+            $logs      = ParserLog::latest('id')->paginate(30);
+            $http_logs = HttpLog::latest('id')->paginate(30);
             return response()->json([
-                    'messages'      => '' . view('admin.parser.__messages', ['logs' => $logs]),
-                    'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$http_logs]),
+                    'messages'   => '' . view('admin.parser.__messages', ['logs' => $logs]),
+                    'http'       => '' . view('admin.parser.__http_table', ['http_logs' => $http_logs]),
                     'statistics' => '' . view('admin.partials.parser.statistics', [
                             'statistics' => $statistics,
                             'task'       => $task,
                         ]),
                 ] + $task_arr + $statistics);
         } else {
-            $company =  Company::find(request('company_id'));
-            $tasks = $company->getTasks();
+            $company = Company::find(request('company_id'));
+            $tasks   = $company->getTasks();
             return response()->json([
-                    'messages'      => '' . view('admin.parser.__messages', ['logs' => $tasks->flatMap->logs]),
-                    'http'      => '' . view('admin.parser.__http_table', ['http_logs'=>$tasks->flatMap->http_logs]),
-                ] + $task_arr  + $statistics);
+                    'messages' => '' . view('admin.parser.__messages', ['logs' => $tasks->flatMap->logs]),
+                    'http'     => '' . view('admin.parser.__http_table', ['http_logs' => $tasks->flatMap->http_logs]),
+                ] + $task_arr + $statistics);
         }
 
 

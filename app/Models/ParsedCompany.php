@@ -54,6 +54,12 @@ class ParsedCompany extends Model
         'phones',
     ];
 
+    public static function parse($ids)
+    {
+        $parsed_companies = self::findMany($ids);
+        return ParserTask::dispatch($parsed_companies->pluck('donor_page'),'companies');
+    }
+
     function donor()
     {
         return $this->belongsTo(Donor::class);

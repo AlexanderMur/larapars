@@ -22,6 +22,7 @@ class DonorDataTable extends DataTable
             ])
             ->withCount([
                 'reviews',
+                'companies',
             ])
             ->groupBy('id');
     }
@@ -33,19 +34,25 @@ class DonorDataTable extends DataTable
                 $this->query()
             )
             ->editColumn('link', function (Donor $donor) {
-                return new HtmlString("<a href='" . route('donors.edit',$donor) . "' target='_blank'>" . $donor->link . "</a>");
+                return new HtmlString("<a href='" . route('donors.edit', $donor) . "' target='_blank'>" . $donor->link . "</a>");
+            })
+            ->editColumn('id', function (Donor $donor) {
+                return new HtmlString("<input type='checkbox' value='$donor->id' name='ids[]'/>");
             })
             ->toJson();
     }
 
     public function html()
     {
+        $donor = Donor::find(15);
+        $donor->companies;
         return $this->builder
             ->columns([
-                'id'                 => ['orderable' => false, 'title' => ''],
-                'link'              => ['title' => __('company.link')],
-                'title'              => ['title' => __('company.title')],
-                'reviews_count'              => ['title' => __('company.reviews_count')],
+                'id'              => ['orderable' => false, 'title' => ''],
+                'link'            => ['title' => __('company.link')],
+                'title'           => ['title' => __('company.title')],
+                'reviews_count'   => ['title' => __('company.reviews_count')],
+                'companies_count' => ['title' => __('company.companies_count')],
             ]);
     }
 }
