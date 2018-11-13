@@ -853,6 +853,56 @@ class CompaniesTableSeeder extends Seeder
                 'single_city'         => '',
                 'archive_pagination'  => '#menu-item-102 a',
             ],
+            [
+                'link'                => 'http://mnenie-avto.ru/blog/',
+                'title'               => 'http://mnenie-avto.ru/',
+                'mass_parsing'        => true,
+                'loop_address'        => '',
+                'loop_item'           => '.vc_grid-item',
+                'loop_link'           => 'h4 a',
+                'loop_title'          => 'h4 a',
+                'replace_search'      => '',
+                'replace_to'          => "",
+                'reviews_all'         => 'li.comment',
+                'reviews_ignore_text' => '',
+                'reviews_rating'      => '',
+                'reviews_text'        => 'p',
+                'reviews_title'       => '',
+                'reviews_name'        => '.fn',
+                'reviews_id'          => '',
+                'reviews_pagination'  => '',
+                'single_site'         => '.blog-content p',
+                'single_address'      => '//div[@class="blog-content"]//text()[contains(.,"Адрес")]',
+                'single_tel'          => '.blog-content p',
+                'single_title'        => '.blog-single-title',
+                'single_city'         => '',
+                'archive_pagination'  => '',
+            ],
+            [
+                'link'                => 'https://carrr.club/otzyvy/avtosalony.html',
+                'title'               => 'https://carrr.club/',
+                'mass_parsing'        => true,
+                'loop_address'        => '',
+                'loop_item'           => '.lsrow',
+                'loop_link'           => 'h3 a',
+                'loop_title'          => 'h3 a',
+                'replace_search'      => '',
+                'replace_to'          => "",
+                'reviews_all'         => '.review',
+                'reviews_ignore_text' => '',
+                'reviews_rating'      => '',
+                'reviews_text'        => 'span[itemprop="reviewBody"]',
+                'reviews_title'       => '.review-title',
+                'reviews_name'        => '.review-owner',
+                'reviews_id'          => '',
+                'reviews_pagination'  => '',
+                'single_site'         => '//div[@class="row0" and contains(.,"сайт")]//div[@class="output"]',
+                'single_address'      => '//div[@class="row0" and contains(.,"адрес")]//div[@class="output"]',
+                'single_tel'          => '.fields',
+                'single_title'        => 'h1',
+                'single_city'         => '',
+                'archive_pagination'  => '.pagination a',
+            ],
         ]);
 
         foreach ($donors as $donor) {
@@ -861,3 +911,5 @@ class CompaniesTableSeeder extends Seeder
         return $donors;
     }
 }
+
+

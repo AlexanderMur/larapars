@@ -22,7 +22,6 @@ use Complex\Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Arr;
-use function GuzzleHttp\Promise\all;
 
 class ParserService
 {
@@ -197,7 +196,7 @@ class ParserService
                     unset($this->visitedPages[$donor->id]);
                 }
 
-                return all($promises);
+                return \GuzzleHttp\Promise\each($promises);
             })
             ->then(null,function(\Throwable $throwable){
 

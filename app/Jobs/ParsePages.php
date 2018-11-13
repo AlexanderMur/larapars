@@ -63,17 +63,19 @@ class ParsePages implements ShouldQueue
                 $parserService->parseCompanyByUrl($url['donor_page'], $url['donor'])
                     ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
             }
+            $parserService->run();
+            $parserService->log_end();
         }
         if ($this->task->type == 'archivePages') {
             foreach ($urls as $url) {
-                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'],$this->recursive)
-                    ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
+                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'],$this->recursive);
+                $parserService->run();
+                $this->task->tickProgress();
             }
+            $parserService->log_end();
         }
 
 
-        $parserService->run();
-        $parserService->log_end();
 
     }
 
