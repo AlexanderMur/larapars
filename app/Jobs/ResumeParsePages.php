@@ -68,7 +68,6 @@ class ResumeParsePages implements ShouldQueue
 
         $visited_urls                = $this->old_task->http_logs()
             ->where('status', '!=', null)
-            ->where('channel', 'archive')
             ->get()->map->url->toArray();
         $parserService->visitedPages = $visited_urls;
         $this->task->setParsing();

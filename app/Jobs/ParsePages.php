@@ -27,19 +27,21 @@ class ParsePages implements ShouldQueue
      */
     protected $task;
     protected $task_id;
+    protected $recursive;
 
 
     /**
      * Create a new job instance.
      *
-     * @param array $links
-     * @param $type
      * @param $task_id
+     * @param array $links
+     * @param bool $recursive
      */
-    public function __construct($task_id, $links = [])
+    public function __construct($task_id, $links = [],$recursive = true)
     {
         $this->links   = $links;
         $this->task_id = $task_id;
+        $this->recursive = $recursive;
     }
 
     /**
@@ -64,7 +66,7 @@ class ParsePages implements ShouldQueue
         }
         if ($this->task->type == 'archivePages') {
             foreach ($urls as $url) {
-                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'])
+                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'],$this->recursive)
                     ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
             }
         }

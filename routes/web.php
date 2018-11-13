@@ -121,7 +121,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::get('relation_test', function () {
 
-        $task = ParserTask::with(['parsed_companies2.donor'=>function($query){
+        $task = ParserTask::with(['parsed_companies2.donor' => function ($query) {
             $query->withTaskStats(1);
         }])->find(1);
 
@@ -134,6 +134,23 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         dump($task->toArray());
         return 'ok';
     });
+
+    Route::get('delay320', function () {
+
+        if (request('dump')) {
+            echo view('admin.dashboard')->render();
+        }
+        sleep(1);
+
+        echo view('admin.dashboard')->render();
+        sleep(1);
+
+        echo view('admin.dashboard')->render();
+        sleep(320);
+        return 'ok';
+    });
+
+
 });
 
 Route::get('delay/{delay}', function ($delay) {
@@ -149,7 +166,7 @@ Route::get('/schedule', function () {
     return response()->json($code);
 });
 Route::get('/queue', function () {
-    Queue::push(function ($job) {
+    Queue::push(function () {
         info('AAAAAAAA');
     });
     return 'ok';

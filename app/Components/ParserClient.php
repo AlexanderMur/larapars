@@ -75,7 +75,7 @@ class ParserClient
                     $start = microtime(true);
                     queue()->run();
 
-                    shuffle($this->links);
+//                    shuffle($this->links);
                     $link = array_shift($this->links);
                     if (!$link && count($this->pending) > 0) {
                         yield function () {
@@ -118,7 +118,7 @@ class ParserClient
                     $concurrency = min(count($this->links), $this->concurrency());
                     info('p'.$this->getPendingCount());
                     return max(1, $concurrency);
-                },
+                }
             ]))
                 ->promise()
                 ->then(null, function ($throwable) {

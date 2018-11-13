@@ -45,6 +45,7 @@ class ParserController extends Controller
             $urls = preg_split('/\r\n/', request('page'));
             $this->parserService->create_task();
             $this->parserService->parse($urls, 'companies');
+            $this->parserService->run();
             $this->parserService->log_end();
         }
         $donors = Donor::all();
@@ -61,7 +62,7 @@ class ParserController extends Controller
             } else {
                 $links = [Donor::find($request->donor_id)->link];
             }
-            $task = ParserTask::dispatch($links, 'archivePages');
+            $task = ParserTask::dispatch_now($links, 'archivePages');
             return response()->json(['id' => $task->id]);
         }
         if ($request->pages) {
@@ -82,7 +83,7 @@ class ParserController extends Controller
         $statistics = $this->parserService->getStatistics();
         if (!request('company_id')) {
             $logs      = ParserLog::latest('id')->paginate(30);
-            $http_logs = HttpLog::latest('id')->paginate(30);
+            $http_logs = HttpLog::latest('id')->where('sent_at','!=',null)->paginate(30);
             return response()->json([
                     'messages'   => '' . view('admin.parser.__messages', ['logs' => $logs]),
                     'http'       => '' . view('admin.parser.__http_table', ['http_logs' => $http_logs]),

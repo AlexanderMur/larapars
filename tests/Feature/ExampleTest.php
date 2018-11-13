@@ -6,6 +6,7 @@ use App\Components\ParserClient;
 use App\Models\ParserTask;
 use App\Services\ParserService;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Psr7\Response;
 use Tests\TestCase;
 use function GuzzleHttp\Promise\unwrap;
@@ -144,7 +145,7 @@ class ExampleTest extends TestCase
     public function testParsing()
     {
 
-        $task = ParserTask::dispatch(['http://bp-auto.ru/news/'],'archivePages',false);
+        $task = ParserTask::dispatch(['http://bp-auto.ru/news/'],'archivePages')->now();
 
         $task = $task->getFresh();
         echo $task->new_companies_count;
@@ -155,7 +156,7 @@ class ExampleTest extends TestCase
     public function testParsingCompany()
     {
 
-        $task = ParserTask::dispatch(['https://otziv-avto.ru/avtolider-varshavka-otzyvy/'],'company',false);
+        $task = ParserTask::dispatch(['https://otziv-avto.ru/avtosalon-cars-city-otzyvy/'],'companies')->now();
         $task = $task->getFresh();
         echo $task->new_companies_count;
         $this->assertTrue(true);
@@ -180,6 +181,36 @@ class ExampleTest extends TestCase
         echo $text . ' || ' . $proxy;
 
         $this->assertContains($text,$proxy);
+    }
+    public function testCookies(){
+
+
+        $client = new ParserClient();
+        $proxy = collect(setting()->getProxies())->random();
+        $jar = CookieJar::fromArray([
+            '_ga'                 => 'GA1.2.1751261396.1541711047',
+            '_gid'                => 'GA1.2.1833519052.1541711047',
+            '_gat'                => '1',
+            '_ym_uid'             => '154171104741839599',
+            '_ym_d'               => '1541711047',
+            '_ym_visorc_26593554' => 'w',
+            '_ym_isad'            => '1',
+            'swp_token'           => '1541712891:79f739f530a636d9ea6b0a80652aa762:efeb2d8e28cf4036e3172aab764c1fbe',
+        ], parse_url('http://httpbin.org/cookies')['host']);
+        $res = $client->addGet('http://httpbin.org/cookies',[
+            'proxy' => [
+                'http' => $proxy,
+                'https' => $proxy,
+            ],
+            'cookies' => $jar,
+        ])->then(function(Response $response) use(&$text){
+            $html = $response->getBody()->getContents();
+            dump($html);
+            xdebug_break();
+        });
+        $client->run();
+
+        $this->asserttrue(true);
     }
     public function testGetStatistics()
     {

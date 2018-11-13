@@ -95,7 +95,7 @@ class Donor extends Model
     ];
 
     function companies(){
-        return $this->BelongsToMany(Company::class,'parsed_companies');
+        return $this->BelongsToMany(Company::class,'parsed_companies')->groupBy('id');
     }
     function reviews(){
         return $this->hasManyThrough(Review::class,ParsedCompany::class);

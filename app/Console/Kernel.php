@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $hours = setting()->time ?? 4;
+//        $hours = setting()->time ?? 4;
 //        $schedule->call(new ParseDonors)->cron('0 */' . $hours . ' * * *');
     }
 

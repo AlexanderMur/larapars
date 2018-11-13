@@ -44,13 +44,11 @@ class ParserService
     public $parser_task;
     public $parsed_companies_counts = [];
     public $client;
-    protected $id;
     public $proxies;
     /**
      * @var ParserClient
      */
     public $parserClient;
-    protected $lastConcurrencyUpdate;
     public $concurrency = 25;
     public $archivePagesInQueue = [];
     public $companyPagesInQueue = [];
@@ -58,6 +56,8 @@ class ParserService
     public $progress;
     public $progress_max;
     public $pid;
+    protected $id;
+    protected $lastConcurrencyUpdate;
     protected $tries;
     protected $canceled;
 
@@ -78,6 +78,14 @@ class ParserService
                 };
                 return $this->concurrency;
             });
+    }
+
+    public function should_stop()
+    {
+        if ($this->parser_task->getState() === 'Paused' || $this->parser_task->getState() === 'Pausing') {
+            $this->canceled = true;
+        }
+        return $this->canceled;
     }
 
     public function log_end()
@@ -107,6 +115,96 @@ class ParserService
         $this->parserClient->run();
     }
 
+    public function parse($urls, $type)
+    {
+        $urls = $this->mapUrlsWithDonor($urls);
+        foreach ($urls as $url) {
+            if ($type == 'companies') {
+                $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
+            }
+            if ($type == 'archivePages') {
+                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
+            }
+        }
+    }
+
+    public function mapUrlsWithDonor($urls)
+    {
+        if ($urls) {
+            $donorsQuery = Donor::select();
+            $mappedUrls  = [];
+            foreach ($urls as $key => $url) {
+                $host         = parse_url($url)['host'];
+                $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
+                $donorsQuery->orWhere('link', 'like', "%$host%");
+            }
+            $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
+                return parse_url($donor->link)['host'];
+            });
+            foreach ($mappedUrls as $key => $url) {
+                $mappedUrls[$key]['donor'] = $donors[$url['host']];
+            }
+            return $mappedUrls;
+        } else {
+            return [];
+        }
+    }
+
+    public function parseCompanyByUrl($url, Donor $donor)
+    {
+
+
+        return $this->getPage($url, $donor, 'company')
+            ->then(function (Crawler $crawler) use ($url, $donor) {
+
+                $data           = $this->parserClass->getDataOnSinglePage($crawler, $donor);
+                $parsed_company = $this->handleParsedCompany($data, $donor);
+
+                return $parsed_company;
+            })
+            ->then(null, function (\Throwable $e) use ($url) {
+                $this->parser_task->log('info',$e->getMessage(),$url);
+                info_error($e);
+                throw $e;
+            });
+    }
+
+    public function parseArchivePageByUrl($url, Donor $donor, $recursive = true)
+    {
+
+        $this->add_visited_page($url);
+        return $this->getPage($url, $donor, 'archive')
+            ->then(function (Crawler $crawler) use ($recursive, $donor, $url) {
+
+                $promises = [];
+                if (!$this->should_stop()) {
+                    $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
+                    if ($recursive) {
+                        foreach ($archiveData['pagination'] as $page) {
+                            if ($this->add_visited_page($page)) {
+                                $promises[] = $this->parseArchivePageByUrl($page, $donor,$recursive);
+                            }
+                        }
+                    }
+                    foreach ($archiveData['items'] as $item) {
+                        if ($this->add_visited_page($item['donor_page'])) {
+                            $promises[] = $this->parseCompanyByUrl($item['donor_page'], $donor);
+                        }
+                    }
+                }
+
+                if (!in_array($donor->id, $this->archivePagesInQueue)) {
+                    unset($this->visitedPages[$donor->id]);
+                }
+
+                return all($promises);
+            })
+            ->then(null,function(\Throwable $throwable){
+
+                info_error($throwable);
+                throw $throwable;
+            });
+    }
     /**
      * @param $link
      * @param Donor $donor
@@ -120,6 +218,7 @@ class ParserService
         $http = $this->parser_task->createGet($link, $type, $donor->id);
 
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
+
         return $this->parserClient
             ->addGet($link, [
                 'headers'     => [
@@ -168,95 +267,50 @@ class ParserService
             });
     }
 
-    public function parseCompanyByUrl($url, Donor $donor)
+    /**
+     * @param $new_company
+     * @param Donor $donor
+     * @return ParsedCompany|\Illuminate\Database\Eloquent\Model
+     * @throws Exception
+     */
+    public function handleParsedCompany($new_company, Donor $donor)
     {
-
-
-        return $this->getPage($url, $donor, 'company')
-            ->then(function (Crawler $crawler) use ($url, $donor) {
-
-                $data           = $this->parserClass->getDataOnSinglePage($crawler, $donor);
-                $parsed_company = $this->handleParsedCompany($data, $donor);
-
-                return $parsed_company;
-            });
-    }
-
-
-    public function parseArchivePageByUrl($url, Donor $donor, callable $eachRequest = null)
-    {
-
-        $this->add_visited_page($url);
-        return $this->getPage($url, $donor, 'archive')
-            ->then(function (Crawler $crawler) use ($donor, $url) {
-
-                $promises = [];
-                if (!$this->should_stop()) {
-                    $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
-                    foreach ($archiveData['pagination'] as $page) {
-                        if ($this->add_visited_page($page)) {
-                            $promises[] = $this->parseArchivePageByUrl($page, $donor);
-                        }
-                    }
-                    foreach ($archiveData['items'] as $page) {
-                        $promises[] = $this->parseCompanyByUrl($page['donor_page'], $donor);
-                    }
+        if (!$new_company) {
+            return null;
+        }
+        if (!isset($new_company['title']) && $new_company['title'] === null) {
+            throw new Exception('company must have title');
+        }
+        $new_company = $this->filterNewCompany($new_company);
+        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
+        if (!$parsed_company->wasRecentlyCreated) {
+            info('not new!!' . $parsed_company->donor_page);
+            foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
+                if (!isset($new_company[$key])) {
+                    continue;
                 }
-
-                if (!in_array($donor->id, $this->archivePagesInQueue)) {
-                    unset($this->visitedPages[$donor->id]);
+                if ($attribute != $new_company[$key]) {
+                    CompanyHistory::create([
+                        'field'             => $key,
+                        'old_value'         => $attribute,
+                        'new_value'         => $new_company[$key],
+                        'parsed_company_id' => $parsed_company->id,
+                    ]);
+                    $translate_field = __('company.' . $key);
+                    $this->parser_task->log(
+                        'company_updated',
+                        "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
+                        $parsed_company
+                    );
                 }
-
-                return all($promises);
-            });
-    }
-
-
-    public function add_visited_page($url)
-    {
-        if (!in_array($url, $this->visitedPages)) {
-            $this->visitedPages[] = $url;
-            return true;
-        }
-        return false;
-    }
-
-    public function parse($urls, $type)
-    {
-        $urls = $this->mapUrlsWithDonor($urls);
-        foreach ($urls as $url) {
-            if ($type == 'companies') {
-                $this->parseCompanyByUrl($url['donor_page'], $url['donor']);
             }
-            if ($type == 'archivePages') {
-                $this->parseArchivePageByUrl($url['donor_page'], $url['donor']);
-            }
+        } else {
+            $this->parser_task->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);
         }
+
+        $this->handleParsedReviews($parsed_company, $new_company, $donor);
+        return $parsed_company;
     }
-
-    public function create_task(ParserTask $task = null)
-    {
-        if (!$this->is_started) {
-
-            info('start');
-
-            $this->start       = microtime(true);
-            $this->proxies     = setting()->getProxies();
-            $this->parser_task = $task ?: ParserTask::create();
-            $this->tries       = setting()->tries ?? 2;
-
-            $this->parser_task->log('bold', 'Запуск парсера', null);
-            $this->state = 'parsing';
-            config()->set('debugbar.collectors.db', false);
-            config()->set('debugbar.collectors.log', false);
-            config()->set('debugbar.collectors.logs', false);
-            config()->set('debugbar.enabled', false);
-            $this->is_started = true;
-            return $this->parser_task;
-        }
-    }
-
-
     /**
      * @param ParsedCompany $parsed_company
      * @param array $new_company
@@ -293,76 +347,83 @@ class ParserService
                 'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
         }
 
+        foreach ($reviews as $review) {
+            $this->filterReview($review);
+        }
         //insert many reviews
         $parsed_company->saveReviews($new_reviews);
     }
-
-    /**
-     * @param $new_company
-     * @param Donor $donor
-     * @return ParsedCompany|\Illuminate\Database\Eloquent\Model
-     * @throws Exception
-     */
-    public function handleParsedCompany($new_company, Donor $donor)
+    public function filterReview(Review $review)
     {
-        if (!$new_company) {
-            return null;
-        }
-        if (!isset($new_company['title']) && $new_company['title'] === null) {
-            throw new Exception('company must have title');
-        }
-        if (strlen($new_company['address']) > 190) {
-            $new_company['address'] = '';
-        }
-        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
-        if (!$parsed_company->wasRecentlyCreated) {
-            foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
-                if (!isset($new_company[$key])) {
+        $review->title = str_replace('| Ответить','',$review->title);
+    }
+    public function filterNewCompany($new_company){
+
+        $properties = [
+            'phone',
+            'site',
+            'address',
+            'city',
+        ];
+
+        $replace_words = [
+            'адрес',
+            'сайт',
+            'город',
+            'тел'
+        ];
+
+        foreach ($properties as $property) {
+            if(isset($new_company[$property])){
+                if (strlen($new_company[$property]) > 190) {
+                    $new_company[$property] = '';
                     continue;
                 }
-                if ($attribute != $new_company[$key]) {
-                    CompanyHistory::create([
-                        'field'             => $key,
-                        'old_value'         => $attribute,
-                        'new_value'         => $new_company[$key],
-                        'parsed_company_id' => $parsed_company->id,
-                    ]);
-                    $translate_field = __('company.' . $key);
-                    $this->parser_task->log(
-                        'company_updated',
-                        "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
-                        $parsed_company
-                    );
-                }
-            }
-        } else {
-            $this->parser_task->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);
-        }
 
-        $this->handleParsedReviews($parsed_company, $new_company, $donor);
-        return $parsed_company;
+                $new_company[$property] = $this->removeWords($new_company[$property],$replace_words);
+                $new_company[$property] = trim($new_company[$property]);
+            }
+        }
+        return $new_company;
+    }
+    public function removeWords($str,$words){
+        $patterns = [];
+        foreach ($words as $word) {
+            $patterns[] = '(\b' . $word . '\b\.?:?)';
+        }
+        $pattern = implode('|',$patterns);
+        return preg_replace("/$pattern/ui",'',$str);
     }
 
 
-    public function mapUrlsWithDonor($urls)
+    public function add_visited_page($url)
     {
-        if ($urls) {
-            $donorsQuery = Donor::select();
-            $mappedUrls  = [];
-            foreach ($urls as $key => $url) {
-                $host         = parse_url($url)['host'];
-                $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
-                $donorsQuery->orWhere('link', 'like', "%$host%");
-            }
-            $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
-                return parse_url($donor->link)['host'];
-            });
-            foreach ($mappedUrls as $key => $url) {
-                $mappedUrls[$key]['donor'] = $donors[$url['host']];
-            }
-            return $mappedUrls;
-        } else {
-            return [];
+        if (!in_array($url, $this->visitedPages)) {
+            $this->visitedPages[] = $url;
+            return true;
+        }
+        return false;
+    }
+
+    public function create_task(ParserTask $task = null)
+    {
+        if (!$this->is_started) {
+
+            info('start');
+
+            $this->start       = microtime(true);
+            $this->proxies     = setting()->getProxies();
+            $this->parser_task = $task ?: ParserTask::create();
+            $this->tries       = setting()->tries ?? 2;
+
+            $this->parser_task->log('bold', 'Запуск парсера', null);
+            $this->state = 'parsing';
+            config()->set('debugbar.collectors.db', false);
+            config()->set('debugbar.collectors.log', false);
+            config()->set('debugbar.collectors.logs', false);
+            config()->set('debugbar.enabled', false);
+            $this->is_started = true;
+            return $this->parser_task;
         }
     }
 
@@ -376,13 +437,6 @@ class ParserService
             ];
     }
 
-    public function should_stop()
-    {
-        if($this->parser_task->getState() === 'Paused' || $this->parser_task->getState() === 'Pausing'){
-            $this->canceled = true;
-        }
-        return $this->canceled;
-    }
 
 
 }

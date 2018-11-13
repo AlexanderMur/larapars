@@ -43,19 +43,26 @@ class ParserTask extends Model
 
     use HasRelationships;
     public $last_state_update;
-    protected $fillable = ['state','progress_now','progress_max','type'];
-    public function logs(){
+    protected $fillable = ['state', 'progress_now', 'progress_max', 'type'];
+
+    public function logs()
+    {
         return $this->hasMany(ParserLog::class);
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function http_logs(){
+    public function http_logs()
+    {
         return $this->hasMany(HttpLog::class);
     }
-    public function scopeWhereParsedCompanies(Builder $query,$arr){
-        return $query->whereIn('url',$arr);
+
+    public function scopeWhereParsedCompanies(Builder $query, $arr)
+    {
+        return $query->whereIn('url', $arr);
     }
+
     /**
      * @param \Illuminate\Database\Eloquent\Builder|\App\Models\ParserTask $query
      */
@@ -63,59 +70,69 @@ class ParserTask extends Model
     {
         $query->withStats();
     }
-    public function createProgress($count){
+
+    public function createProgress($count)
+    {
         return $this->progress()->create([
             'progress_max' => $count,
         ]);
     }
-    public function scopeWithStats(Builder $query){
+
+    public function scopeWithStats(Builder $query)
+    {
         return $query->withCount([
-            'logs as new_reviews_count' => function(Builder $query){
-                $query->select(\DB::raw('sum(`details`)'))->where('type','new_reviews');
+            'logs as new_reviews_count'       => function (Builder $query) {
+                $query->select(\DB::raw('sum(`details`)'))->where('type', 'new_reviews');
             },
-            'logs as deleted_reviews_count' => function(Builder $query){
-                $query->where('type','review_deleted');
+            'logs as deleted_reviews_count'   => function (Builder $query) {
+                $query->where('type', 'review_deleted');
             },
-            'logs as restored_reviews_count' => function(Builder $query){
-                $query->where('type','review_restored');
+            'logs as restored_reviews_count'  => function (Builder $query) {
+                $query->where('type', 'review_restored');
             },
-            'logs as new_companies_count' => function(Builder $query){
-                $query->where('type','company_created');
+            'logs as new_companies_count'     => function (Builder $query) {
+                $query->where('type', 'company_created');
             },
-            'logs as updated_companies_count' => function(Builder $query){
-                $query->where('type','company_updated');
+            'logs as updated_companies_count' => function (Builder $query) {
+                $query->where('type', 'company_updated');
             },
-            'http_logs as progress_max' => function(Builder $query){
+            'http_logs as progress_max'       => function (Builder $query) {
                 $query->select(\DB::raw('COUNT(DISTINCT http_logs.donor_id)'));
             },
-            'http_logs as concurrent_links' => function(Builder $query){
-                $query->where('sent_at','!=',null)->where('status',null);
+            'http_logs as concurrent_links'   => function (Builder $query) {
+                $query->where('sent_at', '!=', null)->where('status', null);
             },
-            'http_logs as not_sent_links' => function(Builder $query){
-                $query->where('sent_at','=',null);
+            'http_logs as not_sent_links'     => function (Builder $query) {
+                $query->where('sent_at', '=', null);
             },
-            'http_logs',
+            'http_logs as http_logs_count' => function(Builder $query){
+                $query->where('sent_at', '!=', null);
+            },
         ]);
     }
-    public function parsed_companies2(){
-        return $this->belongsToMany(ParsedCompany::class,'parser_logs');
+    public function parsed_companies2()
+    {
+        return $this->belongsToMany(ParsedCompany::class, 'parser_logs');
     }
 
 
-
-    public function getCompaniesAttribute(){
+    public function getCompaniesAttribute()
+    {
         /**
          * @var \Illuminate\Database\Eloquent\Collection|\App\Models\Company[] $companies
          */
         $companies = $this->parsed_companies2->map->company->filter();
-        if($companies->count()){
+        if ($companies->count()) {
             return $companies->unique->id;
         }
         return $companies;
     }
-    public function getFresh(){
+
+    public function getFresh()
+    {
         return static::whereKey($this->id)->withStats()->first();
     }
+
     /**
      * @param $type
      * @param $message
@@ -125,16 +142,16 @@ class ParserTask extends Model
      */
     public function log($type, $message, $parsedCompany, $details = null)
     {
-        if($parsedCompany instanceof ParsedCompany){
+        if ($parsedCompany instanceof ParsedCompany) {
             $url = $parsedCompany->donor_page;
         } else {
             $url = $parsedCompany;
         }
         return $this->logs()->create([
-            'type'  => $type,
-            'message' => $message,
-            'url'     => $url,
-            'details' => $details === null ? null : json_encode($details),
+            'type'              => $type,
+            'message'           => $message,
+            'url'               => $url,
+            'details'           => $details === null ? null : json_encode($details),
             'parsed_company_id' => $parsedCompany->id ?? null,
         ]);
     }
@@ -144,13 +161,15 @@ class ParserTask extends Model
      * @param string $channel
      * @return HttpLog|Model
      */
-    public function createGet($url,$channel = '',$donor_id){
+    public function createGet($url, $channel = '', $donor_id)
+    {
         return $this->http_logs()->create([
-            'url' => $url,
-            'channel' => $channel,
+            'url'      => $url,
+            'channel'  => $channel,
             'donor_id' => $donor_id,
         ]);
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
@@ -158,41 +177,51 @@ class ParserTask extends Model
     {
         return $this->logs->map->parsed_company;
     }
-    public function donors(){
-        return $this->belongsToMany(Donor::class,'http_logs')
+
+    public function donors()
+    {
+        return $this->belongsToMany(Donor::class, 'http_logs')
             ->groupBy('donors.id');
     }
+
     public function setDone()
     {
-        $this->update(['state'=>'Done','progress_now'=>$this->progress_max]);
+        $this->update(['state' => 'Done', 'progress_now' => $this->progress_max]);
     }
+
     public function setPaused()
     {
-        $this->update(['state'=>'Paused']);
+        $this->update(['state' => 'Paused']);
     }
+
     public function setPausing()
     {
-        if(!$this->state !== 'Done'){
-            $this->update(['state'=>'Pausing']);
+        if (!$this->state !== 'Done') {
+            $this->update(['state' => 'Pausing']);
 
         }
     }
 
     public function setParsing()
     {
-        $this->update(['state'=>'Parsing']);
+        $this->update(['state' => 'Parsing']);
     }
+
     public function setProgressNow($progress_now = 0)
     {
-        $this->update(['progress_now'=>$progress_now]);
+        $this->update(['progress_now' => $progress_now]);
     }
-    public function refreshState(){
+
+    public function refreshState()
+    {
         $this->state = static::find($this->id)->state;
         return $this;
     }
-    public function getState(){
+
+    public function getState()
+    {
         $cur_time = microtime(true);
-        if($cur_time - $this->last_state_update > 2){
+        if ($cur_time - $this->last_state_update > 2) {
             $this->last_state_update = $cur_time;
             $this->refreshState();
         }
@@ -212,13 +241,18 @@ class ParserTask extends Model
         $this->progress_now++;
         $this->save();
     }
-    public static function dispatch($links,$type,$queue = true){
-        $task = self::create(['type'=>$type]);
-        if($queue){
-            dispatch(new ParsePages($task->id,$links));
-        } else {
-            dispatch_now(new ParsePages($task->id,$links));
-        }
+
+    public static function dispatch($links, $type)
+    {
+        $task      = self::create(['type' => $type]);
+        dispatch(new ParsePages($task->id, $links));
+        return $task;
+    }
+
+    public static function dispatch_now($links, $type)
+    {
+        $task      = self::create(['type' => $type]);
+        dispatch_now(new ParsePages($task->id, $links));
         return $task;
     }
 }
