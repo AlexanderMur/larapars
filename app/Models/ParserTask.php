@@ -37,6 +37,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read mixed $companies
  * @property int $job_id
  * @property string $state
+ * @property string|null $type
  */
 class ParserTask extends Model
 {

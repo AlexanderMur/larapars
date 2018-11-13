@@ -58,7 +58,7 @@ class ParserService
     protected $id;
     protected $lastConcurrencyUpdate;
     protected $tries;
-    protected $canceled;
+    public $canceled;
 
     public function __construct()
     {
@@ -280,7 +280,7 @@ class ParserService
         if (!isset($new_company['title']) && $new_company['title'] === null) {
             throw new Exception('company must have title');
         }
-        $new_company = $this->filterNewCompany($new_company);
+        $new_company = $this->filterNewCompany($new_company,$donor);
         $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
         if (!$parsed_company->wasRecentlyCreated) {
             info('not new!!' . $parsed_company->donor_page);
@@ -356,7 +356,7 @@ class ParserService
     {
         $review->title = str_replace('| Ответить','',$review->title);
     }
-    public function filterNewCompany($new_company){
+    public function filterNewCompany($new_company,Donor $donor){
 
         $properties = [
             'phone',

@@ -63,7 +63,12 @@ class ParserClass
 
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
-        $site       = get_links_from_text($crawler->query($donor->single_site)->getText());
+
+        $site_text = $crawler->query($donor->single_site)->getText();
+        if($donor->decode_url){//carsguru.net
+            $site_text = urldecode(base64_decode($site_text));
+        }
+        $site       = get_links_from_text($site_text);
         $site       = implode(', ', $site);
         $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
         return [

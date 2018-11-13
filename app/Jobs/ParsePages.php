@@ -70,7 +70,9 @@ class ParsePages implements ShouldQueue
             foreach ($urls as $url) {
                 $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'],$this->recursive);
                 $parserService->run();
-                $this->task->tickProgress();
+                if(!$parserService->canceled){
+                    $this->task->tickProgress();
+                }
             }
             $parserService->log_end();
         }

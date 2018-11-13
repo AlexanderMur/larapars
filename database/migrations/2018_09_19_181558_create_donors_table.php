@@ -57,6 +57,8 @@ class CreateDonorsTable extends Migration
             //Пагинация или любые ссылки куда ведут на архив
             $table->string('archive_pagination')->nullable();
 
+            $table->boolean('decode_url')->nullable();
+
             $table->timestamps();
         });
     }

@@ -43,6 +43,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParsedCompany[] $parsed_companies
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor withTaskStats($task_id)
+ * @property int $decode_url
  */
 class Donor extends Model
 {
