@@ -54,6 +54,8 @@ class ParsePages implements ShouldQueue
     {
 
         $this->task = ParserTask::find($this->task_id);
+        $this->task->log('bold', 'Запуск парсера', null);
+
         $urls       = $parserService->mapUrlsWithDonor($this->links);
         $parserService->create_task($this->task);
         $this->task->setParsing();

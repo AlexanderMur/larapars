@@ -1,0 +1,174 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: jople
+ * Date: 15.11.2018
+ * Time: 2:35
+ */
+
+namespace App\Parsers;
+
+
+use App\Components\Crawler;
+use App\Models\Donor;
+use App\Models\ParsedCompany;
+
+class SelectorParser extends Parser
+{
+    public function parseCompanyByUrl($url, Donor $donor)
+    {
+
+
+        return $this->getPage($url, $donor, 'company')
+            ->then(function (Crawler $crawler) use ($url, $donor) {
+
+                $data           = $this->getDataOnSinglePage($crawler, $donor);
+                $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parser_task);
+
+                return $parsed_company;
+            })
+            ->then(null, function (\Throwable $e) use ($url) {
+                $this->parser_task->log('info',$e->getMessage(),$url);
+                info_error($e);
+                throw $e;
+            });
+    }
+    function parseAll(Donor $donor)
+    {
+        return $this->parseArchivePageRecursive($donor->link,$donor);
+    }
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true)
+    {
+
+        $this->add_visited_page($url);
+        return $this->getPage($url, $donor, 'archive')
+            ->then(function (Crawler $crawler) use ($recursive, $donor, $url) {
+
+                $promises = [];
+                if (!$this->should_stop()) {
+                    $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
+                    if ($recursive) {
+                        foreach ($archiveData['pagination'] as $page) {
+                            if ($this->add_visited_page($page)) {
+                                $promises[] = $this->parseArchivePageRecursive($page, $donor,$recursive);
+                            }
+                        }
+                    }
+                    foreach ($archiveData['items'] as $item) {
+                        if ($this->add_visited_page($item['donor_page'])) {
+                            $promises[] = $this->parseCompanyByUrl($item['donor_page'], $donor);
+                        }
+                    }
+                }
+
+                if (!in_array($donor->id, $this->archivePagesInQueue)) {
+                    unset($this->visitedPages[$donor->id]);
+                }
+
+                return \GuzzleHttp\Promise\each($promises);
+            })
+            ->then(null,function(\Throwable $throwable){
+
+                info_error($throwable);
+                throw $throwable;
+            });
+    }
+    public function getDataOnPage(Crawler $crawler, Donor $donor)
+    {
+        $items      = $crawler
+            ->query($donor->loop_item)
+            ->map(function (Crawler $crawler, $i) use ($donor) {
+                return [
+                    'title'      => $crawler->query($donor->loop_title)->getText(),
+                    'address'    => $crawler->query($donor->loop_address)->getText(),
+                    'donor_page' => $crawler->query($donor->loop_link)->link()->getUri(),
+                    'donor'      => $donor,
+                    'donor_id'   => $donor->id,
+                ];
+            });
+        $pagination = $this->getUniqueLinks($crawler->query($donor->archive_pagination), $donor);
+        return [
+            'items'      => $items,
+            'pagination' => $pagination,
+        ];
+    }
+
+    public function getUniqueLinks(Crawler $crawler, Donor $donor)
+    {
+        $pagination = [];
+        $crawler
+            ->each(function (Crawler $crawler) use (&$pagination) {
+                $url = $crawler->link()->getUri();
+                if (!in_array($url, $pagination)) {
+                    $pagination[] = $url;
+                }
+            });
+        return $pagination;
+    }
+
+
+    public function getCompanyPhone(Crawler $crawler, Donor $donor)
+    {
+        return get_phones_from_text(
+            $crawler->query($donor->single_tel)->getText()
+        );
+    }
+
+    public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
+    {
+
+        $site_text = $crawler->query($donor->single_site)->getText();
+        if($donor->decode_url){//carsguru.net
+            $site_text = urldecode(base64_decode($site_text));
+        }
+        $site       = get_links_from_text($site_text);
+        $site       = implode(', ', $site);
+        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
+        return [
+            'site'       => $site,
+            'reviews'    => $this->getReviewsOnPage($crawler, $donor),
+            'phone'      => $this->getCompanyPhone($crawler, $donor),
+            'address'    => str_ireplace('адрес:','',$crawler->query($donor->single_address)->getText()),
+            'title'      => $crawler->query($donor->single_title)->getText(),
+            'city'       => str_ireplace('город:','',$crawler->query($donor->single_city)->getText()),
+            'donor_page' => $crawler->getBaseHref(),
+            'donor_id'   => $donor->id,
+            'pagination' => $pagination,
+        ];
+    }
+
+    public function getReviewsOnPage(Crawler $crawler, Donor $donor)
+    {
+        return (array)$crawler
+            ->query($donor->reviews_all)
+            ->map(function (Crawler $crawler) use ($donor) {
+
+                $text  = $this->getReviewText($crawler, $donor);
+                $title = $crawler->query($donor->reviews_title)->getText();
+
+                $donor_comment_id = $crawler->query($donor->reviews_id)->getText();
+                if ($donor_comment_id === null) {
+                    $donor_comment_id = md5($text . $title);
+                }
+                return [
+                    'text'             => $text,
+                    'rating'           => $crawler->query($donor->reviews_rating)->getText(),
+                    'title'            => $title,
+                    'name'             => $crawler->query($donor->reviews_name)->getText(),
+                    'donor_comment_id' => $donor_comment_id,
+                    'donor_id'         => $donor->id,
+                    'donor_link'       => $crawler->getUri(),
+                ];
+            });
+    }
+
+    public function getReviewText(Crawler $crawler, Donor $donor)
+    {
+        $html = $crawler->query($donor->reviews_text)->html();
+        $html = strip_tags($html, '<blockquote><b>');
+
+        $html = str_replace($donor->reviews_ignore_text, '', $html);
+        return $html;
+    }
+
+}
