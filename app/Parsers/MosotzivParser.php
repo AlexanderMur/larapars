@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jople
- * Date: 16.11.2018
- * Time: 18:35
- */
+
 
 namespace App\Parsers;
 
@@ -12,8 +7,11 @@ namespace App\Parsers;
 use App\Components\Crawler;
 use App\Models\Donor;
 
-class EdgoParser extends SelectorParser
+class MosotzivParser extends SelectorParser
 {
+
+    public $per_page = 50;
+
     public function getSite(Crawler $crawler, Donor $donor)
     {
         $text  = $crawler->query($donor->single_site)->mergeTextOrNull(' ');
@@ -31,34 +29,38 @@ class EdgoParser extends SelectorParser
 
         return implode(', ', array_unique($numbers));
     }
-
     public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
     {
-
 
         $this->add_visited_page($url);
         return $this->fetch('POST', $url, [
             'donor_id'    => $donor->id,
-            'methodName' => __FUNCTION__,
-            'cookies' => cookies([
-                'antibot-hostia'=>'true',
-            ],$url),
+            'methodName'  => __FUNCTION__,
             'form_params' => array_merge([
-                'action'   => 'ajax_search_tags',
-                'cat_id'   => 15,
-                'loc_id'   => '',
-                'pageno'   => 1,
-                'skeywork' => '',
-            ],$params),
+                'lang'            => '',
+                'search_keywords' => '',
+                'search_location' => '',
+                'filter_job_type' => [
+                    'freelance',
+                    'full-time',
+                    'internship',
+                    'part-time',
+                    'temporary',
+                ],
+                'per_page'        => $this->per_page,
+                'orderby'         => 'featured',
+                'order'           => 'DESC',
+                'page'            => '2',
+                'show_pagination' => 'true',
+            ], $params),
         ])
             ->then('json_decode')
             ->then(function ($json) use ($recursive, $donor, $url) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
-                    $crawler = new Crawler($json->html, $url);
 
-                    $archiveData = $this->getDataOnPage($crawler, $donor);
+                    $archiveData = $this->parseJson($json, $donor);
 
                     foreach ($archiveData['items'] as $item) {
                         if ($this->add_visited_page($item['donor_page'])) {
@@ -66,11 +68,11 @@ class EdgoParser extends SelectorParser
                         }
                     }
                     if ($recursive) {
-                        $max_page = ceil($json->found / 15);
+                        $max_page = ceil($json->found_posts / $this->per_page);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
                                 $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, [
-                                    'pageno' => $i,
+                                    'page' => $i,
                                 ]);
                             }
                         }
@@ -84,6 +86,24 @@ class EdgoParser extends SelectorParser
                 info_error($throwable);
                 throw $throwable;
             });
+    }
+
+    public function parseJson($json, $donor)
+    {
+        $items = [];
+        foreach ($json->listings as $listing) {
+            $items[] = [
+                'title'      => $listing->title,
+                'address'    => null,
+                'donor_page' => $listing->permalink,
+                'donor'      => $donor,
+                'donor_id'   => $donor->id,
+            ];
+        }
+        return [
+            'items' => $items,
+            'pagination' => [],
+        ];
     }
 
 }

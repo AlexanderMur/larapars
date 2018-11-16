@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jople
- * Date: 16.11.2018
- * Time: 18:35
- */
+
 
 namespace App\Parsers;
 
@@ -12,44 +7,41 @@ namespace App\Parsers;
 use App\Components\Crawler;
 use App\Models\Donor;
 
-class EdgoParser extends SelectorParser
+class AoolParser extends SelectorParser
 {
-    public function getSite(Crawler $crawler, Donor $donor)
-    {
-        $text  = $crawler->query($donor->single_site)->mergeTextOrNull(' ');
-        $sites = get_links_from_text($text);
-        $sites = array_unique($sites);
-        $site  = implode(', ', $sites);
-        return $site;
-    }
 
-    public function getCompanyPhone(Crawler $crawler, Donor $donor)
-    {
-        $numbers = find_numbers_from_text(
-            $crawler->query($donor->single_tel)->mergeTextOrNull(PHP_EOL)
-        );
-
-        return implode(', ', array_unique($numbers));
-    }
-
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
+    public $per_page = 100;
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = false, $params = [])
     {
 
 
         $this->add_visited_page($url);
         return $this->fetch('POST', $url, [
             'donor_id'    => $donor->id,
-            'methodName' => __FUNCTION__,
-            'cookies' => cookies([
-                'antibot-hostia'=>'true',
-            ],$url),
+            'methodName'  => __FUNCTION__,
             'form_params' => array_merge([
-                'action'   => 'ajax_search_tags',
-                'cat_id'   => 15,
-                'loc_id'   => '',
-                'pageno'   => 1,
-                'skeywork' => '',
-            ],$params),
+                'lang'              => '',
+                'search_keywords'   => '',
+                'search_location'   => '',
+                'search_categories' => ['91'],
+                'filter_job_type'   => [
+                    '%d0%b0%d0%b2%d1%82%d0%be%d1%81%d0%b0%d0%bb%d0%be%d0%bd%d1%8b',
+                    'vremenno',
+                    'eda',
+                    'internatura',
+                    'magazini',
+                    'nepolnaja-zanjatost',
+                    'ostanovitsja',
+                    'polnaja-zanjatost',
+                    'poseshhenie',
+                    'freelance',
+                ],
+                'per_page'          => $this->per_page,
+                'orderby'           => 'featured',
+                'order'             => 'DESC',
+                'page'              => '1',
+                'show_pagination'   => 'false',
+            ], $params),
         ])
             ->then('json_decode')
             ->then(function ($json) use ($recursive, $donor, $url) {
@@ -66,11 +58,11 @@ class EdgoParser extends SelectorParser
                         }
                     }
                     if ($recursive) {
-                        $max_page = ceil($json->found / 15);
+                        $max_page = ceil($json->total_found / $this->per_page);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
                                 $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, [
-                                    'pageno' => $i,
+                                    'page' => $i,
                                 ]);
                             }
                         }

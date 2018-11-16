@@ -6,7 +6,7 @@ namespace Tests\Feature;
 use App\Models\ParserTask;
 use Tests\TestCase;
 
-class DonorsTest extends TestCase
+class EdgoTest extends TestCase
 {
     public function testParsingCompanies()
     {
@@ -23,7 +23,7 @@ class DonorsTest extends TestCase
     public function testParseAll(){
 
         ParserTask::dispatch_now([
-            'https://edgo.ru/wp-admin/admin-ajax.php',
+            'http://aool.ru/jm-ajax/get_listings/',
         ], 'archivePages');
 
         $this->assertTrue(true);
