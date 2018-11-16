@@ -114,7 +114,7 @@ class ExampleTest extends TestCase
     {
 
 
-        $parserClient = new ParserClient();
+        $parserClient = new ParserClient(['proxy'=>['http'=>'127.0.0.1:8080']]);
         $i            = 0;
         $recurs       = function ($link) use (&$i, &$recurs, $parserClient) {
             return $parserClient->addGet($link)->then(function () use (&$i, $link, $recurs) {
@@ -145,7 +145,7 @@ class ExampleTest extends TestCase
     public function testParsing()
     {
 
-        $task = ParserTask::dispatch(['http://bp-auto.ru/news/'],'archivePages')->now();
+        $task = ParserTask::dispatch_now(['http://bp-auto.ru/news/'],'archivePages');
 
         $task = $task->getFresh();
         echo $task->new_companies_count;
@@ -156,7 +156,7 @@ class ExampleTest extends TestCase
     public function testParsingCompany()
     {
 
-        $task = ParserTask::dispatch(['https://otziv-avto.ru/avtosalon-cars-city-otzyvy/'],'companies')->now();
+        $task = ParserTask::dispatch_now(['https://otziv-avto.ru/avtosalon-cars-city-otzyvy/'],'companies');
         $task = $task->getFresh();
         echo $task->new_companies_count;
         $this->assertTrue(true);

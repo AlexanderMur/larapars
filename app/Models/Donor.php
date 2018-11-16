@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ParserLog;
+use App\Parsers\SelectorParser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,12 +45,49 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ParserLog[] $logs
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Donor withTaskStats($task_id)
  * @property int $decode_url
+ * @property string|null $parser
+ * @property string|null $single_address_find_by_regex
+ * @property string|null $s_address_regex
+ * @property string|null $s_city_regex
  */
 class Donor extends Model
 {
+    protected $parserObj;
 
-
-
+    /**
+     * @param $urls
+     * @return Donor[]
+     */
+    public static function mapUrls($urls)
+    {
+        if ($urls) {
+            $donorsQuery = static::select();
+            $mappedUrls  = [];
+            foreach ($urls as $key => $url) {
+                $host         = parse_url($url)['host'];
+                $mappedUrls[] = ['donor_page' => $url, 'host' => $host];
+                $donorsQuery->orWhere('link', 'like', "%$host%");
+            }
+            $donors = $donorsQuery->get()->keyBy(function (Donor $donor) {
+                return parse_url($donor->link)['host'];
+            });
+            foreach ($mappedUrls as $key => $url) {
+                $mappedUrls[$key]['donor'] = $donors[$url['host']];
+            }
+            return $mappedUrls;
+        } else {
+            return [];
+        }
+    }
+    public function getParser($client, $task, $proxies, $tries){
+        if(!$this->parserObj){
+            if(!$this->parser){
+                return $this->parserObj = new SelectorParser($client, $task,$proxies,$tries);
+            }
+            return $this->parserObj = new $this->parser($client, $task, $proxies, $tries);
+        }
+        return $this->parserObj;
+    }
     public function scopeWithTaskStats($query,$task_id){
         return $query->withCount([
             'logs as new_reviews_count' => function(Builder $query) use ($task_id) {

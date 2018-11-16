@@ -116,38 +116,16 @@ function memory()
     return memory_get_peak_usage(true) / 1024 / 1024;
 }
 
-function get_domain($url){
-    return parse_url($url)['host'] ?? '';
-}
-function closetags($html) {
-    preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
-    $openedtags = $result[1];
-
-    preg_match_all('#</([a-z]+)>#iU', $html, $result);
-    $closedtags = $result[1];
-    $len_opened = count($openedtags);
-    if (count($closedtags) == $len_opened) {
-        return $html;
-    }
-    $openedtags = array_reverse($openedtags);
-    for ($i=0; $i < $len_opened; $i++) {
-        if (!in_array($openedtags[$i], $closedtags)){
-            $html .= '</'.$openedtags[$i].'>';
-        } else {
-            unset($closedtags[array_search($openedtags[$i], $closedtags)]);
-        }
-    }
-    return $html;
-}
-function normalize_url($url)
-{
-    ['scheme'=>$scheme,'host'=>$host,'path'=>$path] = parse_url($url);
-
-    return "$scheme://$host$path";
-}
 function info_error(Throwable $throwable){
     info($throwable->getMessage(), ['trace'=>$throwable->getTraceAsString()]);
 }
 function phone(){
     return PhoneNumberUtil::getInstance();
+}
+function trim_and_implode($arr,$glue = ""){
+    $new_arr = array_map(function($item){
+        return trim(preg_replace('/\s+/u',' ',$item));
+    },$arr);
+
+    return implode($glue,$new_arr);
 }

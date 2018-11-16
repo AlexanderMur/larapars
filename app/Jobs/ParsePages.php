@@ -2,7 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Components\ParserClient;
+use App\Models\Donor;
 use App\Models\ParserTask;
+use App\Parsers\Parser;
 use App\Services\ParserService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,6 +31,7 @@ class ParsePages implements ShouldQueue
     protected $task;
     protected $task_id;
     protected $recursive;
+    public $canceled;
 
 
     /**
@@ -37,50 +41,97 @@ class ParsePages implements ShouldQueue
      * @param array $links
      * @param bool $recursive
      */
-    public function __construct($task_id, $links = [],$recursive = true)
+    public function __construct($task_id, $links = [], $recursive = true)
     {
-        $this->links   = $links;
-        $this->task_id = $task_id;
+        $this->links     = $links;
+        $this->task_id   = $task_id;
         $this->recursive = $recursive;
     }
 
     /**
      * Execute the job.
      *
-     * @param ParserService $parserService
      * @return void
      */
-    public function handle(ParserService $parserService)
+
+    public function handle()
     {
 
         $this->task = ParserTask::find($this->task_id);
+
         $this->task->log('bold', 'Запуск парсера', null);
 
-        $urls       = $parserService->mapUrlsWithDonor($this->links);
-        $parserService->create_task($this->task);
+        $urls    = Donor::mapUrls($this->links);
+        $client  = new ParserClient();
+        $proxies = setting()->getProxies();
+        $tries   = setting()->tries ?? 2;
+        $client->onConcurrency(function () {
+            static $lastUpdate;
+            static $concurrency;
+
+            if (microtime(true) - $lastUpdate > 2) {
+                $lastUpdate  = microtime(true);
+                $concurrency = setting()->concurrency;
+            };
+
+            return $concurrency;
+        });
+
         $this->task->setParsing();
         $this->task->setProgressNow();
+
         if ($this->task->type == 'companies') {
             foreach ($urls as $url) {
-                $parserService->parseCompanyByUrl($url['donor_page'], $url['donor'])
+                /**
+                 * @var Parser $parser
+                 */
+                $parser = $url['donor']->getParser($client, $this->task, $proxies, $tries);
+                $parser->parseCompanyByUrl($url['donor_page'], $url['donor'])
                     ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
             }
-            $parserService->run();
-            $parserService->log_end();
+            $client->run();
+            $this->handle_end();
         }
+
         if ($this->task->type == 'archivePages') {
             foreach ($urls as $url) {
-                $parserService->parseArchivePageByUrl($url['donor_page'], $url['donor'],$this->recursive);
-                $parserService->run();
-                if(!$parserService->canceled){
+                $this->task->refreshState();
+                /**
+                 * @var Parser $parser
+                 */
+                $parser = $url['donor']->getParser($client, $this->task, $proxies, $tries);
+                $parser->parseAll($url['donor']);
+                $client->run();
+                if (!$parser->canceled) {
                     $this->task->tickProgress();
+                } else {
+                    $this->canceled = true;
+                    break;
                 }
             }
-            $parserService->log_end();
+            $this->handle_end();
         }
 
+    }
 
+    public function handle_end()
+    {
+        info('ENDPARSING');
 
+        $this->task = $this->task->getFresh();
+
+        $this->task->log('bold', '
+            Работа парсера ' . ($this->canceled ? 'приостановлена' : 'завершена') . '. Найдено новых компаний: (' . $this->task->new_companies_count . ')
+            Обновлено компаний: (' . $this->task->updated_companies_count . ')
+            Новых отзывов: (' . $this->task->new_reviews_count . ')
+            Удалено отзывов: (' . $this->task->deleted_reviews_count . ')
+            Возвращено отзывов: (' . $this->task->restored_reviews_count . ')
+            ', null);
+        if ($this->canceled) {
+            $this->task->setPaused();
+        } else {
+            $this->task->setDone();
+        }
     }
 
     public function failed()

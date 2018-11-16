@@ -38,6 +38,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property int $job_id
  * @property string $state
  * @property string|null $type
+ * @property string|null $parser
  */
 class ParserTask extends Model
 {
@@ -250,6 +251,11 @@ class ParserTask extends Model
         return $task;
     }
 
+    /**
+     * @param $links
+     * @param $type
+     * @return $this|Model
+     */
     public static function dispatch_now($links, $type)
     {
         $task      = self::create(['type' => $type]);

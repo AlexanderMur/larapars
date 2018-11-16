@@ -11,6 +11,11 @@ use Symfony\Component\DomCrawler\Crawler as BaseCrawler;
  */
 class Crawler extends BaseCrawler
 {
+    public function addContent($content, $type = null){
+       $content = preg_replace('/<[\s\/]*br[\s*\/]*>/i',"\r\n<br />",$content);
+
+       return parent::addContent($content, $type);
+    }
     public function index()
     {
         $i = 0;

@@ -150,6 +150,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         return 'ok';
     });
 
+
 });
 
 Route::get('delay/{delay}', function ($delay) {

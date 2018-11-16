@@ -126,9 +126,14 @@ class CompaniesTableSeeder extends Seeder
             CompanyHistory::create($item);
         }
     }
-    public function createDefaultSettings(){
-        setting()->setSetting('time',4);
+
+    public function createDefaultSettings()
+    {
+        setting()->setSetting('time', 4);
+        setting()->setSetting('proxies', '127.0.0.1:8080');
+        setting()->setSetting('concurrency', '2');
     }
+
     public function createDonors()
     {
         $donors = collect([
@@ -472,7 +477,8 @@ class CompaniesTableSeeder extends Seeder
                 'reviews_id'          => '',
                 'reviews_pagination'  => '',
                 'single_site'         => '.post pre',
-                'single_address'      => '',
+                'single_address'      => '.post pre',
+                's_address_regex'     => '/Адрес\s?.*/i',
                 'single_tel'          => '.post pre',
                 'single_title'        => '.tag_line_title',
                 'single_city'         => '',
@@ -1077,7 +1083,33 @@ class CompaniesTableSeeder extends Seeder
                 'single_title'        => '.main-heading h1',
                 'single_city'         => '',
                 'archive_pagination'  => '.pager a',
-                'decode_url' => true,
+                'decode_url'          => true,
+            ],
+            [
+                'link'                => 'http://autoneva.ru/avtosalony/search/',
+                'title'               => 'autoneva.ru',
+                'mass_parsing'        => true,
+                'loop_address'        => '',
+                'loop_item'           => '.result_item',
+                'loop_link'           => '.name a',
+                'loop_title'          => '.name a',
+                'replace_search'      => '',
+                'replace_to'          => "",
+                'reviews_all'         => '.review',
+                'reviews_ignore_text' => '... Читать полностью',
+                'reviews_rating'      => '',
+                'reviews_text'        => '.content',
+                'reviews_title'       => '.name',
+                'reviews_name'        => '.author a',
+                'reviews_id'          => '',
+                'reviews_pagination'  => '',
+                'single_site'         => '.addr',
+                'single_address'      => '//div[@class="adr" and contains(.,"Адрес")]//p[2]',
+                's_address_regex'     => '',
+                'single_tel'          => '.addr',
+                'single_title'        => '.title.br',
+                'single_city'         => '',
+                'archive_pagination'  => '.page_navi a',
             ],
         ]);
 

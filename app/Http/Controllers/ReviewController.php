@@ -117,13 +117,13 @@ class ReviewController extends Controller
 
     public function like(Review $review)
     {
-        $this->reviewService->likeReview($review);
+        $review->like();
         return response()->json('ok');
     }
 
     public function dislike(Review $review)
     {
-        $this->reviewService->dislikeReview($review);
+        $review->dislike();
         return response()->json('ok');
     }
 

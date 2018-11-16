@@ -19,20 +19,21 @@ class SelectorParser extends Parser
     {
 
 
-        return $this->getPage($url, $donor, 'company')
+        return $this->getPage($url, $donor, __FUNCTION__)
             ->then(function (Crawler $crawler) use ($url, $donor) {
 
                 $data           = $this->getDataOnSinglePage($crawler, $donor);
-                $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parser_task);
+                $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parserTask);
 
                 return $parsed_company;
             })
             ->then(null, function (\Throwable $e) use ($url) {
-                $this->parser_task->log('info',$e->getMessage(),$url);
+                $this->parserTask->log('info',$e->getMessage(),$url);
                 info_error($e);
                 throw $e;
             });
     }
+
     function parseAll(Donor $donor)
     {
         return $this->parseArchivePageRecursive($donor->link,$donor);
@@ -41,12 +42,12 @@ class SelectorParser extends Parser
     {
 
         $this->add_visited_page($url);
-        return $this->getPage($url, $donor, 'archive')
+        return $this->getPage($url, $donor, __FUNCTION__)
             ->then(function (Crawler $crawler) use ($recursive, $donor, $url) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
-                    $archiveData = $this->parserClass->getDataOnPage($crawler, $donor);
+                    $archiveData = $this->getDataOnPage($crawler, $donor);
                     if ($recursive) {
                         foreach ($archiveData['pagination'] as $page) {
                             if ($this->add_visited_page($page)) {
@@ -61,10 +62,6 @@ class SelectorParser extends Parser
                     }
                 }
 
-                if (!in_array($donor->id, $this->archivePagesInQueue)) {
-                    unset($this->visitedPages[$donor->id]);
-                }
-
                 return \GuzzleHttp\Promise\each($promises);
             })
             ->then(null,function(\Throwable $throwable){
@@ -73,6 +70,7 @@ class SelectorParser extends Parser
                 throw $throwable;
             });
     }
+
     public function getDataOnPage(Crawler $crawler, Donor $donor)
     {
         $items      = $crawler
@@ -117,26 +115,56 @@ class SelectorParser extends Parser
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
 
+
+        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
+        return [
+            'site'       => $this->getSite($crawler, $donor),
+            'reviews'    => $this->getReviewsOnPage($crawler, $donor),
+            'phone'      => $this->getCompanyPhone($crawler, $donor),
+            'address'    => $this->getAddress($crawler, $donor),
+            'title'      => $this->getTitle($crawler, $donor),
+            'city'       => $this->getCity($crawler, $donor),
+            'donor_page' => $crawler->getBaseHref(),
+            'donor_id'   => $donor->id,
+            'pagination' => $pagination,
+        ];
+    }
+    public function getSite(Crawler $crawler, Donor $donor){
         $site_text = $crawler->query($donor->single_site)->getText();
         if($donor->decode_url){//carsguru.net
             $site_text = urldecode(base64_decode($site_text));
         }
         $site       = get_links_from_text($site_text);
         $site       = implode(', ', $site);
-        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
-        return [
-            'site'       => $site,
-            'reviews'    => $this->getReviewsOnPage($crawler, $donor),
-            'phone'      => $this->getCompanyPhone($crawler, $donor),
-            'address'    => str_ireplace('адрес:','',$crawler->query($donor->single_address)->getText()),
-            'title'      => $crawler->query($donor->single_title)->getText(),
-            'city'       => str_ireplace('город:','',$crawler->query($donor->single_city)->getText()),
-            'donor_page' => $crawler->getBaseHref(),
-            'donor_id'   => $donor->id,
-            'pagination' => $pagination,
-        ];
+        return $site;
     }
-
+    public function getTitle(Crawler $crawler, Donor $donor){
+        return $crawler->query($donor->single_title)->getText();
+    }
+    public function getAddress(Crawler $crawler, Donor $donor){
+        $text = $crawler->query($donor->single_address)->getText();
+        $raw_addresses = [];
+        if($donor->s_address_regex){
+            preg_match($donor->s_address_regex,$text,$raw_addresses);
+        } else {
+            $raw_addresses = [$text];
+        }
+        $found = preg_replace('/\bадрес\b\s*:?/ui','',$raw_addresses);
+        $found = trim_and_implode($found,PHP_EOL);
+        return $found;
+    }
+    public function getCity(Crawler $crawler, Donor $donor){
+        $text = $crawler->query($donor->single_city)->getText();
+        $raw_cities = [];
+        if($donor->s_city_regex){
+            preg_match($donor->s_city_regex,$text,$raw_cities);
+        } else {
+            $raw_cities = [$text];
+        }
+        $found = preg_replace('/\bгород\b\s*:?/ui','',$raw_cities);
+        $found = trim_and_implode($found,PHP_EOL);
+        return $found;
+    }
     public function getReviewsOnPage(Crawler $crawler, Donor $donor)
     {
         return (array)$crawler

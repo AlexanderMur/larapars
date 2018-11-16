@@ -129,4 +129,18 @@ class Review extends Model
             $query->where('favourite',true);
         });
     }
+
+    public function dislike()
+    {
+        $this->good = false;
+
+        return $this;
+    }
+
+    public function like()
+    {
+        $this->good = true;
+
+        return $this->save();
+    }
 }

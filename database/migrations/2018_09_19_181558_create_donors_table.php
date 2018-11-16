@@ -20,6 +20,9 @@ class CreateDonorsTable extends Migration
             $table->increments('id');
             $table->string('link');
             $table->string('title');
+
+            $table->string('parser')->nullable();
+
             $table->boolean('mass_parsing')->default(1);
 
             //Archive page selector
@@ -31,9 +34,12 @@ class CreateDonorsTable extends Migration
             //Single page selectors
             $table->string('single_site')->nullable();
             $table->string('single_address')->nullable();
+            $table->string('s_address_regex')->nullable();
             $table->string('single_tel')->nullable();
             $table->string('single_title')->nullable();
             $table->string('single_city')->nullable();
+            $table->string('s_city_regex')->nullable();
+
 
 
             //Replace unclosed tags
