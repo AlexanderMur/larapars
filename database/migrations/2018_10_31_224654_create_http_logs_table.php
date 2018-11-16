@@ -18,6 +18,7 @@ class CreateHttpLogsTable extends Migration
             $table->text('url');
             $table->integer('status')->nullable();
             $table->string('message')->nullable();
+            $table->text('params')->nullable();
             $table->integer('donor_id');
             $table->integer('parser_task_id');
             $table->string('channel')->nullable();

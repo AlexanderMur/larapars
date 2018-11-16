@@ -71,4 +71,18 @@ class Crawler extends BaseCrawler
         }
         return null;
     }
+
+    /**
+     * @param string $glue
+     * @return null|string
+     */
+    public function mergeTextOrNull($glue = ''){
+        if($this->count()){
+            $arr = $this->map(function(Crawler $crawler){
+                return $crawler->getText();
+            });
+            return implode($glue,$arr);
+        }
+        return null;
+    }
 }

@@ -161,14 +161,17 @@ class ParserTask extends Model
     /**
      * @param $url
      * @param string $channel
+     * @param $donor_id
+     * @param null $params
      * @return HttpLog|Model
      */
-    public function createGet($url, $channel = '', $donor_id)
+    public function createGet($url, $channel = '', $donor_id, $params = null)
     {
         return $this->http_logs()->create([
             'url'      => $url,
             'channel'  => $channel,
             'donor_id' => $donor_id,
+            'params' => $params !== null ? json_encode($params) : null,
         ]);
     }
 

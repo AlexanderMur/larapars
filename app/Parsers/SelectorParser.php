@@ -38,7 +38,7 @@ class SelectorParser extends Parser
     {
         return $this->parseArchivePageRecursive($donor->link,$donor);
     }
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true)
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = false, $params = [])
     {
 
         $this->add_visited_page($url);

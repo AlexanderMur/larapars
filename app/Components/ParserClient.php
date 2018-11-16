@@ -31,8 +31,8 @@ class ParserClient
     /**
      * @var callable $eachRequestfn
      *
-    protected $last_promise;
-    /**
+     * protected $last_promise;
+     * /**
      * @var ParserClass $parser
      */
     private $parser;
@@ -43,16 +43,28 @@ class ParserClient
         $this->parser = new ParserClass();
     }
 
-    public function addGet($link, $options = [])
+    public function sendToQueue($method = 'GET', $link, $options = [])
     {
+
         $promise       = new Promise();
         $this->links[] = [
+            'method'      => $method,
             'link'        => $link,
             'promise'     => $promise,
             'before_send' => $options['before_send'] ?? null,
             'options'     => $options,
         ];
         return $promise;
+    }
+
+    public function addGet($link, $options = [])
+    {
+        return $this->sendToQueue('GET', $link, $options);
+    }
+
+    public function addPost($link, $options = [])
+    {
+        return $this->sendToQueue('POST', $link, $options);
     }
 
     public function getPendingCount()
@@ -92,7 +104,7 @@ class ParserClient
                     $this->pending[$link['link']] = $link['promise'];
 
                     yield $this->client
-                        ->getAsync($link['link'], $link['options'])
+                        ->requestAsync($link['method'],$link['link'], $link['options'])
                         ->then(function (Response $response) use ($link) {
                             unset($this->pending[$link['link']]);
                             $link['promise']->resolve($response);
@@ -101,7 +113,7 @@ class ParserClient
                             info('pool error: ' . $exception->getMessage());
                             $link['promise']->reject($exception);
                         })
-                        ->then(null, function ($exception) {
+                        ->then(null, function (\Throwable $exception) {
                             info('pool fatal error: ' . $exception->getMessage());
                         });
                 }
@@ -115,7 +127,7 @@ class ParserClient
                 },
             ]))
                 ->promise()
-                ->then(null, function ($throwable) {
+                ->then(null, function (\Throwable $throwable) {
                     info($throwable->getMessage());
                 })
                 ->wait();

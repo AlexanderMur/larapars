@@ -110,6 +110,15 @@ function get_phones_from_text($text, $region = 'RU')
     }
     return implode(', ', $numbersArr);
 }
+function find_numbers_from_text($text, $region = 'RU')
+{
+    $numbers    = PhoneNumberUtil::getInstance()->findNumbers($text, $region);
+    $numbersArr = [];
+    foreach ($numbers as $number) {
+        $numbersArr[] = $number->rawString();
+    }
+    return $numbersArr;
+}
 
 function memory()
 {
@@ -128,4 +137,10 @@ function trim_and_implode($arr,$glue = ""){
     },$arr);
 
     return implode($glue,$new_arr);
+}
+function get_domain($url){
+    return parse_url($url)['host'] ?? '';
+}
+function cookies($arr,$url){
+    return \GuzzleHttp\Cookie\CookieJar::fromArray($arr,get_domain($url));
 }

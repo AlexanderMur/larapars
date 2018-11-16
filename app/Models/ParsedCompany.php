@@ -162,7 +162,7 @@ class ParsedCompany extends Model
 
         foreach ($properties as $property) {
             if (isset($new_company[$property])) {
-                if (strlen($new_company[$property]) > 190) {
+                if (strlen($new_company[$property]) > 255) {
                     $new_company[$property] = '';
                     continue;
                 }

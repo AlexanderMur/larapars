@@ -18,11 +18,11 @@ class CreateParsedCompaniesTable extends Migration
          */
         Schema::create('parsed_companies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('phone')->nullable();
-            $table->string('site')->nullable();
-            $table->string('title')->nullable();
-            $table->string('address')->nullable();
-            $table->string('city')->nullable();
+            $table->string('phone',255)->nullable();
+            $table->string('site',255)->nullable();
+            $table->string('title',255)->nullable();
+            $table->string('address',255)->nullable();
+            $table->string('city',255)->nullable();
             $table->integer('company_id')->nullable();
             $table->text('donor_page')->nullable();
             $table->integer('donor_id')->nullable();

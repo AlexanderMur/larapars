@@ -30,53 +30,47 @@ abstract class Parser
     public $tries;
     public $canceled;
 
-    public function __construct(ParserClient $client, ParserTask $parserTask,$proxies,$tries)
+    public function __construct(ParserClient $client, ParserTask $parserTask, $proxies, $tries)
     {
-        $this->client = $client;
+        $this->client     = $client;
         $this->parserTask = $parserTask;
 
         $this->proxies = $proxies;
         $this->tries   = $tries;
     }
 
-    /**
-     * @param $link
-     * @param Donor $donor
-     * @param string $methodName
-     * @param int $tries
-     * @param null $delay
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function getPage($link, Donor $donor, $methodName = '', $tries = 0, $delay = null)
+    public function fetch($method = 'GET', $url, $options = [],$attempts = 0)
     {
-        $http = $this->parserTask->createGet($link, $methodName, $donor->id);
+
+        $http = $this->parserTask->createGet($url, $options['methodName'], $options['donor_id'],$options['form_params'] ?? null);
 
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
 
-        return $this->client
-            ->addGet($link, [
-                'headers'     => [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
-                ],
-                'verify'      => false,
-                'proxy'       => [
-                    'http'  => $random_proxy,
-                    'https' => $random_proxy,
-                ],
-                'before_send' => function () use ($http) {
-                    if ($this->should_stop())
-                        return false;
+        return $this->client->sendToQueue($method,$url,array_merge([
+            'headers'     => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+            ],
+            'verify'      => false,
+            'proxy'       => [
+                'http'  => $random_proxy,
+                'https' => $random_proxy,
+            ],
+            'before_send' => function () use ($http) {
+                if ($this->should_stop())
+                    return false;
 
-                    $http->update(['sent_at' => Carbon::now()]);
-                },
-                'delay'       => $delay,
-            ])
-            ->then(function (Response $response) use ($tries, $http, $donor) {
+                $http->update(['sent_at' => Carbon::now()]);
+                return true;
+            },
+            'delay'       => 1,
+            'attempts' => $this->tries,
+        ],$options))
+            ->then(function (Response $response) use ($options, $http) {
                 $http->updateStatus($response->getStatusCode(), $response->getReasonPhrase());
-                $html = $response->getBody()->getContents();
-                $html = str_replace($donor->replace_search, $donor->replace_to, $html);
-                return new Crawler($html, $http->url);
-            }, function (\Exception $exception) use ($tries, $http, $donor) {
+                $contents = $response->getBody()->getContents();
+
+                return $contents;
+            }, function (\Exception $exception) use ($attempts, $method, $options, $http) {
 
                 $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 191 - 3));
 
@@ -85,9 +79,9 @@ abstract class Parser
                         $this->parserTask->log('404', 'not_found', $http->url);
                         break;
                     case 0:
-                        $tries++;
-                        if ($tries < $this->tries) {
-                            return $this->getPage($http->url, $donor, $http->channel, $tries);
+                        $attempts++;
+                        if ($attempts < $options['attempts']) {
+                            return $this->fetch($method,$http->url, $options,$attempts);
                         }
                         break;
                 }
@@ -98,6 +92,24 @@ abstract class Parser
             });
     }
 
+    /**
+     * @param $link
+     * @param Donor $donor
+     * @param string $methodName
+     * @return \GuzzleHttp\Promise\Promise|PromiseInterface
+     */
+    public function getPage($link, Donor $donor, $methodName = '')
+    {
+        return $this->fetch('GET',$link,[
+            'methodName' => $methodName,
+            'donor_id' => $donor->id,
+        ])
+        ->then(function($contents) use ($donor, $link) {
+            $contents = str_replace($donor->replace_search, $donor->replace_to, $contents);
+            return new Crawler($contents,$link);
+        });
+    }
+
     public function should_stop()
     {
         if ($this->parserTask->getState() === 'Paused' || $this->parserTask->getState() === 'Pausing') {
@@ -105,10 +117,12 @@ abstract class Parser
         }
         return $this->canceled;
     }
+
     public function run()
     {
         $this->client->run();
     }
+
     public function add_visited_page($url)
     {
         if (!in_array($url, $this->visitedPages)) {
@@ -135,7 +149,8 @@ abstract class Parser
      * @param $url
      * @param Donor $donor
      * @param bool $recursive
+     * @param array $params
      * @return PromiseInterface
      */
-    abstract function parseArchivePageRecursive($url, Donor $donor, $recursive = true);
+    abstract function parseArchivePageRecursive($url, Donor $donor, $recursive = true,$params = []);
 }
