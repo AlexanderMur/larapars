@@ -11,15 +11,15 @@ class AoolParser extends SelectorParser
 {
 
     public $per_page = 100;
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = false, $params = [])
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = false, $page = 1)
     {
 
 
-        $this->add_visited_page($url);
+        $this->add_visited_page($page);
         return $this->fetch('POST', $url, [
             'donor_id'    => $donor->id,
             'methodName'  => __FUNCTION__,
-            'form_params' => array_merge([
+            'form_params' => [
                 'lang'              => '',
                 'search_keywords'   => '',
                 'search_location'   => '',
@@ -39,9 +39,9 @@ class AoolParser extends SelectorParser
                 'per_page'          => $this->per_page,
                 'orderby'           => 'featured',
                 'order'             => 'DESC',
-                'page'              => '1',
+                'page'              => $page,
                 'show_pagination'   => 'false',
-            ], $params),
+            ],
         ])
             ->then('json_decode')
             ->then(function ($json) use ($recursive, $donor, $url) {
@@ -61,9 +61,7 @@ class AoolParser extends SelectorParser
                         $max_page = ceil($json->total_found / $this->per_page);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, [
-                                    'page' => $i,
-                                ]);
+                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
                             }
                         }
                     }

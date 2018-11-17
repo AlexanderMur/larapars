@@ -20,13 +20,11 @@ class EdgoTest extends TestCase
         ]);
         $this->assertTrue(true);
     }
-    public function testParseAll(){
 
-        ParserTask::dispatch_now([
-            'http://aool.ru/jm-ajax/get_listings/',
-        ], 'archivePages');
+    public function testParseAll()
+    {
 
-        $this->assertTrue(true);
 
     }
+
 }

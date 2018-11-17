@@ -29,14 +29,14 @@ class MosotzivParser extends SelectorParser
 
         return implode(', ', array_unique($numbers));
     }
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $page = 1)
     {
 
-        $this->add_visited_page($url);
+        $this->add_visited_page($page);
         return $this->fetch('POST', $url, [
             'donor_id'    => $donor->id,
             'methodName'  => __FUNCTION__,
-            'form_params' => array_merge([
+            'form_params' => [
                 'lang'            => '',
                 'search_keywords' => '',
                 'search_location' => '',
@@ -50,9 +50,9 @@ class MosotzivParser extends SelectorParser
                 'per_page'        => $this->per_page,
                 'orderby'         => 'featured',
                 'order'           => 'DESC',
-                'page'            => '2',
+                'page'            => $page,
                 'show_pagination' => 'true',
-            ], $params),
+            ],
         ])
             ->then('json_decode')
             ->then(function ($json) use ($recursive, $donor, $url) {
@@ -71,9 +71,7 @@ class MosotzivParser extends SelectorParser
                         $max_page = ceil($json->found_posts / $this->per_page);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, [
-                                    'page' => $i,
-                                ]);
+                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
                             }
                         }
                     }

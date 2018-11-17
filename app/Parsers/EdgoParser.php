@@ -32,24 +32,31 @@ class EdgoParser extends SelectorParser
         return implode(', ', array_unique($numbers));
     }
 
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
+    /**
+     * @param $url
+     * @param Donor $donor
+     * @param bool $recursive
+     * @param int $page
+     * @return \GuzzleHttp\Promise\Promise|\GuzzleHttp\Promise\PromiseInterface
+     */
+    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $page = 1)
     {
 
 
-        $this->add_visited_page($url);
+        $this->add_visited_page($page);
         return $this->fetch('POST', $url, [
             'donor_id'    => $donor->id,
-            'methodName' => __FUNCTION__,
-            'cookies' => cookies([
-                'antibot-hostia'=>'true',
-            ],$url),
-            'form_params' => array_merge([
+            'methodName'  => __FUNCTION__,
+            'cookies'     => cookies([
+                'antibot-hostia' => 'true',
+            ], $url),
+            'form_params' => [
                 'action'   => 'ajax_search_tags',
                 'cat_id'   => 15,
                 'loc_id'   => '',
-                'pageno'   => 1,
+                'pageno'   => $page,
                 'skeywork' => '',
-            ],$params),
+            ],
         ])
             ->then('json_decode')
             ->then(function ($json) use ($recursive, $donor, $url) {
@@ -69,9 +76,7 @@ class EdgoParser extends SelectorParser
                         $max_page = ceil($json->found / 15);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, [
-                                    'pageno' => $i,
-                                ]);
+                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
                             }
                         }
                     }
@@ -86,4 +91,52 @@ class EdgoParser extends SelectorParser
             });
     }
 
+    public function iteratePages(Donor $donor, $fulfilled)
+    {
+
+        $promises = new \ArrayIterator();
+
+        $promises->append($this->getJson($donor)
+            ->then(function ($json) use ($donor,&$promises) {
+
+                $max_page = ceil($json->found / 15);
+                for ($i = 1; $i <= $max_page; $i++) {
+                    $promises->append($this->getPage2($donor, $i));
+                }
+
+                return $this->parseJson($donor, $json);
+            }));
+
+        return \GuzzleHttp\Promise\each($promises, $fulfilled);
+    }
+
+    public function getJson(Donor $donor, $page = 1, $params = [])
+    {
+        return $this->fetch('POST', $donor->link, [
+            'donor_id'    => $donor->id,
+            'methodName'  => __FUNCTION__,
+            'cookies'     => cookies([
+                'antibot-hostia' => 'true',
+            ], $donor->link),
+            'form_params' => array_merge([
+                'action'   => 'ajax_search_tags',
+                'cat_id'   => 15,
+                'loc_id'   => '',
+                'pageno'   => $page,
+                'skeywork' => '',
+            ], $params),
+        ])
+            ->then('json_decode');
+    }
+    public function getPage2(Donor $donor, $page = 1, $params = []){
+        return $this->getJson($donor,$page,$params)
+            ->then(function($json) use ($donor) {
+                return $this->parseJson($donor, $json);
+            });
+    }
+    public function parseJson(Donor $donor,$json){
+
+        $crawler = new Crawler($json->html, $donor->link);
+        return $this->getDataOnPage($crawler, $donor);
+    }
 }

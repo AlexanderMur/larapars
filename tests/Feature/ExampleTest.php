@@ -286,4 +286,22 @@ class ExampleTest extends TestCase
         echo microtime(true) - $start;
         $this->assertTrue(true);
     }
+
+    public function testIterate(){
+        $client = new ParserClient([
+            'proxy'=>[
+                'http' => '127.0.0.1:8080'
+            ],
+        ]);
+        $promises = [];
+        for ($i = 0; $i < 10; $i++) {
+            $promises[] = $client->addGet('http://example.com');
+        }
+
+        \GuzzleHttp\Promise\each($promises,function($r){
+            $qqw = $r;
+        });
+        $client->run();
+        $this->assertTrue(true);
+    }
 }

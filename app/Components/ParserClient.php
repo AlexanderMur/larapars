@@ -23,6 +23,7 @@ class ParserClient
     public $client;
     public $links = [];
     protected $pending = [];
+    protected $concurrency = 1;
     private $runned;
     /**
      * @var callable $concurrencyfn
@@ -72,15 +73,18 @@ class ParserClient
         return count($this->pending);
     }
 
-    public function onConcurrency(callable $fn)
+    public function onConcurrency($fn)
     {
         $this->concurrencyfn = $fn;
         return $this;
     }
 
-    public function run()
+    public function run($concurrency = null)
     {
-        if (count($this->links)) {
+        if (!empty($this->links)) {
+            if ($concurrency) {
+                $this->concurrency = $concurrency;
+            }
             $this->runned = true;
             $requests     = function () {
                 while (true) {
@@ -104,7 +108,7 @@ class ParserClient
                     $this->pending[$link['link']] = $link['promise'];
 
                     yield $this->client
-                        ->requestAsync($link['method'],$link['link'], $link['options'])
+                        ->requestAsync($link['method'], $link['link'], $link['options'])
                         ->then(function (Response $response) use ($link) {
                             unset($this->pending[$link['link']]);
                             $link['promise']->resolve($response);
@@ -122,7 +126,7 @@ class ParserClient
 
             (new EachPromise($requests(), [
                 'concurrency' => function () {
-                    $concurrency = min(count($this->links), $this->concurrency());
+                    $concurrency = min(count($this->links), $this->getConcurrency());
                     return max(1, $concurrency);
                 },
             ]))
@@ -136,16 +140,17 @@ class ParserClient
 
     public function __destruct()
     {
-        if (!$this->runned) {
-            $this->run();
-        }
-
-
+        $this->run();
     }
 
-    protected function concurrency()
+    protected function getConcurrency()
     {
 
-        return is_callable($this->concurrencyfn) ? call_user_func($this->concurrencyfn) : 25;
+
+        if (is_callable($this->concurrencyfn)) {
+            return call_user_func($this->concurrencyfn);
+        }
+
+        return $this->concurrency;
     }
 }
