@@ -79,9 +79,10 @@ class ParsePages implements ShouldQueue
 
         $this->task->setParsing();
         $this->task->setProgressNow();
+        $this->task->setProgressMax(count($urls));
 
         if ($this->task->type == 'companies') {
-            foreach ($urls as $url) {
+            foreach (array_reverse($urls) as $url) {
                 /**
                  * @var Parser $parser
                  */
@@ -94,21 +95,27 @@ class ParsePages implements ShouldQueue
         }
 
         if ($this->task->type == 'archivePages') {
-            foreach ($urls as $url) {
-                $this->task->refreshState();
+            foreach (array_reverse($urls) as $url) {
                 /**
                  * @var Parser $parser
                  */
                 $parser = $url['donor']->getParser($client, $this->task, $proxies, $tries);
-                $parser->parseAll($url['donor']);
-                $client->run();
-                if (!$parser->canceled) {
-                    $this->task->tickProgress();
-                } else {
-                    $this->canceled = true;
-                    break;
-                }
+                $parser->parseAll($url['donor'])
+                    ->then(function () use ($parser) {
+                        if (!$parser->canceled) {
+                            $this->task->tickProgress();
+                        } else {
+                            $this->canceled = true;
+                        }
+                    }, function () use ($parser) {
+                        if (!$parser->canceled) {
+                            $this->task->tickProgress();
+                        } else {
+                            $this->canceled = true;
+                        }
+                    });
             }
+            $client->run();
             $this->handle_end();
         }
 
@@ -120,14 +127,16 @@ class ParsePages implements ShouldQueue
 
         $this->task = $this->task->getFresh();
 
+        $this->task->refreshState();
+
         $this->task->log('bold', '
-            Работа парсера ' . ($this->canceled ? 'приостановлена' : 'завершена') . '. Найдено новых компаний: (' . $this->task->new_companies_count . ')
+            Работа парсера ' . ($this->task->isPausingOrPaused() ? 'приостановлена' : 'завершена') . '. Найдено новых компаний: (' . $this->task->new_companies_count . ')
             Обновлено компаний: (' . $this->task->updated_companies_count . ')
             Новых отзывов: (' . $this->task->new_reviews_count . ')
             Удалено отзывов: (' . $this->task->deleted_reviews_count . ')
             Возвращено отзывов: (' . $this->task->restored_reviews_count . ')
             ', null);
-        if ($this->canceled) {
+        if ($this->task->isPausingOrPaused()) {
             $this->task->setPaused();
         } else {
             $this->task->setDone();

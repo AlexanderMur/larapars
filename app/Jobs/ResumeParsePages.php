@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Components\ParserClient;
-use App\Models\Donor;
 use App\Models\HttpLog;
 use App\Models\ParserTask;
 use App\Parsers\Parser;
@@ -52,48 +51,8 @@ class ResumeParsePages implements ShouldQueue
         $this->old_task_id = $old_task_id;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @param ParserService $parserService
-     * @return void
-     */
-    public function handle(ParserService $parserService)
-    {
 
-        $this->task     = ParserTask::find($this->task_id);
-        $this->old_task = ParserTask::find($this->old_task_id);
-        $parserService->create_task($this->task);
-        /**
-         * @var HttpLog[] $not_loaded_urls
-         */
-        $not_loaded_urls = $this->old_task->http_logs()
-            ->with('donor')->where('status', null)->get();
-
-        $visited_urls                = $this->old_task->http_logs()
-            ->where('status', '!=', null)
-            ->get()->map->url->toArray();
-        $parserService->visitedPages = $visited_urls;
-        $this->task->setParsing();
-        foreach ($not_loaded_urls as $not_loaded_url) {
-            if ($not_loaded_url->channel == 'company') {
-                $promise = $parserService->parseCompanyByUrl($not_loaded_url->url, $not_loaded_url->donor);
-
-                if ($this->task->type == 'company') {
-                    $promise->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
-                }
-            }
-            if ($not_loaded_url->channel == 'archive') {
-                $parserService->parseArchivePageByUrl($not_loaded_url->url, $not_loaded_url->donor)
-                    ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
-            }
-        }
-        $parserService->run();
-        $parserService->log_end();
-
-    }
-
-    public function handle2()
+    public function handle()
     {
         $this->task     = ParserTask::find($this->task_id);
         $this->old_task = ParserTask::find($this->old_task_id);
@@ -101,7 +60,9 @@ class ResumeParsePages implements ShouldQueue
 
         $this->task->log('bold', 'Запуск парсера', null);
 
-        $urls    = Donor::mapUrls($this->links);
+
+        $this->task->setProgressNow($this->old_task->progress_now);
+        $this->task->setParsing();
         $client  = new ParserClient();
         $proxies = setting()->getProxies();
         $tries   = setting()->tries ?? 2;
@@ -125,12 +86,15 @@ class ResumeParsePages implements ShouldQueue
             ->with('donor')->where('status', null)->get();
 
 
+        $visitedPages = $this->old_task->http_logs()
+            ->with('donor')->where('status','!=', null)
+            ->get()->toArray();
         foreach ($not_loaded_urls as $not_loaded_url) {
             if ($not_loaded_url->channel == 'parseCompanyByUrl') {
                 /**
                  * @var Parser $parser
                  */
-                $parser = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
+                $parser  = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
                 $promise = $parser->parseCompanyByUrl($not_loaded_url->url, $not_loaded_url->donor);
 
                 if ($this->task->type == 'company') {
@@ -140,29 +104,31 @@ class ResumeParsePages implements ShouldQueue
         }
         $client->run();
         foreach ($not_loaded_urls as $not_loaded_url) {
-            if ($not_loaded_url->channel == 'parseArchivePageByUrl') {
+            if ($not_loaded_url->channel == 'parseArchivePageRecursive') {
                 /**
                  * @var Parser $parser
                  */
-                $parser = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
-                $visitedPages = $this->old_task->http_logs()
-                    ->with('donor')->where('status', null)->where('donor_id',$not_loaded_url->donor->id)
-                    ->get()->toArray();
+                $parser       = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
 
 
                 $parser->visitedPages = $visitedPages;
                 $parser->parseArchivePageRecursive($not_loaded_url->url, $not_loaded_url->donor)
-                    ->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
-
-                $parser->run();
-                if (!$parser->canceled) {
-                    $this->task->tickProgress();
-                } else {
-                    $this->canceled = true;
-                    break;
-                }
+                    ->then(function () use ($parser) {
+                        if (!$parser->canceled) {
+                            $this->task->tickProgress();
+                        } else {
+                            $this->canceled = true;
+                        }
+                    }, function () use ($parser) {
+                        if (!$parser->canceled) {
+                            $this->task->tickProgress();
+                        } else {
+                            $this->canceled = true;
+                        }
+                    });
             }
         }
+        $client->run();
         $this->handle_end();
     }
 
@@ -172,14 +138,16 @@ class ResumeParsePages implements ShouldQueue
 
         $this->task = $this->task->getFresh();
 
+        $this->task->refreshState();
+
         $this->task->log('bold', '
-            Работа парсера ' . ($this->canceled ? 'приостановлена' : 'завершена') . '. Найдено новых компаний: (' . $this->task->new_companies_count . ')
+            Работа парсера ' . ($this->task->isPausingOrPaused() ? 'приостановлена' : 'завершена') . '. Найдено новых компаний: (' . $this->task->new_companies_count . ')
             Обновлено компаний: (' . $this->task->updated_companies_count . ')
             Новых отзывов: (' . $this->task->new_reviews_count . ')
             Удалено отзывов: (' . $this->task->deleted_reviews_count . ')
             Возвращено отзывов: (' . $this->task->restored_reviews_count . ')
             ', null);
-        if ($this->canceled) {
+        if ($this->task->isPausingOrPaused()) {
             $this->task->setPaused();
         } else {
             $this->task->setDone();

@@ -57,7 +57,9 @@ class ParserClient
         ];
         if(isset($options['unshift']) && $options['unshift'] == true){
             info('unshift');
-            array_unshift($this->links,$settings);
+//            array_unshift($this->links,$settings);
+
+            $this->links[] = $settings;
         } else {
             $this->links[] = $settings;
         }
@@ -97,7 +99,7 @@ class ParserClient
 
                     queue()->run();
 //                    shuffle($this->links);
-                    $link = array_shift($this->links);
+                    $link = array_pop($this->links);
 
                     if (!$link && count($this->pending) > 0) {
                         info('pool fix ' . array_keys($this->pending)[0]);

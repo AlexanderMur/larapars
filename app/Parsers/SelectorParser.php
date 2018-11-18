@@ -46,7 +46,7 @@ class SelectorParser extends Parser
         return $this->getPage($url, $donor, __FUNCTION__)
             ->then(function (Crawler $crawler) use ($recursive, $donor, $url) {
 
-                $promises = [];
+                $promises = null;
                 if (!$this->should_stop()) {
                     $archiveData = $this->getDataOnPage($crawler, $donor);
                     if ($recursive) {

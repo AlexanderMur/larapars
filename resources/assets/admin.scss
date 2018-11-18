@@ -115,7 +115,13 @@ mark{
   }
 }
 
-
+#myModal{
+  .modal-dialog{
+    width: auto;
+    width: min-content;
+    min-width: 600px;
+  }
+}
 .parser__stop{
   display: none;
 }

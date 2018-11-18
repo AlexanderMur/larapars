@@ -28,7 +28,7 @@ abstract class Parser
     public $proxies = [];
     public $visitedPages = [];
     public $tries;
-    public $canceled;
+    public $canceled = false;
 
     public function __construct(ParserClient $client, ParserTask $parserTask, $proxies, $tries)
     {
@@ -62,7 +62,7 @@ abstract class Parser
                 $http->update(['sent_at' => Carbon::now()]);
                 return true;
             },
-            'delay'       => 1,
+//            'connect_timeout' => 20,
             'attempts' => $this->tries,
         ],$options))
             ->then(function (Response $response) use ($options, $http) {
@@ -80,7 +80,7 @@ abstract class Parser
                         break;
                     case 0:
                         $attempts++;
-                        if ($attempts < $options['attempts']) {
+                        if ($attempts < $this->tries) {
                             return $this->fetch($method,$http->url, $options,$attempts);
                         }
                         break;
@@ -114,7 +114,7 @@ abstract class Parser
 
     public function should_stop()
     {
-        if ($this->parserTask->getState() === 'Paused' || $this->parserTask->getState() === 'Pausing') {
+        if ($this->parserTask->isPausingOrPaused()) {
             $this->canceled = true;
         }
         return $this->canceled;

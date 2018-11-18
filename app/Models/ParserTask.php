@@ -98,9 +98,6 @@ class ParserTask extends Model
             'logs as updated_companies_count' => function (Builder $query) {
                 $query->where('type', 'company_updated');
             },
-            'http_logs as progress_max'       => function (Builder $query) {
-                $query->select(\DB::raw('COUNT(DISTINCT http_logs.donor_id)'));
-            },
             'http_logs as concurrent_links'   => function (Builder $query) {
                 $query->where('sent_at', '!=', null)->where('status', null);
             },
@@ -216,7 +213,13 @@ class ParserTask extends Model
     {
         $this->update(['progress_now' => $progress_now]);
     }
-
+    public function setProgressMax($progress_max)
+    {
+        $this->update(['progress_max' => $progress_max]);
+    }
+    public function isPausingOrPaused(){
+        return $this->getState() === 'Pausing' || $this->getState() === 'Paused';
+    }
     public function refreshState()
     {
         $this->state = static::find($this->id)->state;
@@ -237,7 +240,7 @@ class ParserTask extends Model
     {
         $task = $this->replicate();
         $task->save();
-        dispatch(new ResumeParsePages($task->id, $this->id));
+        dispatch_now(new ResumeParsePages($task->id, $this->id));
         return $task;
     }
 
