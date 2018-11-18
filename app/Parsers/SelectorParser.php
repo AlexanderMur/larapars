@@ -21,17 +21,7 @@ class SelectorParser extends Parser
 
         return $this->getPage($url, $donor, __FUNCTION__)
             ->then(function (Crawler $crawler) use ($url, $donor) {
-
-                $data           = $this->getDataOnSinglePage($crawler, $donor);
-
-                $promises = null;
-                foreach ($data->pagination as $url) {
-                    $promises[] = $this->getPage($url, $donor, 'parseReviewsRecursive',true)
-                        ->then(function(Crawler $crawler) use ($data, $donor) {
-                            $data->reviews = array_merge($data->reviews,$this->getReviewsOnPage($crawler, $donor));
-                        });
-                }
-                return \GuzzleHttp\Promise\each($promises)->then(function() use ($data) {return $data;});
+                return $this->getDataOnSinglePage($crawler, $donor);
             })
             ->then(function($data) use ($donor) {
                 $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parserTask);
@@ -49,14 +39,6 @@ class SelectorParser extends Parser
     {
         return $this->parseArchivePageRecursive($donor->link,$donor);
     }
-//    public function parserReviewsRecursive($url,Donor $donor,$fn){
-//        $this->getPage($url, $donor, 'parseReviewsRecursive',true)
-//            ->then(function(Crawler $crawler) use ($data, $donor) {
-//                $data = $this->getDataOnSinglePage($crawler,$donor);
-//
-//
-//            });
-//    }
     public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
     {
 
@@ -103,7 +85,7 @@ class SelectorParser extends Parser
                     'donor_id'   => $donor->id,
                 ];
             });
-        $pagination = $this->getUniqueLinks($crawler->query($donor->archive_pagination), $donor);
+        $pagination = $this->getUniqueLinks($crawler->query($donor->archive_pagination));
         return [
             'items'      => $items,
             'pagination' => $pagination,
@@ -134,19 +116,34 @@ class SelectorParser extends Parser
     public function getDataOnSinglePage(Crawler $crawler, Donor $donor)
     {
 
+        $reviews = [];
+        return $this->iterateReviews($crawler,$donor,function($data) use(&$reviews){
+            $reviews = array_merge($reviews, $data);
+        })->then(function() use (&$reviews, $donor, $crawler) {
+            return (object) [
+                'site'       => $this->getSite($crawler, $donor),
+                'reviews'    => $reviews,
+                'phone'      => $this->getCompanyPhone($crawler, $donor),
+                'address'    => $this->getAddress($crawler, $donor),
+                'title'      => $this->getTitle($crawler, $donor),
+                'city'       => $this->getCity($crawler, $donor),
+                'donor_page' => $crawler->getBaseHref(),
+                'donor_id'   => $donor->id,
+            ];
+        });
 
-        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination));
-        return (object) [
-            'site'       => $this->getSite($crawler, $donor),
-            'reviews'    => $this->getReviewsOnPage($crawler, $donor),
-            'phone'      => $this->getCompanyPhone($crawler, $donor),
-            'address'    => $this->getAddress($crawler, $donor),
-            'title'      => $this->getTitle($crawler, $donor),
-            'city'       => $this->getCity($crawler, $donor),
-            'donor_page' => $crawler->getBaseHref(),
-            'donor_id'   => $donor->id,
-            'pagination' => $pagination,
-        ];
+    }
+    public function iterateReviews(Crawler $crawler, Donor $donor,$fn){
+        $fn($this->getReviewsOnPage($crawler, $donor));
+        $urls = $this->getUniqueLinks($crawler->query($donor->reviews_pagination));
+        $promises = null;
+        foreach ($urls as $url) {
+            $promises[] = $this->getPage($url, $donor, 'getReviewsByUrls',true)
+                ->then(function(Crawler $crawler) use ($fn, $donor) {
+                    return $fn($this->getReviewsOnPage($crawler, $donor));
+                });
+        }
+        return \GuzzleHttp\Promise\each($promises);
     }
     public function getSite(Crawler $crawler, Donor $donor){
         $site_text = $crawler->query($donor->single_site)->getText();

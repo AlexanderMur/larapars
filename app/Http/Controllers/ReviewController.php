@@ -8,7 +8,6 @@ use App\Models\Group;
 use App\Models\Review;
 use App\ParserLog;
 use App\Services\ParserService;
-use App\Services\ReviewService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Builder;
 
@@ -20,19 +19,14 @@ class ReviewController extends Controller
      */
     public $builder;
     /**
-     * @var ReviewService
-     */
-    public $reviewService;
-    /**
      * @var ParserService
      */
     public $parserService;
 
-    public function __construct(Builder $builder, ReviewService $reviewService, ParserService $parserService)
+    public function __construct(Builder $builder, ParserService $parserService)
     {
 
         $this->builder       = $builder;
-        $this->reviewService = $reviewService;
         $this->parserService = $parserService;
     }
 
