@@ -94,20 +94,18 @@ class EdgoParser extends SelectorParser
     public function iteratePages(Donor $donor, $fulfilled)
     {
 
-        $promises = new \ArrayIterator();
 
-        $promises->append($this->getJson($donor)
-            ->then(function ($json) use ($donor,&$promises) {
+        return $this->getJson($donor)
+            ->then(function ($json) use ($fulfilled, $donor,&$promises) {
 
                 $max_page = ceil($json->found / 15);
                 for ($i = 1; $i <= $max_page; $i++) {
-                    $promises->append($this->getPage2($donor, $i));
+                    $this->getPage2($donor, $i)
+                        ->then($fulfilled);
                 }
 
-                return $this->parseJson($donor, $json);
-            }));
-
-        return \GuzzleHttp\Promise\each($promises, $fulfilled);
+                return $fulfilled($this->parseJson($donor, $json));
+            });
     }
 
     public function getJson(Donor $donor, $page = 1, $params = [])

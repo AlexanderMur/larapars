@@ -9,44 +9,11 @@
 namespace App\Services;
 
 
-use App\Components\ParserClient;
 use App\Models\ParsedCompany;
-use App\Models\ParserTask;
 use App\Models\Review;
 
 class ParserService
 {
-
-    public $parserClass;
-    public $is_started;
-
-
-    public $donors = [];
-    public $visitedPages = [];
-
-
-    public $pagesInQueue = [];
-
-    public $start = 0;
-    /**
-     * @var ParserTask $parser_task
-     */
-    public $parser_task;
-    public $parsed_companies_counts = [];
-    public $client;
-    public $proxies;
-    /**
-     * @var ParserClient
-     */
-    public $parserClient;
-    public $concurrency = 25;
-    public $archivePagesInQueue = [];
-    public $companyPagesInQueue = [];
-    protected $id;
-    protected $lastConcurrencyUpdate;
-    protected $tries;
-    public $canceled;
-
 
 
 

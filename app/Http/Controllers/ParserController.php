@@ -80,7 +80,7 @@ class ParserController extends Controller
         $statistics = $this->parserService->getStatistics();
         if (!request('company_id')) {
             $logs      = ParserLog::latest('id')->paginate(30);
-            $http_logs = HttpLog::latest('id')->where('sent_at','!=',null)->paginate(30);
+            $http_logs = HttpLog::latest('sent_at')->latest('id')->where('sent_at','!=',null)->paginate(30);
             return response()->json([
                     'messages'   => '' . view('admin.parser.__messages', ['logs' => $logs]),
                     'http'       => '' . view('admin.parser.__http_table', ['http_logs' => $http_logs]),

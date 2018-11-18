@@ -96,13 +96,15 @@ abstract class Parser
      * @param $link
      * @param Donor $donor
      * @param string $methodName
+     * @param bool $unshift
      * @return \GuzzleHttp\Promise\Promise|PromiseInterface
      */
-    public function getPage($link, Donor $donor, $methodName = '')
+    public function getPage($link, Donor $donor, $methodName = '',$unshift = false)
     {
         return $this->fetch('GET',$link,[
             'methodName' => $methodName,
             'donor_id' => $donor->id,
+            'unshift' => $unshift,
         ])
         ->then(function($contents) use ($donor, $link) {
             $contents = str_replace($donor->replace_search, $donor->replace_to, $contents);

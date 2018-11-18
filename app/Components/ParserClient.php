@@ -48,13 +48,19 @@ class ParserClient
     {
 
         $promise       = new Promise();
-        $this->links[] = [
+        $settings = [
             'method'      => $method,
             'link'        => $link,
             'promise'     => $promise,
             'before_send' => $options['before_send'] ?? null,
             'options'     => $options,
         ];
+        if(isset($options['unshift']) && $options['unshift'] == true){
+            info('unshift');
+            array_unshift($this->links,$settings);
+        } else {
+            $this->links[] = $settings;
+        }
         return $promise;
     }
 
@@ -140,7 +146,7 @@ class ParserClient
 
     public function __destruct()
     {
-        $this->run();
+//        $this->run();
     }
 
     protected function getConcurrency()

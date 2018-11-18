@@ -75,24 +75,24 @@ class ExampleTest extends TestCase
 
     public function testGuzzleClient()
     {
-        $client   = new Client([
-            'proxy'=>[
-                'http' => '127.0.0.1:8080'
+        $client     = new Client([
+            'proxy' => [
+                'http' => '127.0.0.1:8080',
             ],
         ]);
-        $promises = [];
-        $promises[] = $client->getAsync('http://example.com/delay6',[
-            'delay' => 6000
+        $promises   = [];
+        $promises[] = $client->getAsync('http://example.com/delay6', [
+            'delay' => 6000,
         ]);
         $promises[] = $client->getAsync('http://example.com/1');
         $promises[] = $client->getAsync('http://example.com/2');
-        $promises[] = $client->getAsync('http://example.com/delay7',[
-            'delay' => 7000
+        $promises[] = $client->getAsync('http://example.com/delay7', [
+            'delay' => 7000,
         ]);
         $promises[] = $client->getAsync('http://example.com/3');
         $promises[] = $client->getAsync('http://example.com/4');
-        $promises[] = $client->getAsync('http://example.com/delay10',[
-            'delay' => 10003
+        $promises[] = $client->getAsync('http://example.com/delay10', [
+            'delay' => 10003,
         ]);
         $promises[] = $client->getAsync('http://example.com/6');
         $promises[] = $client->getAsync('http://example.com/7');
@@ -114,7 +114,7 @@ class ExampleTest extends TestCase
     {
 
 
-        $parserClient = new ParserClient(['proxy'=>['http'=>'127.0.0.1:8080']]);
+        $parserClient = new ParserClient(['proxy' => ['http' => '127.0.0.1:8080']]);
         $i            = 0;
         $recurs       = function ($link) use (&$i, &$recurs, $parserClient) {
             return $parserClient->addGet($link)->then(function () use (&$i, $link, $recurs) {
@@ -145,7 +145,7 @@ class ExampleTest extends TestCase
     public function testParsing()
     {
 
-        $task = ParserTask::dispatch_now(['http://bp-auto.ru/news/'],'archivePages');
+        $task = ParserTask::dispatch_now(['http://bp-auto.ru/news/'], 'archivePages');
 
         $task = $task->getFresh();
         echo $task->new_companies_count;
@@ -156,38 +156,42 @@ class ExampleTest extends TestCase
     public function testParsingCompany()
     {
 
-        $task = ParserTask::dispatch_now(['https://otziv-avto.ru/avtosalon-cars-city-otzyvy/'],'companies');
+        $task = ParserTask::dispatch_now(['https://otziv-avto.ru/avtosalon-cars-city-otzyvy/'], 'companies');
         $task = $task->getFresh();
         echo $task->new_companies_count;
         $this->assertTrue(true);
     }
-    public function testProxy(){
+
+    public function testProxy()
+    {
 
 
         $client = new ParserClient();
-        $proxy = collect(setting()->getProxies())->random();
+        $proxy  = collect(setting()->getProxies())->random();
 
         $text = '';
-        $res = $client->addGet('https://2ip.ru/',[
+        $res  = $client->addGet('https://2ip.ru/', [
             'proxy' => [
-                'http' => $proxy,
+                'http'  => $proxy,
                 'https' => $proxy,
             ],
-        ])->then(function(Response $response) use(&$text){
+        ])->then(function (Response $response) use (&$text) {
             $text = $response->getBody()->getContents();
             $text = trim($text);
         });
         $client->run();
         echo $text . ' || ' . $proxy;
 
-        $this->assertContains($text,$proxy);
+        $this->assertContains($text, $proxy);
     }
-    public function testCookies(){
+
+    public function testCookies()
+    {
 
 
         $client = new ParserClient();
-        $proxy = collect(setting()->getProxies())->random();
-        $jar = CookieJar::fromArray([
+        $proxy  = collect(setting()->getProxies())->random();
+        $jar    = CookieJar::fromArray([
             '_ga'                 => 'GA1.2.1751261396.1541711047',
             '_gid'                => 'GA1.2.1833519052.1541711047',
             '_gat'                => '1',
@@ -197,13 +201,13 @@ class ExampleTest extends TestCase
             '_ym_isad'            => '1',
             'swp_token'           => '1541712891:79f739f530a636d9ea6b0a80652aa762:efeb2d8e28cf4036e3172aab764c1fbe',
         ], parse_url('http://httpbin.org/cookies')['host']);
-        $res = $client->addGet('http://httpbin.org/cookies',[
-            'proxy' => [
-                'http' => $proxy,
+        $res    = $client->addGet('http://httpbin.org/cookies', [
+            'proxy'   => [
+                'http'  => $proxy,
                 'https' => $proxy,
             ],
             'cookies' => $jar,
-        ])->then(function(Response $response) use(&$text){
+        ])->then(function (Response $response) use (&$text) {
             $html = $response->getBody()->getContents();
             dump($html);
             xdebug_break();
@@ -212,6 +216,7 @@ class ExampleTest extends TestCase
 
         $this->asserttrue(true);
     }
+
     public function testGetStatistics()
     {
 
@@ -287,10 +292,11 @@ class ExampleTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testIterate(){
-        $client = new ParserClient([
-            'proxy'=>[
-                'http' => '127.0.0.1:8080'
+    public function testIterate()
+    {
+        $client   = new ParserClient([
+            'proxy' => [
+                'http' => '127.0.0.1:8080',
             ],
         ]);
         $promises = [];
@@ -298,8 +304,23 @@ class ExampleTest extends TestCase
             $promises[] = $client->addGet('http://example.com');
         }
 
-        \GuzzleHttp\Promise\each($promises,function($r){
+        \GuzzleHttp\Promise\each($promises, function ($r) {
             $qqw = $r;
+        });
+        $client->run();
+        $this->assertTrue(true);
+    }
+
+    public function testEach()
+    {
+        $client   = new ParserClient([
+            'proxy' => [
+                'http' => '127.0.0.1:8080',
+            ],
+        ]);
+        \GuzzleHttp\Promise\each('sa')->then(function ($a,$b=null) {
+            echo 'aaa';
+            echo 2 + 2;
         });
         $client->run();
         $this->assertTrue(true);

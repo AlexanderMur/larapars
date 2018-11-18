@@ -23,11 +23,22 @@ class SelectorParser extends Parser
             ->then(function (Crawler $crawler) use ($url, $donor) {
 
                 $data           = $this->getDataOnSinglePage($crawler, $donor);
-                $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parserTask);
 
+                $promises = null;
+                foreach ($data->pagination as $url) {
+                    $promises[] = $this->getPage($url, $donor, 'parseReviewsRecursive',true)
+                        ->then(function(Crawler $crawler) use ($data, $donor) {
+                            $data->reviews = array_merge($data->reviews,$this->getReviewsOnPage($crawler, $donor));
+                        });
+                }
+                return \GuzzleHttp\Promise\each($promises)->then(function() use ($data) {return $data;});
+            })
+            ->then(function($data) use ($donor) {
+                $parsed_company = ParsedCompany::handleParsedCompany($data, $donor,$this->parserTask);
+                info('done');
                 return $parsed_company;
             })
-            ->then(null, function (\Throwable $e) use ($url) {
+            ->otherwise(function (\Throwable $e) use ($url) {
                 $this->parserTask->log('info',$e->getMessage(),$url);
                 info_error($e);
                 throw $e;
@@ -38,6 +49,14 @@ class SelectorParser extends Parser
     {
         return $this->parseArchivePageRecursive($donor->link,$donor);
     }
+//    public function parserReviewsRecursive($url,Donor $donor,$fn){
+//        $this->getPage($url, $donor, 'parseReviewsRecursive',true)
+//            ->then(function(Crawler $crawler) use ($data, $donor) {
+//                $data = $this->getDataOnSinglePage($crawler,$donor);
+//
+//
+//            });
+//    }
     public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $params = [])
     {
 
@@ -91,7 +110,7 @@ class SelectorParser extends Parser
         ];
     }
 
-    public function getUniqueLinks(Crawler $crawler, Donor $donor)
+    public function getUniqueLinks(Crawler $crawler)
     {
         $pagination = [];
         $crawler
@@ -116,8 +135,8 @@ class SelectorParser extends Parser
     {
 
 
-        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination), $donor);
-        return [
+        $pagination = $this->getUniqueLinks($crawler->query($donor->reviews_pagination));
+        return (object) [
             'site'       => $this->getSite($crawler, $donor),
             'reviews'    => $this->getReviewsOnPage($crawler, $donor),
             'phone'      => $this->getCompanyPhone($crawler, $donor),

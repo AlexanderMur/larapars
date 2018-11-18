@@ -67,28 +67,28 @@ class ParsedCompany extends Model
         if (!$new_company) {
             return null;
         }
-        if (!isset($new_company['title']) && $new_company['title'] === null) {
+        if (!isset($new_company->title) && $new_company->title === null) {
             throw new \Exception('company must have title');
         }
         $new_company    = static::filterNewCompany($new_company);
-        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company['donor_page']], $new_company);
+        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company->donor_page], (array) $new_company);
         if (!$parsed_company->wasRecentlyCreated) {
             info('not new!!' . $parsed_company->donor_page);
             foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
-                if (!isset($new_company[$key])) {
+                if (!isset($new_company->$key)) {
                     continue;
                 }
-                if ($attribute != $new_company[$key]) {
+                if ($attribute != $new_company->$key) {
                     CompanyHistory::create([
                         'field'             => $key,
                         'old_value'         => $attribute,
-                        'new_value'         => $new_company[$key],
+                        'new_value'         => $new_company->$key,
                         'parsed_company_id' => $parsed_company->id,
                     ]);
                     $translate_field = __('company.' . $key);
                     $parserTask->log(
                         'company_updated',
-                        "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"$new_company[$key]\"",
+                        "$parsed_company->title Поменяла поле \"$translate_field\" – было \"$attribute\" стало \"{$new_company->$key}\"",
                         $parsed_company
                     );
                 }
@@ -97,51 +97,52 @@ class ParsedCompany extends Model
             $parserTask->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);
         }
 
-        static::handleParsedReviews($parsed_company, $new_company, $parserTask);
+        $parsed_company->handleParsedReviews($new_company->reviews, $parserTask);
         return $parsed_company;
     }
 
     /**
-     * @param ParsedCompany $parsed_company
-     * @param array $new_company
+     * @param $parsed_reviews
      * @param ParserTask $parserTask
+     * @throws \Exception
      */
-    public static function handleParsedReviews($parsed_company, $new_company, ParserTask $parserTask)
+    public function handleParsedReviews($parsed_reviews, ParserTask $parserTask)
     {
-        $reviews = Review::withTrashed()->where('donor_link', $new_company['donor_page'])->get();
+        $reviews = $this->reviews;
 
-        $new_review_ids = Arr::pluck($new_company['reviews'], 'donor_comment_id');
+        $new_review_ids = Arr::pluck($parsed_reviews, 'donor_comment_id');
 
 
         foreach ($reviews as $review) {
             $in_array = in_array($review->donor_comment_id, $new_review_ids);
             if (!$in_array && $review->deleted_at === null) {
                 $review->delete();
-                $parserTask->log('review_deleted', 'Отзыв удален', $parsed_company);
+                $parserTask->log('review_deleted', 'Отзыв удален', $this);
             }
             if ($in_array && $review->deleted_at !== null) {
                 $review->restore();
-                $parserTask->log('review_restored', 'Отзыв возвращен', $parsed_company);
+                $parserTask->log('review_restored', 'Отзыв возвращен', $this);
             }
         }
 
         $new_reviews = collect();
-        foreach ($new_company['reviews'] as $new_review) {
+        foreach ($parsed_reviews as $new_review) {
             if (!$reviews->contains('donor_comment_id', $new_review['donor_comment_id'])) {
                 $new_reviews[] = new Review($new_review);
             }
         }
 
-        if (count($new_reviews))
+        if (count($new_reviews)) {
             $parserTask->log('new_reviews',
-                'Добавлено новых отзывов (' . count($new_reviews) . ')', $parsed_company, count($new_reviews));
+                'Добавлено новых отзывов (' . count($new_reviews) . ')', $this, count($new_reviews));
+        }
 
 
         foreach ($reviews as $review) {
             static::filterReview($review);
         }
         //insert many reviews
-        $parsed_company->saveReviews($new_reviews);
+        $this->saveReviews($new_reviews);
     }
 
     public static function filterReview(Review $review)
@@ -161,13 +162,13 @@ class ParsedCompany extends Model
 
 
         foreach ($properties as $property) {
-            if (isset($new_company[$property])) {
-                if (strlen($new_company[$property]) > 255) {
-                    $new_company[$property] = '';
+            if (isset($new_company->$property)) {
+                if (strlen($new_company->$property) > 255) {
+                    $new_company->$property = '';
                     continue;
                 }
 
-                $new_company[$property] = trim($new_company[$property]);
+                $new_company->$property = trim($new_company->$property);
             }
         }
         return $new_company;
