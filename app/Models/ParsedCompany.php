@@ -71,7 +71,7 @@ class ParsedCompany extends Model
             throw new \Exception('company must have title');
         }
         $new_company    = static::filterNewCompany($new_company);
-        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company->donor_page], (array) $new_company);
+        $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company->donor_page], (array)$new_company);
         if (!$parsed_company->wasRecentlyCreated) {
             info('not new!!' . $parsed_company->donor_page);
             foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
@@ -154,20 +154,34 @@ class ParsedCompany extends Model
     {
 
         $properties = [
-            'phone',
-            'site',
-            'address',
-            'city',
+            'phone'   => [
+                'max_len' => 255,
+            ],
+            'site'    => [
+                'max_len' => 255,
+            ],
+            'address' => [
+                'max_len' => 255,
+            ],
+            'city'    => [
+                'max_len' => 255,
+            ],
+            'title'   => [
+                'max_len' => 255,
+                'ignore'  => ['/Category -/i'],
+            ],
         ];
 
 
-        foreach ($properties as $property) {
+        foreach ($properties as $property => $rules) {
             if (isset($new_company->$property)) {
-                if (strlen($new_company->$property) > 255) {
+                if (strlen($new_company->$property) > $rules['max_len']) {
                     $new_company->$property = '';
                     continue;
                 }
-
+                if (isset($rules['ignore'])) {
+                    $new_company->$property = preg_replace($rules['ignore'], '', $new_company->$property);
+                }
                 $new_company->$property = trim($new_company->$property);
             }
         }

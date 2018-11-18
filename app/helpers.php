@@ -86,12 +86,15 @@ function get_links_from_text($text)
     preg_match_all('#((?:\S+@)?(https?:\/\/)?(?:www\.|(?!www))[a-zA-Z0-9а-я][а-яa-zA-Z0-9-]+[а-яa-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})#u', $text, $out);
 
     if (isset($out[0])) {
-        foreach ($out[0] as $key => $item) {
-            if(strpos($out[0][$key],'@') !== false){
-                unset($out[0][$key]);
-            }
-        }
-        return $out[0];
+        return array_filter($out[0],function($item){
+            if(strpos($item,'@') !== false)
+                return false;
+
+            if(strpos($item,'.:') !== false)
+                return false;
+
+            return true;
+        });
     }
     return [];
 }

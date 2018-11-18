@@ -45,7 +45,7 @@ class AvtosalonOtziviRf extends SelectorParser
                     });
             }
         }
-        return \GuzzleHttp\Promise\each($promises);
+        return \GuzzleHttp\Promise\all($promises);
     }
 
     private function getPostId(Crawler $crawler,Donor $donor)

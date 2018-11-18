@@ -143,7 +143,7 @@ class SelectorParser extends Parser
                     return $fn($this->getReviewsOnPage($crawler, $donor));
                 });
         }
-        return \GuzzleHttp\Promise\each($promises);
+        return \GuzzleHttp\Promise\all($promises);
     }
     public function getSite(Crawler $crawler, Donor $donor){
         $site_text = $crawler->query($donor->single_site)->getText();
