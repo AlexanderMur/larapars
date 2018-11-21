@@ -26,6 +26,7 @@ class CreateDonorsTable extends Migration
             $table->boolean('mass_parsing')->default(1);
 
             //Archive page selector
+            $table->string('loop_links')->nullable();
             $table->string('loop_item')->nullable();
             $table->string('loop_title')->nullable();
             $table->string('loop_address')->nullable();

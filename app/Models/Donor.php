@@ -49,6 +49,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $single_address_find_by_regex
  * @property string|null $s_address_regex
  * @property string|null $s_city_regex
+ * @property string|null $loop_links
  */
 class Donor extends Model
 {
@@ -112,6 +113,7 @@ class Donor extends Model
         'link',
         'title',
         'mass_parsing',
+        'loop_links',
         'loop_address',
         'loop_item',
         'loop_link',

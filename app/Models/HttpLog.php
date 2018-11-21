@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\HttpLog sent()
  * @property-read \App\Models\Donor $donor
  * @property int $donor_id
+ * @property string|null $params
  */
 class HttpLog extends Model
 {

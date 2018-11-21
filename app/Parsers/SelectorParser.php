@@ -111,6 +111,20 @@ class SelectorParser extends Parser
                     'donor_id'   => $this->donor->id,
                 ];
             });
+
+        $loop_links      = $crawler
+            ->query($this->donor->loop_links)
+            ->map(function (Crawler $crawler)  {
+                return [
+                    'title'      => $crawler->getText(),
+                    'address'    => null,
+                    'donor_page' => $crawler->link()->getUri(),
+                    'donor'      => $this,
+                    'donor_id'   => $this->donor->id,
+                ];
+            });
+
+        $items = array_merge($items,$loop_links);
         $pagination = $this->getUniqueLinks($crawler->query($this->donor->archive_pagination));
         return [
             'items'      => $items,
