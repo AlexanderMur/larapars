@@ -4,40 +4,40 @@
 namespace App\Parsers;
 
 
-use App\Models\Donor;
+
 
 class MnenieAvtoParser extends SelectorParser
 {
 
     public $per_page = 30;
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $page = 1)
+    public function parseArchivePageRecursive($url, $recursive = true, $page = 1)
     {
 
 
         $this->add_visited_page($page);
         return $this->fetch('GET', $url . '?per_page='.$this->per_page, [
-            'donor_id'    => $donor->id,
+            'donor_id'    => $this->donor->id,
             'methodName'  => __FUNCTION__,
         ])
             ->then('json_decode')
-            ->then(function ($json) use ($recursive, $donor, $url) {
+            ->then(function ($json) use ($recursive,  $url) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
 
 
-                    $archiveData = $this->parseJson($json, $donor);
+                    $archiveData = $this->parseJson($json);
 
                     foreach ($archiveData['items'] as $item) {
                         if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page'], $donor);
+                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
                         }
                     }
 //                    if ($recursive) {
 //                        $max_page = ceil($json->data->total / $this->per_page);
 //                        for ($i = 1; $i <= $max_page; $i++) {
 //                            if ($this->add_visited_page($i)) {
-//                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
+//                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
 //                            }
 //                        }
 //                    }
@@ -54,7 +54,7 @@ class MnenieAvtoParser extends SelectorParser
 
 
 
-    public function parseJson($json, $donor)
+    public function parseJson($json)
     {
         $items = [];
         foreach ($json as $listing) {
@@ -62,8 +62,8 @@ class MnenieAvtoParser extends SelectorParser
                 'title'      => $listing->title->rendered,
                 'address'    => null,
                 'donor_page' => $listing->link,
-                'donor'      => $donor,
-                'donor_id'   => $donor->id,
+                'donor'      => $this,
+                'donor_id'   => $this->donor->id,
             ];
         }
         return [

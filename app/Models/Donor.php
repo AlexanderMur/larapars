@@ -56,7 +56,7 @@ class Donor extends Model
 
     /**
      * @param $urls
-     * @return Donor[]
+     * @return array
      */
     public static function mapUrls($urls)
     {
@@ -82,9 +82,9 @@ class Donor extends Model
     public function getParser($client, $task, $proxies, $tries){
         if(!$this->parserObj){
             if(!$this->parser){
-                return $this->parserObj = new SelectorParser($client, $task,$proxies,$tries);
+                return $this->parserObj = new SelectorParser($this,$client, $task,$proxies,$tries);
             }
-            return $this->parserObj = new $this->parser($client, $task, $proxies, $tries);
+            return $this->parserObj = new $this->parser($this,$client, $task, $proxies, $tries);
         }
         return $this->parserObj;
     }

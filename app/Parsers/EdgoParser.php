@@ -10,23 +10,22 @@ namespace App\Parsers;
 
 
 use App\Components\Crawler;
-use App\Models\Donor;
 
 class EdgoParser extends SelectorParser
 {
-    public function getSite(Crawler $crawler, Donor $donor)
+    public function getSite(Crawler $crawler)
     {
-        $text  = $crawler->query($donor->single_site)->mergeTextOrNull(' ');
+        $text  = $crawler->query($this->donor->single_site)->mergeTextOrNull(' ');
         $sites = get_links_from_text($text);
         $sites = array_unique($sites);
         $site  = implode(', ', $sites);
         return $site;
     }
 
-    public function getCompanyPhone(Crawler $crawler, Donor $donor)
+    public function getCompanyPhone(Crawler $crawler)
     {
         $numbers = find_numbers_from_text(
-            $crawler->query($donor->single_tel)->mergeTextOrNull(PHP_EOL)
+            $crawler->query($this->donor->single_tel)->mergeTextOrNull(PHP_EOL)
         );
 
         return implode(', ', array_unique($numbers));
@@ -34,18 +33,17 @@ class EdgoParser extends SelectorParser
 
     /**
      * @param $url
-     * @param Donor $donor
      * @param bool $recursive
      * @param int $page
      * @return \GuzzleHttp\Promise\Promise|\GuzzleHttp\Promise\PromiseInterface
      */
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = true, $page = 1)
+    public function parseArchivePageRecursive($url,  $recursive = true, $page = 1)
     {
 
 
         $this->add_visited_page($page);
         return $this->fetch('POST', $url, [
-            'donor_id'    => $donor->id,
+            'donor_id'    => $this->donor->id,
             'methodName'  => __FUNCTION__,
             'cookies'     => cookies([
                 'antibot-hostia' => 'true',
@@ -59,24 +57,24 @@ class EdgoParser extends SelectorParser
             ],
         ])
             ->then('json_decode')
-            ->then(function ($json) use ($recursive, $donor, $url) {
+            ->then(function ($json) use ($recursive,  $url) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
                     $crawler = new Crawler($json->html, $url);
 
-                    $archiveData = $this->getDataOnPage($crawler, $donor);
+                    $archiveData = $this->getDataOnPage($crawler);
 
                     foreach ($archiveData['items'] as $item) {
                         if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page'], $donor);
+                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
                         }
                     }
                     if ($recursive) {
                         $max_page = ceil($json->found / 15);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
+                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
                             }
                         }
                     }
@@ -91,31 +89,31 @@ class EdgoParser extends SelectorParser
             });
     }
 
-    public function iteratePages(Donor $donor, $fulfilled)
+    public function iteratePages($fulfilled)
     {
 
 
-        return $this->getJson($donor)
-            ->then(function ($json) use ($fulfilled, $donor,&$promises) {
+        return $this->getJson()
+            ->then(function ($json) use ($fulfilled, &$promises) {
 
                 $max_page = ceil($json->found / 15);
                 for ($i = 1; $i <= $max_page; $i++) {
-                    $this->getPage2($donor, $i)
+                    $this->getPage2($i)
                         ->then($fulfilled);
                 }
 
-                return $fulfilled($this->parseJson($donor, $json));
+                return $fulfilled($this->parseJson($json));
             });
     }
 
-    public function getJson(Donor $donor, $page = 1, $params = [])
+    public function getJson($page = 1, $params = [])
     {
-        return $this->fetch('POST', $donor->link, [
-            'donor_id'    => $donor->id,
+        return $this->fetch('POST', $this->donor->link, [
+            'donor_id'    => $this->donor->id,
             'methodName'  => __FUNCTION__,
             'cookies'     => cookies([
                 'antibot-hostia' => 'true',
-            ], $donor->link),
+            ], $this->donor->link),
             'form_params' => array_merge([
                 'action'   => 'ajax_search_tags',
                 'cat_id'   => 15,
@@ -126,15 +124,15 @@ class EdgoParser extends SelectorParser
         ])
             ->then('json_decode');
     }
-    public function getPage2(Donor $donor, $page = 1, $params = []){
-        return $this->getJson($donor,$page,$params)
-            ->then(function($json) use ($donor) {
-                return $this->parseJson($donor, $json);
+    public function getPage2($page = 1, $params = []){
+        return $this->getJson($page,$params)
+            ->then(function($json) {
+                return $this->parseJson($json);
             });
     }
-    public function parseJson(Donor $donor,$json){
+    public function parseJson($json){
 
-        $crawler = new Crawler($json->html, $donor->link);
-        return $this->getDataOnPage($crawler, $donor);
+        $crawler = new Crawler($json->html, $this->donor->link);
+        return $this->getDataOnPage($crawler);
     }
 }

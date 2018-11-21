@@ -240,7 +240,7 @@ class ParserTask extends Model
     {
         $task = $this->replicate();
         $task->save();
-        dispatch_now(new ResumeParsePages($task->id, $this->id));
+        dispatch(new ResumeParsePages($task->id, $this->id));
         return $task;
     }
 

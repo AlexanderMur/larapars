@@ -29,14 +29,19 @@ abstract class Parser
     public $visitedPages = [];
     public $tries;
     public $canceled = false;
+    /**
+     * @var Donor
+     */
+    protected $donor;
 
-    public function __construct(ParserClient $client, ParserTask $parserTask, $proxies, $tries)
+    public function __construct(Donor $donor,ParserClient $client, ParserTask $parserTask, $proxies, $tries)
     {
         $this->client     = $client;
         $this->parserTask = $parserTask;
 
         $this->proxies = $proxies;
         $this->tries   = $tries;
+        $this->donor = $donor;
     }
 
     public function fetch($method = 'GET', $url, $options = [],$attempts = 0)
@@ -94,20 +99,19 @@ abstract class Parser
 
     /**
      * @param $link
-     * @param Donor $donor
      * @param string $methodName
      * @param bool $unshift
      * @return \GuzzleHttp\Promise\Promise|PromiseInterface
      */
-    public function getPage($link, Donor $donor, $methodName = '',$unshift = false)
+    public function getPage($link, $methodName = '',$unshift = false)
     {
         return $this->fetch('GET',$link,[
             'methodName' => $methodName,
-            'donor_id' => $donor->id,
+            'donor_id' => $this->donor->id,
             'unshift' => $unshift,
         ])
-        ->then(function($contents) use ($donor, $link) {
-            $contents = str_replace($donor->replace_search, $donor->replace_to, $contents);
+        ->then(function($contents) use ($link) {
+            $contents = str_replace($this->donor->replace_search, $this->donor->replace_to, $contents);
             return new Crawler($contents,$link);
         });
     }
@@ -136,23 +140,22 @@ abstract class Parser
 
     /**
      * @param $url
-     * @param Donor $donor
+     * @param
      * @return PromiseInterface
      */
-    abstract function parseCompanyByUrl($url, Donor $donor);
+    abstract function parseCompanyByUrl($url);
 
     /**
-     * @param Donor $donor
+     * @param
      * @return PromiseInterface
      */
-    abstract function parseAll(Donor $donor);
+    abstract function parseAll();
 
     /**
      * @param $url
-     * @param Donor $donor
      * @param bool $recursive
      * @param array $params
      * @return PromiseInterface
      */
-    abstract function parseArchivePageRecursive($url, Donor $donor, $recursive = true,$params = []);
+    abstract function parseArchivePageRecursive($url, $recursive = true,$params = []);
 }

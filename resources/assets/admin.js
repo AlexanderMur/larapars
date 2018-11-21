@@ -131,6 +131,7 @@ $(function ($) {
             return false
         })
     $('[data-toggle="tooltip"]').tooltip()
+    $('.js-basic-multiple').select2();
     $('.company-select').select2({
         theme: 'bootstrap',
         placeholder: 'Выберите компанию',

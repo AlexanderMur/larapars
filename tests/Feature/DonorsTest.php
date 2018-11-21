@@ -57,19 +57,19 @@ class DonorsTest extends TestCase
     }
     public function testObmanAvtosalona()
     {
-        ParserTask::dispatch_now([
-            'http://xn----7sbbaabk7edlfchc6bo.xn--p1ai/%d0%b0%d0%b2%d1%82%d0%be%d1%81%d0%b0%d0%bb%d0%be%d0%bd-%d0%b3%d1%80%d0%be%d1%81%d1%82%d0%b5%d1%80-%d0%be%d1%82%d0%b7%d1%8b%d0%b2%d1%8b/',
-        ], 'companies');
-
-        $this->assertDatabaseHas('parsed_companies', array (
-            'site' => 'https://dc-groster.ru',
-            'phone' => '8 (800) 505-65-39',
-            'address' => 'г. Красноярск, п. Солонцы, проспект Котельникова, 13А',
-        ));
-
 //        ParserTask::dispatch_now([
-//            'http://xn----7sbbaabk7edlfchc6bo.xn--p1ai/',
-//        ], 'archivePages');
+//            'http://xn----7sbbaabk7edlfchc6bo.xn--p1ai/%d0%b0%d0%b2%d1%82%d0%be%d1%81%d0%b0%d0%bb%d0%be%d0%bd-%d0%b3%d1%80%d0%be%d1%81%d1%82%d0%b5%d1%80-%d0%be%d1%82%d0%b7%d1%8b%d0%b2%d1%8b/',
+//        ], 'companies');
+//
+//        $this->assertDatabaseHas('parsed_companies', array (
+//            'site' => 'https://dc-groster.ru',
+//            'phone' => '8 (800) 505-65-39',
+//            'address' => 'г. Красноярск, п. Солонцы, проспект Котельникова, 13А',
+//        ));
+
+        ParserTask::dispatch_now([
+            'http://xn----7sbbaabk7edlfchc6bo.xn--p1ai/',
+        ], 'archivePages');
 
 
         $this->assertTrue(true);

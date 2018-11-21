@@ -11,10 +11,9 @@
         </div>
         <div class="col-lg-6">
             <form action="">
-                <select class="form-control select-medium" name="donor_id" id="">
-                    <option value="all">Все</option>
+                <select class="form-control select-medium js-basic-multiple" name="donor_ids[]" id="" multiple="multiple">
                     @foreach ($donors as $donor)
-                        <option value="{{$donor->id}}">{{$donor->link}}</option>
+                        <option value="{{$donor->id}}">{{$donor->title}}</option>
                     @endforeach
                 </select>
                 <input type="hidden" name="job_id" value="">

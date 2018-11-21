@@ -5,19 +5,19 @@ namespace App\Parsers;
 
 
 use App\Components\Crawler;
-use App\Models\Donor;
+
 
 class AoolParser extends SelectorParser
 {
 
     public $per_page = 100;
-    public function parseArchivePageRecursive($url, Donor $donor, $recursive = false, $page = 1)
+    public function parseArchivePageRecursive($url, $recursive = false, $page = 1)
     {
 
 
         $this->add_visited_page($page);
         return $this->fetch('POST', $url, [
-            'donor_id'    => $donor->id,
+            'donor_id'    => $this->donor->id,
             'methodName'  => __FUNCTION__,
             'form_params' => [
                 'lang'              => '',
@@ -44,24 +44,24 @@ class AoolParser extends SelectorParser
             ],
         ])
             ->then('json_decode')
-            ->then(function ($json) use ($recursive, $donor, $url) {
+            ->then(function ($json) use ($recursive,  $url) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
                     $crawler = new Crawler($json->html, $url);
 
-                    $archiveData = $this->getDataOnPage($crawler, $donor);
+                    $archiveData = $this->getDataOnPage($crawler);
 
                     foreach ($archiveData['items'] as $item) {
                         if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page'], $donor);
+                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
                         }
                     }
                     if ($recursive) {
                         $max_page = ceil($json->total_found / $this->per_page);
                         for ($i = 1; $i <= $max_page; $i++) {
                             if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($donor->link, $donor, $recursive, $i);
+                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
                             }
                         }
                     }

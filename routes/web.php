@@ -150,7 +150,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         return 'ok';
     });
 
-
+    Route::get('time',function(){
+       exec('php test.php');
+    });
+    Route::get('exec_test',function(){
+       exec('dir > nul &');
+    });
 });
 
 Route::get('delay/{delay}', function ($delay) {

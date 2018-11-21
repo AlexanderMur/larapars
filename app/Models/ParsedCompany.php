@@ -62,7 +62,7 @@ class ParsedCompany extends Model
      * @return ParsedCompany|\Illuminate\Database\Eloquent\Model
      * @throws \Exception
      */
-    public static function handleParsedCompany($new_company, Donor $donor, ParserTask $parserTask)
+    public static function handleParsedCompany($new_company, ParserTask $parserTask)
     {
         if (!$new_company) {
             return null;

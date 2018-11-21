@@ -95,7 +95,7 @@ class ResumeParsePages implements ShouldQueue
                  * @var Parser $parser
                  */
                 $parser  = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
-                $promise = $parser->parseCompanyByUrl($not_loaded_url->url, $not_loaded_url->donor);
+                $promise = $parser->parseCompanyByUrl($not_loaded_url->url);
 
                 if ($this->task->type == 'company') {
                     $promise->then([$this->task, 'tickProgress'], [$this->task, 'tickProgress']);
@@ -112,7 +112,7 @@ class ResumeParsePages implements ShouldQueue
 
 
                 $parser->visitedPages = $visitedPages;
-                $parser->parseArchivePageRecursive($not_loaded_url->url, $not_loaded_url->donor)
+                $parser->parseArchivePageRecursive($not_loaded_url->url)
                     ->then(function () use ($parser) {
                         if (!$parser->canceled) {
                             $this->task->tickProgress();
