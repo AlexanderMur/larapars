@@ -58,7 +58,6 @@ class ParsePages implements ShouldQueue
     {
 
         $this->task = ParserTask::find($this->task_id);
-
         $this->task->log('bold', 'Запуск парсера', null);
 
         $urls    = Donor::mapUrls($this->links);
@@ -100,19 +99,9 @@ class ParsePages implements ShouldQueue
                  * @var Parser $parser
                  */
                 $parser = $url['donor']->getParser($client, $this->task, $proxies, $tries);
-                $parser->parseAll()
-                    ->then(function () use ($parser) {
-                        if (!$parser->canceled) {
-                            $this->task->tickProgress();
-                        } else {
-                            $this->canceled = true;
-                        }
-                    }, function () use ($parser) {
-                        if (!$parser->canceled) {
-                            $this->task->tickProgress();
-                        } else {
-                            $this->canceled = true;
-                        }
+                $parser->parseAll2()
+                    ->then(function () {
+                        $this->task->tickProgress();
                     });
             }
             $client->run();

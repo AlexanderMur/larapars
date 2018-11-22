@@ -87,7 +87,7 @@ class ResumeParsePages implements ShouldQueue
 
 
         $visitedPages = $this->old_task->http_logs()
-            ->with('donor')->where('status','!=', null)
+            ->with('donor')->where('status', '!=', null)
             ->get()->toArray();
         foreach ($not_loaded_urls as $not_loaded_url) {
             if ($not_loaded_url->channel == 'parseCompanyByUrl') {
@@ -104,27 +104,17 @@ class ResumeParsePages implements ShouldQueue
         }
         $client->run();
         foreach ($not_loaded_urls as $not_loaded_url) {
-            if ($not_loaded_url->channel == 'parseArchivePageRecursive') {
+            if ($not_loaded_url->channel == 'parserAll') {
                 /**
                  * @var Parser $parser
                  */
-                $parser       = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
+                $parser = $not_loaded_url->donor->getParser($client, $this->task, $proxies, $tries);
 
 
                 $parser->visitedPages = $visitedPages;
-                $parser->parseArchivePageRecursive($not_loaded_url->url)
-                    ->then(function () use ($parser) {
-                        if (!$parser->canceled) {
-                            $this->task->tickProgress();
-                        } else {
-                            $this->canceled = true;
-                        }
-                    }, function () use ($parser) {
-                        if (!$parser->canceled) {
-                            $this->task->tickProgress();
-                        } else {
-                            $this->canceled = true;
-                        }
+                $parser->parseAll2($not_loaded_url->url)
+                    ->then(function () {
+                        $this->task->tickProgress();
                     });
             }
         }

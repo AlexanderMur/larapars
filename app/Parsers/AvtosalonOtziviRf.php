@@ -9,7 +9,7 @@ use App\Components\Crawler;
 
 class AvtosalonOtziviRf extends SelectorParser
 {
-    public function iterateReviews(Crawler $crawler, $fn)
+    public function iterateReviews(Crawler $crawler,$fn,$params = [])
     {
         $fn($this->getReviewsOnPage($crawler));
         $page_numbers = $crawler->query($this->donor->reviews_pagination)

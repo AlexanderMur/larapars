@@ -73,12 +73,13 @@ class ParsedCompany extends Model
         $new_company    = static::filterNewCompany($new_company);
         $parsed_company = ParsedCompany::firstOrCreate(['donor_page' => $new_company->donor_page], (array)$new_company);
         if (!$parsed_company->wasRecentlyCreated) {
-            info('not new!!' . $parsed_company->donor_page);
+            $wasChanged = false;
             foreach ($parsed_company->getActualAttrs() as $key => $attribute) {
                 if (!isset($new_company->$key)) {
                     continue;
                 }
                 if ($attribute != $new_company->$key) {
+                    $wasChanged = true;
                     CompanyHistory::create([
                         'field'             => $key,
                         'old_value'         => $attribute,
@@ -92,6 +93,9 @@ class ParsedCompany extends Model
                         $parsed_company
                     );
                 }
+            }
+            if(!$wasChanged){
+                $parserTask->log('info','Компания не изменилась',$parsed_company);
             }
         } else {
             $parserTask->log('company_created', 'Новая компания: ' . $parsed_company->title, $parsed_company);

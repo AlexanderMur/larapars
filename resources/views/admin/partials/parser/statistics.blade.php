@@ -21,3 +21,28 @@
         <p>Найдено новых отзывов {{$task->new_reviews_count ?? 0 }}</p>
     </div>
 </div>
+<div>
+    <p>
+        Ссылок в очереди {{$task->not_sent_links ?? 0}}
+    </p>
+    <p>
+        Ссылок ожидает ответа {{$task->concurrent_links ?? 0}}
+    </p>
+    <p>
+        Всего запросов {{$task->http_logs_count ?? 0}}
+    </p>
+    @if (isset($task))
+        <p>
+            Неудачных запросов {{$task->getHttpErrorsCount() ?? 0}}
+        </p>
+        <p>
+            Количество ошибок {{$task->getErrorsCount() ?? 0}}
+        </p>
+        <p>
+            Страниц архивов {{$task->getArchivePagesCount() ?? 0}}
+        </p>
+    @endif
+    <p>
+        Дубликатов {{$task->details['duplicated_companies'] ?? 0}}
+    </p>
+</div>

@@ -29,11 +29,12 @@ class MosotzivParser extends SelectorParser
 
         return implode(', ', array_unique($numbers));
     }
-    public function parseArchivePageRecursive($url,  $recursive = true, $page = 1)
+
+    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
     {
 
         $this->add_visited_page($page);
-        return $this->fetch('POST', $url, [
+        $params = array_merge($params, [
             'donor_id'    => $this->donor->id,
             'methodName'  => __FUNCTION__,
             'form_params' => [
@@ -53,33 +54,29 @@ class MosotzivParser extends SelectorParser
                 'page'            => $page,
                 'show_pagination' => 'true',
             ],
-        ])
+        ]);
+        return $this->fetch('POST', $url, $params)
             ->then('json_decode')
-            ->then(function ($json) use ($recursive,  $url) {
+            ->then(function ($json) use ($params, $page, $fn) {
 
                 $promises = [];
                 if (!$this->should_stop()) {
 
+                    $promises = null;
                     $archiveData = $this->parseJson($json);
+                    $promises[] = $fn($archiveData,$page);
 
-                    foreach ($archiveData['items'] as $item) {
-                        if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
-                        }
-                    }
-                    if ($recursive) {
-                        $max_page = ceil($json->found_posts / $this->per_page);
-                        for ($i = 1; $i <= $max_page; $i++) {
-                            if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
-                            }
+                    $max_page = ceil($json->found_posts / $this->per_page);
+                    for ($i = 1; $i <= $max_page; $i++) {
+                        if ($this->add_visited_page($i)) {
+                            $promises[] = $this->iteratePages3($fn, '',$params,$i);
                         }
                     }
                 }
 
                 return \GuzzleHttp\Promise\each($promises);
             })
-            ->then(null, function (\Throwable $throwable) {
+            ->otherwise(function (\Throwable $throwable) {
 
                 info_error($throwable);
                 throw $throwable;
@@ -99,7 +96,7 @@ class MosotzivParser extends SelectorParser
             ];
         }
         return [
-            'items' => $items,
+            'items'      => $items,
             'pagination' => [],
         ];
     }

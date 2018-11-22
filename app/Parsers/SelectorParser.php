@@ -10,93 +10,42 @@ namespace App\Parsers;
 
 
 use App\Components\Crawler;
-use App\Models\ParsedCompany;
+
 
 class SelectorParser extends Parser
 {
-    public function parseCompanyByUrl($url)
-    {
 
-
-        return $this->getPage($url, __FUNCTION__)
-            ->then(function (Crawler $crawler) use ($url) {
-                return $this->getDataOnSinglePage($crawler);
-            })
-            ->then(function($data)  {
-                $parsed_company = ParsedCompany::handleParsedCompany($data,$this->parserTask);
-                info('done');
-                return $parsed_company;
-            })
-            ->otherwise(function (\Throwable $e) use ($url) {
-                $this->parserTask->log('info',$e->getMessage(),$url);
-                info_error($e);
-                throw $e;
-            });
-    }
-
-    function parseAll()
-    {
-        return $this->parseArchivePageRecursive($this->donor->link);
-    }
-    function iteratePages3($fn,$start = ''){
+    function iteratePages3($fn,$start = '',$params = [],$page = 1){
 
         if($start === ''){
             $start = $this->donor->link;
         }
-        return $this->getPage($start)
-            ->then(function (Crawler $crawler) use ($fn) {
+        $this->add_visited_page($start);
+        return $this->getPage($start,$params)
+            ->then(function (Crawler $crawler) use ($start, $params, $fn) {
 
                 $promises = null;
                 $archiveData = $this->getDataOnPage($crawler);
-                $promises[] = $fn($archiveData);
+                $promises[] = $fn($archiveData,$start);
                 if (!$this->should_stop()) {
                     foreach ($archiveData['pagination'] as $page) {
                         if ($this->add_visited_page($page)) {
-                            $promises[] = $this->iteratePages3($fn,$page);
+                            $promises[] = $this->iteratePages3($fn,$page,$params);
                         }
                     }
                 }
 
                 return \GuzzleHttp\Promise\each($promises);
-            })
-            ->then(null,function(\Throwable $throwable){
-
-                info_error($throwable);
-                throw $throwable;
             });
     }
-    public function parseArchivePageRecursive($url, $recursive = true, $params = [])
-    {
 
-        $this->add_visited_page($url);
-        return $this->getPage($url, __FUNCTION__)
-            ->then(function (Crawler $crawler) use ($recursive, $url) {
-
-                $promises = null;
-                if (!$this->should_stop()) {
-                    $archiveData = $this->getDataOnPage($crawler);
-                    if ($recursive) {
-                        foreach ($archiveData['pagination'] as $page) {
-                            if ($this->add_visited_page($page)) {
-                                $promises[] = $this->parseArchivePageRecursive($page,$recursive);
-                            }
-                        }
-                    }
-                    foreach ($archiveData['items'] as $item) {
-                        if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
-                        }
-                    }
-                }
-
-                return \GuzzleHttp\Promise\each($promises);
-            })
-            ->then(null,function(\Throwable $throwable){
-
-                info_error($throwable);
-                throw $throwable;
+    public function getCompany($url,$params = []){
+        return $this->getPage($url,$params)
+            ->then(function (Crawler $crawler) use ($url) {
+                return $this->getDataOnSinglePage($crawler);
             });
     }
+
 
     public function getDataOnPage(Crawler $crawler)
     {
@@ -173,12 +122,12 @@ class SelectorParser extends Parser
         });
 
     }
-    public function iterateReviews(Crawler $crawler,$fn){
+    public function iterateReviews(Crawler $crawler,$fn,$params = []){
         $fn($this->getReviewsOnPage($crawler));
         $urls = $this->getUniqueLinks($crawler->query($this->donor->reviews_pagination));
         $promises = null;
         foreach ($urls as $url) {
-            $promises[] = $this->getPage($url, 'getReviewsByUrls',true)
+            $promises[] = $this->getPage($url, $params)
                 ->then(function(Crawler $crawler) use ($fn) {
                     return $fn($this->getReviewsOnPage($crawler));
                 });

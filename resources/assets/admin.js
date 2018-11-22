@@ -218,11 +218,6 @@ $(function ($) {
 
 
 
-        $('.logs__c-pages-count').text(json.not_sent_links)
-        $('.logs__a-pages-count').text(json.http_logs_count)
-
-        $('.logs__s-pages-count').text(json.concurrent_links)
-
         $('.statistics').html(json.statistics)
         $('.parser__start').parents('form').attr('data-state', json.state)
         if (json.progress_max) {

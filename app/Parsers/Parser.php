@@ -12,6 +12,7 @@ namespace App\Parsers;
 use App\Components\Crawler;
 use App\Components\ParserClient;
 use App\Models\Donor;
+use App\Models\ParsedCompany;
 use App\Models\ParserTask;
 use Carbon\Carbon;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -34,24 +35,24 @@ abstract class Parser
      */
     protected $donor;
 
-    public function __construct(Donor $donor,ParserClient $client, ParserTask $parserTask, $proxies, $tries)
+    public function __construct(Donor $donor, ParserClient $client, ParserTask $parserTask, $proxies, $tries)
     {
         $this->client     = $client;
         $this->parserTask = $parserTask;
 
         $this->proxies = $proxies;
         $this->tries   = $tries;
-        $this->donor = $donor;
+        $this->donor   = $donor;
     }
 
-    public function fetch($method = 'GET', $url, $options = [],$attempts = 0)
+    public function fetch($method = 'GET', $url, $options = [], $attempts = 0)
     {
 
-        $http = $this->parserTask->createGet($url, $options['methodName'], $options['donor_id'],$options['form_params'] ?? null);
+        $http = $this->parserTask->createGet($url, $options['methodName'], $this->donor->id, $options['form_params'] ?? null);
 
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
 
-        return $this->client->sendToQueue($method,$url,array_merge([
+        return $this->client->sendToQueue($method, $url, array_merge([
             'headers'     => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
             ],
@@ -68,8 +69,7 @@ abstract class Parser
                 return true;
             },
 //            'connect_timeout' => 20,
-            'attempts' => $this->tries,
-        ],$options))
+        ], $options))
             ->then(function (Response $response) use ($options, $http) {
                 $http->updateStatus($response->getStatusCode(), $response->getReasonPhrase());
                 $contents = $response->getBody()->getContents();
@@ -77,7 +77,7 @@ abstract class Parser
                 return $contents;
             }, function (\Exception $exception) use ($attempts, $method, $options, $http) {
 
-                $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 191 - 3));
+                $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 255 - 3));
 
                 switch ($exception->getCode()) {
                     case 404:
@@ -86,7 +86,7 @@ abstract class Parser
                     case 0:
                         $attempts++;
                         if ($attempts < $this->tries) {
-                            return $this->fetch($method,$http->url, $options,$attempts);
+                            return $this->fetch($method, $http->url, $options, $attempts);
                         }
                         break;
                 }
@@ -99,21 +99,16 @@ abstract class Parser
 
     /**
      * @param $link
-     * @param string $methodName
-     * @param bool $unshift
+     * @param array $params
      * @return \GuzzleHttp\Promise\Promise|PromiseInterface
      */
-    public function getPage($link, $methodName = '',$unshift = false)
+    public function getPage($link, $params = [])
     {
-        return $this->fetch('GET',$link,[
-            'methodName' => $methodName,
-            'donor_id' => $this->donor->id,
-            'unshift' => $unshift,
-        ])
-        ->then(function($contents) use ($link) {
-            $contents = str_replace($this->donor->replace_search, $this->donor->replace_to, $contents);
-            return new Crawler($contents,$link);
-        });
+        return $this->fetch('GET', $link, $params)
+            ->then(function ($contents) use ($link) {
+                $contents = str_replace($this->donor->replace_search, $this->donor->replace_to, $contents);
+                return new Crawler($contents, $link);
+            });
     }
 
     public function should_stop()
@@ -138,24 +133,66 @@ abstract class Parser
         return false;
     }
 
-    /**
-     * @param $url
-     * @param
-     * @return PromiseInterface
-     */
-    abstract function parseCompanyByUrl($url);
+    public function parseCompanyByUrl($url, $params = [])
+    {
+
+
+        return $this->getCompany($url, [
+            'methodName' => 'parseCompanyByUrl',
+        ])
+            ->then(function ($data) {
+                $parsed_company = ParsedCompany::handleParsedCompany($data, $this->parserTask);
+                info('done');
+                return $parsed_company;
+            })
+            ->otherwise(function (\Throwable $e) use ($url) {
+                $this->parserTask->log('error', $e->getMessage(), $url);
+                info_error($e);
+                throw $e;
+            });
+    }
+
+    public function parseAll2($start = '')
+    {
+        return $this->iteratePages3(function ($archiveData,$page = '') {
+            $promises = null;
+            if (!$this->should_stop()) {
+                foreach ($archiveData['items'] as $item) {
+                    if ($this->add_visited_page($item['donor_page'])) {
+                        $promises[] = $this->parseCompanyByUrl($item['donor_page']);
+                    } else {
+                        info('NOT new ' . $item['donor_page']);
+
+                        $details = $this->parserTask->details;
+                        $details['duplicated_companies']++;
+                        $this->parserTask->details = $details;
+                    }
+                }
+                if(empty($archiveData['items'])){
+                    $this->parserTask->log('info','ссылок не найдено',$page);
+                }
+                $this->parserTask->save();
+            }
+
+            return \GuzzleHttp\Promise\each($promises);
+        }, $start, [
+            'methodName' => 'parserAll',
+        ]);
+    }
 
     /**
-     * @param
-     * @return PromiseInterface
-     */
-    abstract function parseAll();
-
-    /**
      * @param $url
-     * @param bool $recursive
      * @param array $params
      * @return PromiseInterface
      */
-    abstract function parseArchivePageRecursive($url, $recursive = true,$params = []);
+    abstract function getCompany($url, $params = []);
+
+    /**
+     * @param $fn
+     * @param $start
+     * @param array $params
+     * @param int $page
+     * @return PromiseInterface
+     */
+    abstract function iteratePages3($fn, $start, $params = [],$page = 1);
 }

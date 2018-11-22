@@ -17,8 +17,9 @@ class CreateParserTasksTable extends Migration
             $table->increments('id');
             $table->string('state')->nullable();
             $table->string('progress_now')->nullable();
-            $table->string('type')->nullable();
             $table->string('progress_max')->nullable();
+            $table->string('type')->nullable();
+            $table->text('details')->nullable();
             $table->timestamps();
         });
     }

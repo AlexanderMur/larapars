@@ -11,14 +11,13 @@ class AoolParser extends SelectorParser
 {
 
     public $per_page = 100;
-    public function parseArchivePageRecursive($url, $recursive = false, $page = 1)
+
+    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
     {
 
 
         $this->add_visited_page($page);
-        return $this->fetch('POST', $url, [
-            'donor_id'    => $this->donor->id,
-            'methodName'  => __FUNCTION__,
+        $params = array_merge($params, [
             'form_params' => [
                 'lang'              => '',
                 'search_keywords'   => '',
@@ -42,37 +41,33 @@ class AoolParser extends SelectorParser
                 'page'              => $page,
                 'show_pagination'   => 'false',
             ],
-        ])
+//            'headers'  => ['content-type' => 'application/json', 'Accept' => 'application/json'],
+        ]);
+        return $this->fetch('POST', $this->donor->link, $params)
             ->then('json_decode')
-            ->then(function ($json) use ($recursive,  $url) {
+            ->then(function ($json) use ($params, $page, $fn) {
 
-                $promises = [];
+                $promises = null;
+                $crawler  = new Crawler($json->html, $this->donor->link);
+
+                $archiveData = $this->getDataOnPage($crawler);
+                $promises[]  = $fn($archiveData,$page);
                 if (!$this->should_stop()) {
-                    $crawler = new Crawler($json->html, $url);
 
-                    $archiveData = $this->getDataOnPage($crawler);
-
-                    foreach ($archiveData['items'] as $item) {
-                        if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
-                        }
-                    }
-                    if ($recursive) {
-                        $max_page = ceil($json->total_found / $this->per_page);
-                        for ($i = 1; $i <= $max_page; $i++) {
-                            if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
-                            }
+                    $max_page = ceil($json->total_found / $this->per_page);
+                    for ($i = 1; $i <= $max_page; $i++) {
+                        if ($this->add_visited_page($i)) {
+                            $promises[] = $this->iteratePages3($fn, '',$params,$i);
                         }
                     }
                 }
 
                 return \GuzzleHttp\Promise\each($promises);
             })
-            ->then(null, function (\Throwable $throwable) {
-
+            ->otherwise(function(\Throwable $throwable) use ($page) {
+                $this->parserTask->log('error',$throwable->getMessage(),$page);
                 info_error($throwable);
-                throw $throwable;
+                throw  $throwable;
             });
     }
 

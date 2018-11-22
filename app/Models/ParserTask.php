@@ -39,6 +39,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property string $state
  * @property string|null $type
  * @property string|null $parser
+ * @property mixed|null $details
  */
 class ParserTask extends Model
 {
@@ -46,7 +47,12 @@ class ParserTask extends Model
     use HasRelationships;
     public $last_state_update;
     protected $fillable = ['state', 'progress_now', 'progress_max', 'type'];
-
+    protected $casts = [
+        'details' => 'array',
+    ];
+    protected $attributes = [
+        'details' => '{"duplicated_companies":0}',
+    ];
     public function logs()
     {
         return $this->hasMany(ParserLog::class);
@@ -73,12 +79,6 @@ class ParserTask extends Model
         $query->withStats();
     }
 
-    public function createProgress($count)
-    {
-        return $this->progress()->create([
-            'progress_max' => $count,
-        ]);
-    }
 
     public function scopeWithStats(Builder $query)
     {
@@ -108,6 +108,18 @@ class ParserTask extends Model
                 $query->where('sent_at', '!=', null);
             },
         ]);
+    }
+    public function getErrorsCount(){
+        return $this->logs()->where('type','error')->count();
+    }
+    public function getHttpErrorsCount(){
+        return $this->http_logs()->where(function(Builder $query){
+            $query->where('status','=',0)
+                ->orWhere('status','>=',400);
+        })->count();
+    }
+    public function getArchivePagesCount(){
+        return $this->http_logs()->where('status','!=',null)->where('channel','=','parserAll')->count();
     }
     public function parsed_companies2()
     {

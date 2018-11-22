@@ -32,22 +32,21 @@ class EdgoParser extends SelectorParser
     }
 
     /**
-     * @param $url
-     * @param bool $recursive
+     * @param $fn
+     * @param string $url
+     * @param array $params
      * @param int $page
      * @return \GuzzleHttp\Promise\Promise|\GuzzleHttp\Promise\PromiseInterface
      */
-    public function parseArchivePageRecursive($url,  $recursive = true, $page = 1)
+    public function iteratePages3($fn,$url='', $params = [],$page = 1)
     {
 
 
         $this->add_visited_page($page);
-        return $this->fetch('POST', $url, [
-            'donor_id'    => $this->donor->id,
-            'methodName'  => __FUNCTION__,
+        $params = array_merge($params, [
             'cookies'     => cookies([
                 'antibot-hostia' => 'true',
-            ], $url),
+            ], $this->donor->link),
             'form_params' => [
                 'action'   => 'ajax_search_tags',
                 'cat_id'   => 15,
@@ -55,84 +54,29 @@ class EdgoParser extends SelectorParser
                 'pageno'   => $page,
                 'skeywork' => '',
             ],
-        ])
+        ]);
+        return $this->fetch('POST', $this->donor->link, $params)
             ->then('json_decode')
-            ->then(function ($json) use ($recursive,  $url) {
+            ->then(function ($json) use ($params, $page, $fn) {
 
-                $promises = [];
+                $promises = null;
+                $crawler = new Crawler($json->html, null);
+
+                $archiveData = $this->getDataOnPage($crawler);
+
+                $promises[] = $fn($archiveData,$page);
                 if (!$this->should_stop()) {
-                    $crawler = new Crawler($json->html, $url);
 
-                    $archiveData = $this->getDataOnPage($crawler);
-
-                    foreach ($archiveData['items'] as $item) {
-                        if ($this->add_visited_page($item['donor_page'])) {
-                            $promises[] = $this->parseCompanyByUrl($item['donor_page']);
-                        }
-                    }
-                    if ($recursive) {
-                        $max_page = ceil($json->found / 15);
-                        for ($i = 1; $i <= $max_page; $i++) {
-                            if ($this->add_visited_page($i)) {
-                                $promises[] = $this->parseArchivePageRecursive($this->donor->link,  $recursive, $i);
-                            }
+                    $max_page = ceil($json->found / 15);
+                    for ($i = 1; $i <= $max_page; $i++) {
+                        if ($this->add_visited_page($i)) {
+                            $promises[] = $this->iteratePages3($fn,'', $params,$i);
                         }
                     }
                 }
 
                 return \GuzzleHttp\Promise\each($promises);
-            })
-            ->then(null, function (\Throwable $throwable) {
-
-                info_error($throwable);
-                throw $throwable;
             });
     }
 
-    public function iteratePages($fulfilled)
-    {
-
-
-        return $this->getJson()
-            ->then(function ($json) use ($fulfilled, &$promises) {
-
-                $max_page = ceil($json->found / 15);
-                for ($i = 1; $i <= $max_page; $i++) {
-                    $this->getPage2($i)
-                        ->then($fulfilled);
-                }
-
-                return $fulfilled($this->parseJson($json));
-            });
-    }
-
-    public function getJson($page = 1, $params = [])
-    {
-        return $this->fetch('POST', $this->donor->link, [
-            'donor_id'    => $this->donor->id,
-            'methodName'  => __FUNCTION__,
-            'cookies'     => cookies([
-                'antibot-hostia' => 'true',
-            ], $this->donor->link),
-            'form_params' => array_merge([
-                'action'   => 'ajax_search_tags',
-                'cat_id'   => 15,
-                'loc_id'   => '',
-                'pageno'   => $page,
-                'skeywork' => '',
-            ], $params),
-        ])
-            ->then('json_decode');
-    }
-    public function getPage2($page = 1, $params = []){
-        return $this->getJson($page,$params)
-            ->then(function($json) {
-                return $this->parseJson($json);
-            });
-    }
-    public function parseJson($json){
-
-        $crawler = new Crawler($json->html, $this->donor->link);
-        return $this->getDataOnPage($crawler);
-    }
 }
