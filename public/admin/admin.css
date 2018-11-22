@@ -15352,6 +15352,7 @@ mark {
 @media (min-width: 768px) {
   .sidebar {
     width: 175px;
+    position: fixed;
   }
 }
 
