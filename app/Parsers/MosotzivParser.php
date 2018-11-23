@@ -29,14 +29,19 @@ class MosotzivParser extends SelectorParser
 
         return implode(', ', array_unique($numbers));
     }
-
+    public function getReviewText(Crawler $crawler)
+    {
+        $crawler->filter('script')->remove();
+        $text = $crawler->query($this->donor->reviews_text)->getText();
+        return $text;
+    }
     public function iteratePages3($fn, $url = '',$params = [],$page = 1)
     {
-
+        if($url === ''){
+            $url = $this->donor->link;
+        }
         $this->add_visited_page($page);
         $params = array_merge($params, [
-            'donor_id'    => $this->donor->id,
-            'methodName'  => __FUNCTION__,
             'form_params' => [
                 'lang'            => '',
                 'search_keywords' => '',

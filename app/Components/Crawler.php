@@ -85,4 +85,10 @@ class Crawler extends BaseCrawler
         }
         return null;
     }
+    function remove(){
+        if($this->count()){
+            $node = $this->getNode(0);
+            $node->parentNode->removeChild($node);
+        }
+    }
 }
