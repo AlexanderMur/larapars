@@ -92,7 +92,7 @@ abstract class Parser
                 }
                 throw $exception;
             })->then(null, function (\Throwable $e) {
-                info('parser_error!!!: ' . $e->getMessage());
+                info_error($e);
                 throw $e;
             });
     }
