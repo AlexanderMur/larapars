@@ -1315,7 +1315,7 @@ class CompaniesTableSeeder extends Seeder
                 'reviews_all'         => '.masonry-item',
                 'reviews_ignore_text' => '',
                 'reviews_rating'      => '',
-                'reviews_text'        => 'p',
+                'reviews_text'        => '.blog-content',
                 'reviews_title'       => '',
                 'reviews_name'        => 'h5',
                 'reviews_id'          => '',
