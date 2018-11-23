@@ -1181,7 +1181,7 @@ class CompaniesTableSeeder extends Seeder
                 'reviews_all'         => 'li.comment',
                 'reviews_ignore_text' => '',
                 'reviews_rating'      => '',
-                'reviews_text'        => 'p',
+                'reviews_text'        => '.wpjmr-list-reviews + p',
                 'reviews_title'       => '',
                 'reviews_name'        => '.fn',
                 'reviews_id'          => '',

@@ -154,6 +154,9 @@ abstract class Parser
 
     public function parseAll2($start = '')
     {
+        if($start === ''){
+            $start = $this->donor->link;
+        }
         return $this->iteratePages3(function ($archiveData,$page = '') {
             $promises = null;
             if (!$this->should_stop()) {
