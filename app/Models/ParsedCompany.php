@@ -37,7 +37,7 @@ use Illuminate\Support\Collection;
  * @property int unrated_reviews_count
  * @property int deleted_reviews_count
  * @property int trashed_reviews_count
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParsedCompany withStats()
+ * @method static Builder|ParsedCompany withStats()
  */
 class ParsedCompany extends Model
 {

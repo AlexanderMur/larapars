@@ -55,7 +55,7 @@ class CompanyController extends Controller
     {
         if (request()->has('ids')) {
             $ids              = explode(',', request()->get('ids'));
-            $parsed_companies = ParsedCompany::whereIn('id', $ids)->get();
+            $parsed_companies = ParsedCompany::whereIn('id', $ids)->withStats()->get();
             return view('admin.companies.create', [
                 'parsed_companies' => $parsed_companies,
             ]);
