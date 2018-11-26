@@ -674,7 +674,7 @@ class CompaniesTableSeeder extends Seeder
                 'loop_title'          => 'a[style=""]',
                 'replace_search'      => '<br>',
                 'replace_to'          => "\r\n<br>",
-                'reviews_all'         => 'table[width="99%"]',
+                'reviews_all'         => 'table[cellpadding="00"]',
                 'reviews_ignore_text' => '',
                 'reviews_rating'      => '',
                 'reviews_text'        => 'div[id]',
