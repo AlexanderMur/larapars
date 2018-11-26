@@ -422,7 +422,7 @@ class CompaniesTableSeeder extends Seeder
                 'loop_title'          => 'h2 a',
                 'replace_search'      => '',
                 'replace_to'          => '',
-                'reviews_all'         => '.comment',
+                'reviews_all'         => 'li.comment',
                 'reviews_ignore_text' => '',
                 'reviews_rating'      => '',
                 'reviews_text'        => 'p',
