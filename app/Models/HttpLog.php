@@ -36,7 +36,7 @@ class HttpLog extends Model
         'sent_at',
     ];
     public function updateStatus($status,$message){
-        $this->update(['status' => $status,'message'=>$message]);
+        $this->update(['status' => $status,'message'=>str_limit($message,190 - 3)]);
     }
     public function donor(){
         return $this->belongsTo(Donor::class);
