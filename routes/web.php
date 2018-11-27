@@ -72,6 +72,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('settings', 'SettingController@index')->name('admin.settings');
     Route::post('settings/restoreDefaults', 'SettingController@restoreDefaults')->name('admin.settings.restoreDefaults');
     Route::post('settings/updateParser', 'SettingController@updateParser')->name('admin.settings.updateParser');
+    Route::post('settings/changePassword', 'SettingController@changePassword')->name('admin.settings.changePassword');
 
 
     //Tasks route

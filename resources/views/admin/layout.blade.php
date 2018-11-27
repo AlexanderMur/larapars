@@ -97,7 +97,14 @@
                                     <span class="pull-right text-muted">40% Complete</span>
                                 </p>
                                 <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                                    <div
+                                        class="progress-bar progress-bar-success"
+                                        role="progressbar"
+                                        aria-valuenow="40"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                        style="width: 40%"
+                                    >
                                         <span class="sr-only">40% Complete (success)</span>
                                     </div>
                                 </div>
@@ -113,7 +120,14 @@
                                     <span class="pull-right text-muted">20% Complete</span>
                                 </p>
                                 <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
+                                    <div
+                                        class="progress-bar progress-bar-info"
+                                        role="progressbar"
+                                        aria-valuenow="20"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                        style="width: 20%"
+                                    >
                                         <span class="sr-only">20% Complete</span>
                                     </div>
                                 </div>
@@ -129,7 +143,14 @@
                                     <span class="pull-right text-muted">60% Complete</span>
                                 </p>
                                 <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
+                                    <div
+                                        class="progress-bar progress-bar-warning"
+                                        role="progressbar"
+                                        aria-valuenow="60"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                        style="width: 60%"
+                                    >
                                         <span class="sr-only">60% Complete (warning)</span>
                                     </div>
                                 </div>
@@ -145,7 +166,14 @@
                                     <span class="pull-right text-muted">80% Complete</span>
                                 </p>
                                 <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
+                                    <div
+                                        class="progress-bar progress-bar-danger"
+                                        role="progressbar"
+                                        aria-valuenow="80"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                        style="width: 80%"
+                                    >
                                         <span class="sr-only">80% Complete (danger)</span>
                                     </div>
                                 </div>
@@ -233,7 +261,15 @@
                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    <li>
+                        <a
+                            href="{{ route('logout') }}"
+                            onclick="event.preventDefault();
+                                    document.getElementById('logout-form').submit();"
+                        ><i class="fa fa-sign-out fa-fw"></i> Выход</a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->
@@ -250,8 +286,8 @@
         </div>
         <!-- /.navbar-static-side -->
     </nav>
-    @yield('content')
-    <!-- /#page-wrapper -->
+@yield('content')
+<!-- /#page-wrapper -->
     <!-- Button trigger modal -->
 
 
@@ -260,7 +296,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">Редактировать</h4>
                 </div>
                 <div class="modal-body">

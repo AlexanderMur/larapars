@@ -21,7 +21,6 @@ class AdminController extends Controller
         $this->client = new ParserClient();
         $this->start  = microtime(true);
     }
-
     public function allData()
     {
 

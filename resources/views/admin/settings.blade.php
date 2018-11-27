@@ -85,6 +85,52 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Смена пароля
+                    </div>
+                    <div class="panel-body">
+                            <form method="POST" action="{{route('admin.settings.changePassword')}}">
+                            @csrf
+                            <div class="form-group">
+                                <label for="old_password">Старый пароль</label>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="old_password"
+                                    name="old_password"
+                                    value="{{old('old_password')}}"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password">Новый пароль</label>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="new_password"
+                                    name="new_password"
+                                    value="{{old('new_password')}}"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password_confirmation">Подтвердите пароль</label>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="new_password_confirmation"
+                                    name="new_password_confirmation"
+                                >
+                            </div>
+                            <button class="btn btn-primary">
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 @stop

@@ -56,7 +56,7 @@ class ParserController extends Controller
         if ($request->donor_ids) {
             $links = Donor::findMany($request->donor_ids)->map(function (Donor $donor){return $donor->link;});
 
-            $task = ParserTask::dispatch_now($links, 'archivePages');
+            $task = ParserTask::dispatch($links, 'archivePages');
             return response()->json(['id' => $task->id]);
         }
         if ($request->pages) {
