@@ -13,9 +13,6 @@ declare(ticks=1);
 */
 
 
-use App\Models\ParserTask;
-use App\ParserLog;
-
 Route::get('/', function () {
     return view('welcome');
 });
@@ -90,91 +87,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     });
 
 
-    //Tests
-    Route::get('memory-test', 'AdminController@memoryTest');
-    Route::get('guzzle-test', 'AdminController@guzzleTest');
-    Route::get('test1', function () {
-        function test($val = null)
-        {
-            static $test_var;
-
-            if ($val) {
-                $test_var = 10;
-            }
-
-            return $test_var;
-        }
-
-
-        return 'ok';
-    });
-    Route::get('test2', function () {
-        $start = microtime(true);
-        for ($i = 0; $i < 1000; $i++) {
-            ParserLog::create([
-                'message' => 'aaaaa',
-            ]);
-        }
-        dump(microtime(true) - $start);
-        return 'ok';
-    });
-
-    Route::get('relation_test', function () {
-
-        $task = ParserTask::with(['parsed_companies2.donor' => function ($query) {
-            $query->withTaskStats(1);
-        }])->find(1);
-
-        $task->progress_max;
-        return 'ok';
-    });
-    Route::get('relation_test2', function () {
-
-        $task = ParserTask::withStats()->find(7);
-        dump($task->toArray());
-        return 'ok';
-    });
-
-    Route::get('delay320', function () {
-
-        if (request('dump')) {
-            echo view('admin.dashboard')->render();
-        }
-        sleep(1);
-
-        echo view('admin.dashboard')->render();
-        sleep(1);
-
-        echo view('admin.dashboard')->render();
-        sleep(320);
-        return 'ok';
-    });
-
-    Route::get('time',function(){
-       exec('php test.php');
-    });
-    Route::get('exec_test',function(){
-       exec('dir > nul &');
-    });
 });
 
-Route::get('delay/{delay}', function ($delay) {
-    ini_set('max_execution_time', 1);
-    sleep(+$delay);
-    echo $delay;
-    dump($delay);
-    sleep(3);
-    return 'ok';
-});
+
 Route::get('/schedule', function () {
     $code = Artisan::call('schedule:run');
     return response()->json($code);
 });
-Route::get('/queue', function () {
-    Queue::push(function () {
-        info('AAAAAAAA');
-    });
-    return 'ok';
-});
+
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
