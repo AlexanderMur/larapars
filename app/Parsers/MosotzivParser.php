@@ -35,7 +35,7 @@ class MosotzivParser extends SelectorParser
         $text = $crawler->query($this->donor->reviews_text)->getText();
         return $text;
     }
-    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
+    public function iteratePages($fn, $url = '', $params = [], $page = 1)
     {
         if($url === ''){
             $url = $this->donor->link;
@@ -74,7 +74,7 @@ class MosotzivParser extends SelectorParser
                     $max_page = ceil($json->found_posts / $this->per_page);
                     for ($i = 1; $i <= $max_page; $i++) {
                         if ($this->add_visited_page($i)) {
-                            $promises[] = $this->iteratePages3($fn, '',$params,$i);
+                            $promises[] = $this->iteratePages($fn, '',$params,$i);
                         }
                     }
                 }

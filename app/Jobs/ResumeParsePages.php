@@ -112,7 +112,7 @@ class ResumeParsePages implements ShouldQueue
 
 
                 $parser->visitedPages = $visitedPages;
-                $parser->parseAll2($not_loaded_url->url)
+                $parser->parseAll($not_loaded_url->url)
                     ->then(function () {
                         $this->task->tickProgress();
                     });

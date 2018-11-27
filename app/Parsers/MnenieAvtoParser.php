@@ -9,7 +9,7 @@ class MnenieAvtoParser extends SelectorParser
 
     public $per_page = 30;
 
-    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
+    public function iteratePages($fn, $url = '', $params = [], $page = 1)
     {
 
 

@@ -12,7 +12,7 @@ class AoolParser extends SelectorParser
 
     public $per_page = 100;
 
-    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
+    public function iteratePages($fn, $url = '', $params = [], $page = 1)
     {
 
 
@@ -57,7 +57,7 @@ class AoolParser extends SelectorParser
                     $max_page = ceil($json->total_found / $this->per_page);
                     for ($i = 1; $i <= $max_page; $i++) {
                         if ($this->add_visited_page($i)) {
-                            $promises[] = $this->iteratePages3($fn, '',$params,$i);
+                            $promises[] = $this->iteratePages($fn, '',$params,$i);
                         }
                     }
                 }

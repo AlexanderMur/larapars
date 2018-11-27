@@ -99,7 +99,7 @@ class ParsePages implements ShouldQueue
                  * @var Parser $parser
                  */
                 $parser = $url['donor']->getParser($client, $this->task, $proxies, $tries);
-                $parser->parseAll2()
+                $parser->parseAll()
                     ->then(function () {
                         $this->task->tickProgress();
                     });

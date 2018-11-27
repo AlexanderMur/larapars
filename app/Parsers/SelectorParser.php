@@ -15,7 +15,7 @@ use App\Components\Crawler;
 class SelectorParser extends Parser
 {
 
-    function iteratePages3($fn,$start = '',$params = [],$page = 1){
+    function iteratePages($fn, $start = '', $params = [], $page = 1){
 
         if($start === ''){
             $start = $this->donor->link;
@@ -30,7 +30,7 @@ class SelectorParser extends Parser
                 if (!$this->should_stop()) {
                     foreach ($archiveData['pagination'] as $page) {
                         if ($this->add_visited_page($page)) {
-                            $promises[] = $this->iteratePages3($fn,$page,$params);
+                            $promises[] = $this->iteratePages($fn,$page,$params);
                         }
                     }
                 }

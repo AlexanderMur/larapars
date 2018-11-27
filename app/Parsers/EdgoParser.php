@@ -38,7 +38,7 @@ class EdgoParser extends SelectorParser
      * @param int $page
      * @return \GuzzleHttp\Promise\Promise|\GuzzleHttp\Promise\PromiseInterface
      */
-    public function iteratePages3($fn,$url='', $params = [],$page = 1)
+    public function iteratePages($fn, $url='', $params = [], $page = 1)
     {
 
 
@@ -70,7 +70,7 @@ class EdgoParser extends SelectorParser
                     $max_page = ceil($json->found / 15);
                     for ($i = 1; $i <= $max_page; $i++) {
                         if ($this->add_visited_page($i)) {
-                            $promises[] = $this->iteratePages3($fn,'', $params,$i);
+                            $promises[] = $this->iteratePages($fn,'', $params,$i);
                         }
                     }
                 }

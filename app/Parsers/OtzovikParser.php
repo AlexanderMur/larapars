@@ -12,7 +12,7 @@ class OtzovikParser extends SelectorParser
 
     public $per_page = 30;
 
-    public function iteratePages3($fn, $url = '',$params = [],$page = 1)
+    public function iteratePages($fn, $url = '', $params = [], $page = 1)
     {
 
         $params = array_merge($params, [
@@ -106,7 +106,7 @@ class OtzovikParser extends SelectorParser
                     $max_page = ceil($json->data->total / $this->per_page);
                     for ($i = 1; $i <= $max_page; $i++) {
                         if ($this->add_visited_page($i)) {
-                            $promises[] = $this->iteratePages3($this->donor->link, $url,$params, $i);
+                            $promises[] = $this->iteratePages($this->donor->link, $url,$params, $i);
                         }
                     }
                 }

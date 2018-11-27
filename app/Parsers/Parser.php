@@ -77,7 +77,7 @@ abstract class Parser
                 return $contents;
             }, function (\Exception $exception) use ($attempts, $method, $options, $http) {
 
-                $http->updateStatus($exception->getCode(), str_limit($exception->getMessage(), 255 - 3));
+                $http->updateStatus($exception->getCode(), $exception->getMessage());
 
                 switch ($exception->getCode()) {
                     case 404:
@@ -152,12 +152,12 @@ abstract class Parser
             });
     }
 
-    public function parseAll2($start = '')
+    public function parseAll($start = '')
     {
         if($start === ''){
             $start = $this->donor->link;
         }
-        return $this->iteratePages3(function ($archiveData,$page = '') {
+        return $this->iteratePages(function ($archiveData, $page = '') {
             $promises = null;
             if (!$this->should_stop()) {
                 foreach ($archiveData['items'] as $item) {
@@ -197,5 +197,5 @@ abstract class Parser
      * @param int $page
      * @return PromiseInterface
      */
-    abstract function iteratePages3($fn, $start, $params = [],$page = 1);
+    abstract function iteratePages($fn, $start, $params = [], $page = 1);
 }
