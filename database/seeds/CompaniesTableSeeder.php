@@ -463,7 +463,7 @@ class CompaniesTableSeeder extends Seeder
                 'archive_pagination'  => '',
             ],
             [
-                'link'                => 'http://bp-auto.ru/car-showrooms/',
+                'link'                => 'http://bp-auto.ru/category/car-showrooms/',
                 'title'               => 'bp-auto',
                 'mass_parsing'        => true,
                 'loop_address'        => '',

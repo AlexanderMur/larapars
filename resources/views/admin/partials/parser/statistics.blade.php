@@ -22,6 +22,11 @@
     </div>
 </div>
 <div>
+    @if (isset($task) && $task->state === null)
+        <p>
+            <b>Задача в очереди</b>
+        </p>
+    @endif
     <p>
         Ссылок в очереди {{$task->not_sent_links ?? 0}}
     </p>
