@@ -48,7 +48,7 @@ abstract class Parser
     public function fetch($method = 'GET', $url, $options = [], $attempts = 0)
     {
 
-        $http = $this->parserTask->createGet($url, $options['methodName'], $this->donor->id, $options['form_params'] ?? null);
+        $http = $this->parserTask->createGet($url, $options['methodName'] ?? null, $this->donor->id, $options['form_params'] ?? null);
 
         $random_proxy = $this->proxies[rand(0, count($this->proxies) - 1)];
 
@@ -142,7 +142,6 @@ abstract class Parser
         ])
             ->then(function ($data) {
                 $parsed_company = ParsedCompany::handleParsedCompany($data, $this->parserTask);
-                info('done');
                 return $parsed_company;
             })
             ->otherwise(function (\Throwable $e) use ($url) {
@@ -164,8 +163,6 @@ abstract class Parser
                     if ($this->add_visited_page($item['donor_page'])) {
                         $promises[] = $this->parseCompanyByUrl($item['donor_page']);
                     } else {
-                        info('NOT new ' . $item['donor_page']);
-
                         $details = $this->parserTask->details;
                         $details['duplicated_companies']++;
                         $this->parserTask->details = $details;

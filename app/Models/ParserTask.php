@@ -261,6 +261,11 @@ class ParserTask extends Model
         $this->progress_now++;
         $this->save();
     }
+    public function checkProgress(){
+        $progress_now = \DB::select("SELECT COUNT(*) as progress_now FROM (SELECT * FROM http_logs WHERE parser_task_id = ? AND sent_at IS NOT NULL GROUP BY donor_id) as h",[$this->id])[0]->progress_now ?? 0;
+        $this->progress_now = $progress_now;
+        $this->save();
+    }
 
     public static function dispatch($links, $type)
     {

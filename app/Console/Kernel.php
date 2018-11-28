@@ -26,6 +26,13 @@ class Kernel extends ConsoleKernel
     {
 //        $hours = setting()->time ?? 4;
 //        $schedule->call(new ParseDonors)->cron('0 */' . $hours . ' * * *');
+
+        $schedule
+            ->command('queue:work --once --timeout=0')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path() . '/logs/scheduler.log');
+
     }
 
     /**

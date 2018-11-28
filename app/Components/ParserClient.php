@@ -122,7 +122,7 @@ class ParserClient
                             $link['promise']->resolve($response);
                         }, function (\Exception $exception) use ($link) {
                             unset($this->pending[$link['link']]);
-                            info('pool error: ' . $exception->getMessage());
+                            info('pool error: '. $link['link'] . $exception->getMessage());
                             $link['promise']->reject($exception);
                         })
                         ->then(null, function (\Throwable $exception) {

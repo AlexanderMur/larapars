@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class ResumeParsePages implements ShouldQueue
 {
@@ -58,6 +59,7 @@ class ResumeParsePages implements ShouldQueue
         $this->old_task = ParserTask::find($this->old_task_id);
 
 
+        info('parser_start');
         $this->task->log('bold', 'Запуск парсера', null);
 
 
@@ -80,15 +82,18 @@ class ResumeParsePages implements ShouldQueue
 
 
         /**
-         * @var HttpLog[] $not_loaded_urls
+         * @var Collection|HttpLog[] $not_loaded_urls
          */
         $not_loaded_urls = $this->old_task->http_logs()
             ->with('donor')->where('status', null)->get();
 
 
+//        $groups = $not_loaded_urls->groupBy->donor_id;
+
         $visitedPages = $this->old_task->http_logs()
             ->with('donor')->where('status', '!=', null)
             ->get()->toArray();
+
         foreach ($not_loaded_urls as $not_loaded_url) {
             if ($not_loaded_url->channel == 'parseCompanyByUrl') {
                 /**
