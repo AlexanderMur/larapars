@@ -56,7 +56,7 @@ class ParsePages implements ShouldQueue
 
     public function handle()
     {
-
+        ini_set('memory_limit','512M');
         $this->task = ParserTask::find($this->task_id);
         info('parser_start');
         $this->task->log('bold', 'Запуск парсера', null);

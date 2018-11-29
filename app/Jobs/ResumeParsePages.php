@@ -55,6 +55,7 @@ class ResumeParsePages implements ShouldQueue
 
     public function handle()
     {
+        ini_set('memory_limit','512M');
         $this->task     = ParserTask::find($this->task_id);
         $this->old_task = ParserTask::find($this->old_task_id);
 

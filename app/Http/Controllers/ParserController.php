@@ -60,7 +60,7 @@ class ParserController extends Controller
             return response()->json(['id' => $task->id]);
         }
         if ($request->pages) {
-            $task = ParserTask::dispatch($request->pages, 'companies');
+            $task = ParserTask::dispatch_now($request->pages, 'companies');
             return response()->json(['id' => $task->id]);
         }
 
