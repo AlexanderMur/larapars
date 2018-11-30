@@ -44,8 +44,6 @@ class DonorDataTable extends DataTable
 
     public function html()
     {
-        $donor = Donor::find(15);
-        $donor->companies;
         return $this->builder
             ->columns([
                 'id'              => ['orderable' => false, 'title' => ''],

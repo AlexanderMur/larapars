@@ -24,7 +24,7 @@
         <a href="{{route('donors.create')}}"><i class="fa fa-thumb-tack fa-fw"></i> Создать донора</a>
     </li>
     <li>
-        <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Експорт</a>
+        <a href="{{route('admin.export')}}" target="_blank"><i class="fa fa-download fa-fw"></i> Экспорт</a>
     </li>
     <li>
         <a href="{{route('admin.settings')}}"><i class="fa fa-gear fa-fw"></i> Настройки</a>

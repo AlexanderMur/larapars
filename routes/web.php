@@ -14,7 +14,7 @@ declare(ticks=1);
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('parsed_companies.index');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
@@ -46,8 +46,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('reviews2/archive', 'ReviewController@archive')->name('reviews.archive');
 
     //Donors routes
-    Route::resource('donors', 'DonorController');
     Route::post('donors/bulk', 'DonorController@bulk')->name('donors.bulk');
+    Route::get('donors/export', 'DonorController@export')->name('donors.export');
+    Route::post('donors/import', 'DonorController@import')->name('donors.import');
+    Route::resource('donors', 'DonorController');
 
     //Parsers routes
     Route::get('parsers/logs', 'ParserController@logs')->name('parsers.logs');
