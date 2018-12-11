@@ -89,7 +89,18 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         return redirect()->back();
     });
 
-
+    Route::get('sleep',function(){
+        echo 'start';
+        register_shutdown_function(function(){
+            echo 'exiting';
+        });
+        $i=0;
+        while(true){
+            file_put_contents('file',$i++."\r\n");
+            sleep(1);
+        }
+        echo 'wtf';
+    });
 });
 
 

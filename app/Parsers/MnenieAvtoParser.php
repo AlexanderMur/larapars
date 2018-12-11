@@ -9,24 +9,15 @@ class MnenieAvtoParser extends SelectorParser
 
     public $per_page = 30;
 
-    public function iteratePages($fn, $url = '', $params = [], $page = 1)
-    {
 
-
-        $this->add_visited_page($page);
-        return $this->fetch('GET', $this->donor->link . '?per_page=' . $this->per_page, $params)
+    public function getPage2($params, $options = []){
+        return $this->fetch('GET', $this->donor->link . '?per_page=' . $this->per_page, $options)
             ->then('json_decode')
-            ->then(function ($json) use ($fn) {
-                return $fn($this->parseJson($json));
-            })
-            ->otherwise(function (\Throwable $throwable) {
-
-                info_error($throwable);
-                throw $throwable;
+            ->then(function ($json){
+                return $this->parseJson($json);
             });
+
     }
-
-
     public function parseJson($json)
     {
         $items = [];
@@ -42,6 +33,8 @@ class MnenieAvtoParser extends SelectorParser
         return [
             'items'      => $items,
             'pagination' => [],
+            'max_page' => null,
         ];
     }
+
 }

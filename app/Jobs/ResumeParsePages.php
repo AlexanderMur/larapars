@@ -55,7 +55,8 @@ class ResumeParsePages implements ShouldQueue
 
     public function handle()
     {
-        ini_set('memory_limit','512M');
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time',0);
         $this->task     = ParserTask::find($this->task_id);
         $this->old_task = ParserTask::find($this->old_task_id);
 
@@ -118,7 +119,9 @@ class ResumeParsePages implements ShouldQueue
 
 
                 $parser->visitedPages = $visitedPages;
-                $parser->parseAll($not_loaded_url->url)
+
+                $params = (array)json_encode($not_loaded_url->params);
+                $parser->parseAll(['uri' => $not_loaded_url->url] + $params)
                     ->then(function () {
                         $this->task->tickProgress();
                     });

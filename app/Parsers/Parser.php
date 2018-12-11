@@ -97,6 +97,13 @@ abstract class Parser
             });
     }
 
+    public function post($url = '', $data = [], $options = [])
+    {
+        $options['form_params'] = $data;
+
+        return $this->fetch('POST',$url,$options);
+    }
+
     /**
      * @param $link
      * @param array $params
@@ -151,10 +158,10 @@ abstract class Parser
             });
     }
 
-    public function parseAll($start = '')
+    public function parseAll($params = [],$options = [])
     {
-        if($start === ''){
-            $start = $this->donor->link;
+        if (!isset($params['uri'])) {
+            $params['uri'] = $this->donor->link;
         }
         return $this->iteratePages(function ($archiveData, $page = '') {
             $promises = null;
@@ -168,18 +175,47 @@ abstract class Parser
                         $this->parserTask->details = $details;
                     }
                 }
-                if(empty($archiveData['items'])){
-                    $this->parserTask->log('info','ссылок не найдено',$page);
+                if (empty($archiveData['items'])) {
+                    $this->parserTask->log('info', 'ссылок не найдено', $page);
                 }
                 $this->parserTask->save();
             }
 
             return \GuzzleHttp\Promise\each($promises);
-        }, $start, [
+        }, $params, [
             'methodName' => 'parserAll',
         ]);
     }
+    public function iteratePages($fn, $params = [],$options = []){
+        if(!isset($params['uri'])){
+            $params['uri'] = $this->donor->link;
+        }
+        $this->add_visited_page($params['uri']);
+        return $this->getPage2($params,$options)
+            ->then(function ($archiveData) use ($options, $params, $fn) {
 
+                if(!isset($archiveData['max_page'])){
+                    $archiveData['max_page'] = 0;
+                }
+
+                $promises = null;
+                $promises[] = $fn($archiveData,$params);
+                if (!$this->should_stop()) {
+                    foreach ($archiveData['pagination'] as $page) {
+                        if ($this->add_visited_page($page)) {
+                            $params['uri'] = $page;
+                            $promises[] = $this->iteratePages($fn,$params,$options);
+                        }
+                    }
+                    for ($i = 0; $i < $archiveData['max_page']; $i++) {
+                        $params['page'] = $i;
+                        $promises[] = $this->getPage2($params,$options);
+                    }
+                }
+
+                return \GuzzleHttp\Promise\each($promises);
+            });
+    }
     /**
      * @param $url
      * @param array $params
@@ -187,12 +223,11 @@ abstract class Parser
      */
     abstract function getCompany($url, $params = []);
 
+
     /**
-     * @param $fn
-     * @param $start
-     * @param array $params
-     * @param int $page
+     * @param $params
+     * @param array $options
      * @return PromiseInterface
      */
-    abstract function iteratePages($fn, $start, $params = [], $page = 1);
+    abstract function getPage2($params,$options = []);
 }

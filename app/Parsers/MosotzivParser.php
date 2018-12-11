@@ -29,63 +29,42 @@ class MosotzivParser extends SelectorParser
 
         return implode(', ', array_unique($numbers));
     }
+
     public function getReviewText(Crawler $crawler)
     {
         $crawler->filter('script')->remove();
         $text = $crawler->query($this->donor->reviews_text)->getText();
         return $text;
     }
-    public function iteratePages($fn, $url = '', $params = [], $page = 1)
+
+
+    public function getPage2($params, $options = [])
     {
-        if($url === ''){
-            $url = $this->donor->link;
-        }
-        $this->add_visited_page($page);
-        $params = array_merge($params, [
-            'form_params' => [
-                'lang'            => '',
-                'search_keywords' => '',
-                'search_location' => '',
-                'filter_job_type' => [
-                    'freelance',
-                    'full-time',
-                    'internship',
-                    'part-time',
-                    'temporary',
-                ],
-                'per_page'        => $this->per_page,
-                'orderby'         => 'featured',
-                'order'           => 'DESC',
-                'page'            => $page,
-                'show_pagination' => 'true',
+        return $this->post($this->donor->link, [
+            'lang'            => '',
+            'search_keywords' => '',
+            'search_location' => '',
+            'filter_job_type' => [
+                'freelance',
+                'full-time',
+                'internship',
+                'part-time',
+                'temporary',
             ],
-        ]);
-        return $this->fetch('POST', $url, $params)
+            'per_page'        => $this->per_page,
+            'orderby'         => 'featured',
+            'order'           => 'DESC',
+            'page'            => $params['page'] ?? 0,
+            'show_pagination' => 'true',
+        ],$options)
             ->then('json_decode')
-            ->then(function ($json) use ($params, $page, $fn) {
+            ->then(function ($json) use ($params) {
+                $archiveData             = $this->parseJson($json);
+                $archiveData['max_page'] = ceil($json->found_posts / $this->per_page);
 
-                $promises = [];
-                if (!$this->should_stop()) {
-
-                    $promises = null;
-                    $archiveData = $this->parseJson($json);
-                    $promises[] = $fn($archiveData,$page);
-
-                    $max_page = ceil($json->found_posts / $this->per_page);
-                    for ($i = 1; $i <= $max_page; $i++) {
-                        if ($this->add_visited_page($i)) {
-                            $promises[] = $this->iteratePages($fn, '',$params,$i);
-                        }
-                    }
-                }
-
-                return \GuzzleHttp\Promise\each($promises);
-            })
-            ->otherwise(function (\Throwable $throwable) {
-
-                info_error($throwable);
-                throw $throwable;
+                return $archiveData;
             });
+
     }
 
     public function parseJson($json)
@@ -103,6 +82,7 @@ class MosotzivParser extends SelectorParser
         return [
             'items'      => $items,
             'pagination' => [],
+            'max_page' => null,
         ];
     }
 

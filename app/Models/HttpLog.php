@@ -26,7 +26,6 @@ class HttpLog extends Model
 {
 
     protected $fillable = [
-
         'url',
         'status',
         'task_id',
@@ -34,11 +33,16 @@ class HttpLog extends Model
         'channel',
         'message',
         'sent_at',
+        'params',
     ];
-    public function updateStatus($status,$message){
-        $this->update(['status' => $status,'message'=>str_limit($message,190 - 3)]);
+
+    public function updateStatus($status, $message)
+    {
+        $this->update(['status' => $status, 'message' => str_limit($message, 190 - 3)]);
     }
-    public function donor(){
+
+    public function donor()
+    {
         return $this->belongsTo(Donor::class);
     }
 }

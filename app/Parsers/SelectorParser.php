@@ -15,30 +15,14 @@ use App\Components\Crawler;
 class SelectorParser extends Parser
 {
 
-    function iteratePages($fn, $start = '', $params = [], $page = 1){
 
-        if($start === ''){
-            $start = $this->donor->link;
-        }
-        $this->add_visited_page($start);
-        return $this->getPage($start,$params)
-            ->then(function (Crawler $crawler) use ($start, $params, $fn) {
-
-                $promises = null;
-                $archiveData = $this->getDataOnPage($crawler);
-                $promises[] = $fn($archiveData,$start);
-                if (!$this->should_stop()) {
-                    foreach ($archiveData['pagination'] as $page) {
-                        if ($this->add_visited_page($page)) {
-                            $promises[] = $this->iteratePages($fn,$page,$params);
-                        }
-                    }
-                }
-
-                return \GuzzleHttp\Promise\each($promises);
+    public function getPage2($params,$options = []){
+        return $this->getPage( $params['uri'], $options)
+            ->then(function (Crawler $crawler) {
+                return $this->getDataOnPage($crawler);
             });
-    }
 
+    }
     public function getCompany($url,$params = []){
         return $this->getPage($url,$params)
             ->then(function (Crawler $crawler) use ($url) {
@@ -78,6 +62,7 @@ class SelectorParser extends Parser
         return [
             'items'      => $items,
             'pagination' => $pagination,
+            'max_page' => null,
         ];
     }
 
