@@ -32,7 +32,7 @@ class EdgoParser extends SelectorParser
     }
 
 
-    public function getPage2($params, $options = []){
+    public function getCompanies($params, $options = []){
         return $this->fetch('POST', $this->donor->link, [
             'methodName' => 'parseAll',
             'cookies'     => cookies([

@@ -12,7 +12,7 @@ class AoolParser extends SelectorParser
 
     public $per_page = 100;
 
-    public function getPage2($params, $options = [])
+    public function getCompanies($params, $options = [])
     {
         return $this->post($this->donor->link, [
             'lang'              => '',

@@ -191,7 +191,7 @@ abstract class Parser
             $params['uri'] = $this->donor->link;
         }
         $this->add_visited_page($params['uri']);
-        return $this->getPage2($params,$options)
+        return $this->getCompanies($params,$options)
             ->then(function ($archiveData) use ($options, $params, $fn) {
 
                 if(!isset($archiveData['max_page'])){
@@ -209,19 +209,20 @@ abstract class Parser
                     }
                     for ($i = 0; $i < $archiveData['max_page']; $i++) {
                         $params['page'] = $i;
-                        $promises[] = $this->getPage2($params,$options);
+                        $promises[] = $this->getCompanies($params,$options);
                     }
                 }
 
                 return \GuzzleHttp\Promise\each($promises);
             });
     }
+
     /**
      * @param $url
-     * @param array $params
+     * @param array $options
      * @return PromiseInterface
      */
-    abstract function getCompany($url, $params = []);
+    abstract function getCompany($url, $options = []);
 
 
     /**
@@ -229,5 +230,5 @@ abstract class Parser
      * @param array $options
      * @return PromiseInterface
      */
-    abstract function getPage2($params,$options = []);
+    abstract function getCompanies($params, $options = []);
 }

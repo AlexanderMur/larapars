@@ -38,7 +38,7 @@ class MosotzivParser extends SelectorParser
     }
 
 
-    public function getPage2($params, $options = [])
+    public function getCompanies($params, $options = [])
     {
         return $this->post($this->donor->link, [
             'lang'            => '',

@@ -16,15 +16,15 @@ class SelectorParser extends Parser
 {
 
 
-    public function getPage2($params,$options = []){
+    public function getCompanies($params, $options = []){
         return $this->getPage( $params['uri'], $options)
             ->then(function (Crawler $crawler) {
                 return $this->getDataOnPage($crawler);
             });
 
     }
-    public function getCompany($url,$params = []){
-        return $this->getPage($url,$params)
+    public function getCompany($url, $options = []){
+        return $this->getPage($url,$options)
             ->then(function (Crawler $crawler) use ($url) {
                 return $this->getDataOnSinglePage($crawler);
             });

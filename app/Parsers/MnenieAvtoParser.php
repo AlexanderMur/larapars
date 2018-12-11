@@ -10,7 +10,7 @@ class MnenieAvtoParser extends SelectorParser
     public $per_page = 30;
 
 
-    public function getPage2($params, $options = []){
+    public function getCompanies($params, $options = []){
         return $this->fetch('GET', $this->donor->link . '?per_page=' . $this->per_page, $options)
             ->then('json_decode')
             ->then(function ($json){
